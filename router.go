@@ -6,10 +6,11 @@ import (
 )
 
 // newRouter adds handlers to routes
-func newRouter(log tools.Logger, statsd tools.StatsD, healthcheckHandler http.Handler) http.Handler {
+func newRouter(log tools.Logger, statsd tools.StatsD, healthcheckHandler, apiGateway http.Handler) http.Handler {
 	router := http.NewServeMux()
 
 	router.Handle("/internal/healthcheck", healthcheckHandler)
 
+	router.Handle("/api", apiGateway)
 	return router
 }

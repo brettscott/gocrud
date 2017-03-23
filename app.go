@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"github.com/brettscott/gocrud/api"
 )
 
 func main() {
@@ -13,7 +14,14 @@ func main() {
 
 	healthcheckHandler := http.HandlerFunc(tools.InternalHealthCheck)
 
-	err := http.ListenAndServe(fmt.Sprintf(":%d", config.Port), newRouter(logger, statsd, healthcheckHandler))
+	//func InternalHealthCheck(w http.ResponseWriter, r *http.Request) {
+	//w.WriteHeader(http.StatusOK)
+	//fmt.Fprint(w, "Healthy")
+	//}
+
+	apiGateway := api.NewGateway()
+
+	err := http.ListenAndServe(fmt.Sprintf(":%d", config.Port), newRouter(logger, statsd, healthcheckHandler, apiGateway))
 	if err != nil {
 		logger.Error("Problem starting server", err.Error())
 		os.Exit(1)
