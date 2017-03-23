@@ -1,0 +1,17 @@
+{
+	"comment": "",
+	"ignore": "",
+	"package": [
+		{
+			"checksumSHA1": "6X2jRYP6OOHkFwoj2AbPoZcl+PI=",
+			"path": "github.com/kelseyhightower/envconfig",
+			"revision": "8bf4bbfc795e2c7c8a5ea47b707453ed019e2ad4",
+			"revisionTime": "2017-02-06T22:33:54Z"
+		},
+		{
+			"path": "github.com/mergermarket/gotools",
+			"revision": ""
+		}
+	],
+	"rootPath": "github.com/brettscott/gocrud"
+}
