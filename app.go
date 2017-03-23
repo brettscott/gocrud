@@ -19,9 +19,10 @@ func main() {
 	//fmt.Fprint(w, "Healthy")
 	//}
 
-	apiGateway := api.NewGateway()
+	//apiGateway := api.NewGateway()
+	apiRouter := api.NewRouter(logger, statsd)
 
-	err := http.ListenAndServe(fmt.Sprintf(":%d", config.Port), newRouter(logger, statsd, healthcheckHandler, apiGateway))
+	err := http.ListenAndServe(fmt.Sprintf(":%d", config.Port), newRouter(logger, statsd, healthcheckHandler, apiRouter))
 	if err != nil {
 		logger.Error("Problem starting server", err.Error())
 		os.Exit(1)

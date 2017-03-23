@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"github.com/brettscott/gocrud/api"
+	"github.com/gorilla/mux"
 )
 
 func TestInternal_Route_uses_db_handler(t *testing.T) {
@@ -40,9 +40,10 @@ func routerWithTestHandlers(t *testing.T) http.Handler {
 	testStatsD, _ := tools.NewStatsD(tsdConfig)
 
 	healthcheck := newHandler("test response health check")
-	apiGateway := &api.Gateway{}
+	//apiGateway := &api.Gateway{}
+	apiRouter := mux.NewRouter()
 
-	return newRouter(testLogger, testStatsD, healthcheck, apiGateway)
+	return newRouter(testLogger, testStatsD, healthcheck, apiRouter)
 }
 
 func newHandler(body string) http.Handler {
