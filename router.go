@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/mergermarket/gotools"
 	"github.com/gorilla/mux"
+	"github.com/mergermarket/gotools"
 	"net/http"
 )
 

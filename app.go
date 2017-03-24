@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
+	"github.com/brettscott/gocrud/api"
 	"github.com/mergermarket/gotools"
 	"log"
 	"net/http"
 	"os"
-	"github.com/brettscott/gocrud/api"
 )
 
 func main() {

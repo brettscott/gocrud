@@ -1,13 +1,13 @@
 package api
 
 import (
-	"github.com/mergermarket/gotools"
-	"github.com/gorilla/mux"
-	"net/http"
 	"fmt"
+	"github.com/gorilla/mux"
+	"github.com/mergermarket/gotools"
+	"net/http"
 )
 
-// newRouter adds handlers to routes
+// NewRouter adds handlers to routes
 func NewRouter(log tools.Logger, statsd tools.StatsD) *mux.Router {
 	apiRouter := mux.NewRouter()
 

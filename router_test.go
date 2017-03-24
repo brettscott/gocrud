@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
+	"github.com/gorilla/mux"
 	"github.com/mergermarket/gotools"
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"github.com/gorilla/mux"
 )
 
 func TestInternal_Route_uses_db_handler(t *testing.T) {
