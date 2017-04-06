@@ -7,9 +7,9 @@ import (
 	"net/http"
 )
 
-type CreateHandler func(string) http.Handler
+type CreateHandlerWithPrefix func(string) http.Handler
 
-func NewCreateHandler(logger tools.Logger, statsd tools.StatsD) CreateHandler {
+func NewCreateHandler(logger tools.Logger, statsd tools.StatsD) CreateHandlerWithPrefix {
 
 	return func(prefix string) http.Handler {
 		router := mux.NewRouter()

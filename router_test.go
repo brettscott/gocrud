@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"github.com/brettscott/gocrud/api"
 )
 
 func TestInternal_Route_uses_db_handler(t *testing.T) {
@@ -46,6 +47,7 @@ func routerWithTestHandlers(t *testing.T) http.Handler {
 	return newRouter(testLogger, testStatsD, healthcheck, apiRouter)
 }
 
+func createNewHandler(prefix string) api.CreateHandlerWithPrefix
 func newHandler(body string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, body)

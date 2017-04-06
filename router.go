@@ -7,13 +7,15 @@ import (
 	"github.com/brettscott/gocrud/api"
 )
 
+//type CreateHandlerWithPrefix func(string) http.Handler
+
 // newRouter adds handlers to routes
-func newRouter(log tools.Logger, statsd tools.StatsD, healthcheckHandler http.Handler, createAPIHandler api.CreateHandler) http.Handler {
+func newRouter(logger tools.Logger, statsd tools.StatsD, healthcheckHandler http.Handler, createAPIHandler api.CreateHandlerWithPrefix) http.Handler {
 	router := mux.NewRouter()
 
 	router.Handle("/internal/healthcheck", healthcheckHandler)
 
-	//apiRouter := router.PathPrefix("/api").Subrouter()
 	router.NewRoute().Handler(createAPIHandler("/api"))
+
 	return router
 }
