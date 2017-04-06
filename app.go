@@ -6,14 +6,16 @@ import (
 	"os"
 	"github.com/mergermarket/gotools"
 	"log"
+	"github.com/brettscott/gocrud/api"
 )
 
 func main() {
 	config, logger, statsd := toolup()
 
 	healthcheckHandler := http.HandlerFunc(tools.InternalHealthCheck)
+	createApiHandler := api.NewCreateHandler(logger, statsd)
 
-	err := http.ListenAndServe(fmt.Sprintf(":%d", config.Port), newRouter(logger, statsd, healthcheckHandler))
+	err := http.ListenAndServe(fmt.Sprintf(":%d", config.Port), newRouter(logger, statsd, healthcheckHandler, createApiHandler))
 	if err != nil {
 		logger.Error("Problem starting server", err.Error())
 		os.Exit(1)

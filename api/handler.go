@@ -7,22 +7,28 @@ import (
 	"net/http"
 )
 
-// Handler adds handlers to router
-func Handler(router *mux.Router, log tools.Logger, statsd tools.StatsD) *mux.Router {
+type CreateHandler func(string) http.Handler
 
-	router.HandleFunc("/here", func(w http.ResponseWriter, r *http.Request) {
-		log.Info("/here/ hit")
-		fmt.Fprint(w, "API HERE")
-	}).Name("API HERE")
+func NewCreateHandler(logger tools.Logger, statsd tools.StatsD) CreateHandler {
 
-	router.HandleFunc("/xxx/", func(w http.ResponseWriter, r *http.Request) {
-		log.Info("/api/ hit")
-		fmt.Fprint(w, "API root")
-	}).Name("API Root")
+	return func(prefix string) http.Handler {
+		router := mux.NewRouter()
 
-	router.HandleFunc("/yyy/blah", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprint(w, "Blah is rendered")
-	}).Name("API BLAH")
+		//  /api/here
+		router.HandleFunc(prefix + "/here", func(w http.ResponseWriter, r *http.Request) {
+			logger.Info("/here/ hit")
+			fmt.Fprint(w, "API HERE")
+		}).Name("API HERE")
 
-	return router
+		router.HandleFunc(prefix + "/xxx/", func(w http.ResponseWriter, r *http.Request) {
+			logger.Info("/api/ hit")
+			fmt.Fprint(w, "API root")
+		}).Name("API Root")
+
+		router.HandleFunc(prefix + "/yyy/blah", func(w http.ResponseWriter, r *http.Request) {
+			fmt.Fprint(w, "Blah is rendered")
+		}).Name("API BLAH")
+
+		return router
+	}
 }
