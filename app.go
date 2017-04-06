@@ -2,11 +2,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/brettscott/gocrud/api"
-	"github.com/mergermarket/gotools"
-	"log"
 	"net/http"
 	"os"
+	"github.com/mergermarket/gotools"
+	"log"
 )
 
 func main() {
@@ -14,15 +13,7 @@ func main() {
 
 	healthcheckHandler := http.HandlerFunc(tools.InternalHealthCheck)
 
-	//func InternalHealthCheck(w http.ResponseWriter, r *http.Request) {
-	//w.WriteHeader(http.StatusOK)
-	//fmt.Fprint(w, "Healthy")
-	//}
-
-	//apiGateway := api.NewGateway()
-	apiRouter := api.NewRouter(logger, statsd)
-
-	err := http.ListenAndServe(fmt.Sprintf(":%d", config.Port), newRouter(logger, statsd, healthcheckHandler, apiRouter))
+	err := http.ListenAndServe(fmt.Sprintf(":%d", config.Port), newRouter(logger, statsd, healthcheckHandler))
 	if err != nil {
 		logger.Error("Problem starting server", err.Error())
 		os.Exit(1)

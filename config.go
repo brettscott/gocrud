@@ -6,7 +6,7 @@ import (
 
 // AppConfig holds the application's configuration
 type appConfig struct {
-	Port          int    `required:"true"`
+	Port          int    `envconfig:"PORT" required:"true"`
 	Env           string `default:"local"`
 	ComponentName string `envconfig:"COMPONENT_NAME" default:"gocrud"`
 
