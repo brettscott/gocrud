@@ -7,11 +7,8 @@ import (
 	"net/http"
 )
 
-// NewRouter adds handlers to routes
-func NewRouter(router *mux.Router, log tools.Logger, statsd tools.StatsD) *mux.Router {
-	//router := mux.NewRouter()
-
-	log.Info("inside api_router")
+// Handler adds handlers to router
+func Handler(router *mux.Router, log tools.Logger, statsd tools.StatsD) *mux.Router {
 
 	router.HandleFunc("/here", func(w http.ResponseWriter, r *http.Request) {
 		log.Info("/here/ hit")

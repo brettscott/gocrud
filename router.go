@@ -14,6 +14,6 @@ func newRouter(log tools.Logger, statsd tools.StatsD, healthcheckHandler http.Ha
 	router.Handle("/internal/healthcheck", healthcheckHandler)
 
 	apiRouter := router.PathPrefix("/api").Subrouter()
-	router.NewRoute().Handler(api.NewRouter(apiRouter, log, statsd))
+	router.NewRoute().Handler(api.Handler(apiRouter, log, statsd))
 	return router
 }
