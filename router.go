@@ -18,9 +18,9 @@ func newRouter(logger tools.Logger, statsd tools.StatsD, healthcheckHandler http
 
 	router.Use(middleware.Timeout(60 * time.Second))
 
-	router.Get("/internal/healthcheck", healthcheckHandler)
+	router.Get("/_gocrud/healthcheck", healthcheckHandler)
 
-	router.Route("/api", apiRouteHandler)
+	router.Route("/_gocrud/api", apiRouteHandler)
 
 	return router
 }
