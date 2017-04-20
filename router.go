@@ -1,21 +1,26 @@
 package main
 
 import (
-	"github.com/gorilla/mux"
 	"github.com/mergermarket/gotools"
 	"net/http"
-	"github.com/brettscott/gocrud/api"
+	"github.com/pressly/chi"
+	"github.com/pressly/chi/middleware"
+	"time"
 )
 
 //type CreateHandlerWithPrefix func(string) http.Handler
 
+type ChiRouteHandler func(chi.Router)
+
 // newRouter adds handlers to routes
-func newRouter(logger tools.Logger, statsd tools.StatsD, healthcheckHandler http.Handler, createAPIHandler api.CreateHandlerWithPrefix) http.Handler {
-	router := mux.NewRouter()
+func newRouter(logger tools.Logger, statsd tools.StatsD, healthcheckHandler http.HandlerFunc, apiRouteHandler ChiRouteHandler) http.Handler {
+	router := chi.NewRouter()
 
-	router.Handle("/internal/healthcheck", healthcheckHandler)
+	router.Use(middleware.Timeout(60 * time.Second))
 
-	router.NewRoute().Handler(createAPIHandler("/api"))
+	router.Get("/internal/healthcheck", healthcheckHandler)
+
+	router.Route("/api", apiRouteHandler)
 
 	return router
 }

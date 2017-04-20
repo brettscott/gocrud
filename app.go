@@ -13,9 +13,9 @@ func main() {
 	config, logger, statsd := toolup()
 
 	healthcheckHandler := http.HandlerFunc(tools.InternalHealthCheck)
-	createApiHandler := api.NewCreateHandler(logger, statsd)
+	apiRouteHandler := api.NewRoute(logger, statsd)
 
-	err := http.ListenAndServe(fmt.Sprintf(":%d", config.Port), newRouter(logger, statsd, healthcheckHandler, createApiHandler))
+	err := http.ListenAndServe(fmt.Sprintf(":%d", config.Port), newRouter(logger, statsd, healthcheckHandler, apiRouteHandler))
 	if err != nil {
 		logger.Error("Problem starting server", err.Error())
 		os.Exit(1)

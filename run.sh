@@ -30,7 +30,7 @@ fi
 
 if [ "$action_local" == true ]; then
     docker-compose run --rm --service-ports web ./build-locally.sh
-else if [ "$action_ssh" == true ]; then
+elif [ "$action_ssh" == true ]; then
     docker-compose run --rm --service-ports web
 else
     docker-compose run --rm --service-ports web ./build-app.sh

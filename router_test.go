@@ -2,15 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/gorilla/mux"
 	"github.com/mergermarket/gotools"
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"github.com/brettscott/gocrud/api"
+	"github.com/pressly/chi"
 )
 
-func TestInternal_Route_uses_db_handler(t *testing.T) {
+func TestInternal_Route(t *testing.T) {
 
 	testRouter := routerWithTestHandlers(t)
 
@@ -19,6 +18,7 @@ func TestInternal_Route_uses_db_handler(t *testing.T) {
 		result string
 	}{
 		{"/internal/healthcheck", "test response health check"},
+		{"/api/test-url", "test response health check for API route"},
 	}
 
 	for _, testCase := range routeTests {
@@ -30,7 +30,7 @@ func TestInternal_Route_uses_db_handler(t *testing.T) {
 			t.Error("bad status expected 200 got", w.Code)
 		}
 		if testCase.result != w.Body.String() {
-			t.Error("bad response expected", testCase.result, "got", w.Body.String())
+			t.Error(testCase.route, "bad response expected", testCase.result, "got", w.Body.String())
 		}
 	}
 }
@@ -40,16 +40,22 @@ func routerWithTestHandlers(t *testing.T) http.Handler {
 	tsdConfig := tools.NewStatsDConfig(false, testLogger)
 	testStatsD, _ := tools.NewStatsD(tsdConfig)
 
-	healthcheck := newHandler("test response health check")
-	//apiGateway := &api.Gateway{}
-	apiRouter := mux.NewRouter()
+	healthcheckHandler := newHandler("test response health check")
+	apiRouteHandler := newChiRouteHandler("test response health check for API route")
 
-	return newRouter(testLogger, testStatsD, healthcheck, apiRouter)
+	return newRouter(testLogger, testStatsD, healthcheckHandler, apiRouteHandler)
 }
 
-func createNewHandler(prefix string) api.CreateHandlerWithPrefix
-func newHandler(body string) http.Handler {
+func newHandler(body string) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, body)
 	})
+}
+
+func newChiRouteHandler(body string) func(chi.Router) {
+	return func(router chi.Router) {
+		router.Get("/test-url", func(w http.ResponseWriter, r *http.Request) {
+			fmt.Fprint(w, body)
+		})
+	}
 }

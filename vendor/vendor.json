@@ -21,12 +21,6 @@
 			"revisionTime": "2016-08-17T18:46:32Z"
 		},
 		{
-			"checksumSHA1": "6ZwQ9Tcj4jf/muB2KpPpG8lArZs=",
-			"path": "github.com/gorilla/mux",
-			"revision": "599cba5e7b6137d46ddf58fb1765f5d928e69604",
-			"revisionTime": "2017-02-28T22:43:54Z"
-		},
-		{
 			"checksumSHA1": "6X2jRYP6OOHkFwoj2AbPoZcl+PI=",
 			"path": "github.com/kelseyhightower/envconfig",
 			"revision": "8bf4bbfc795e2c7c8a5ea47b707453ed019e2ad4",
@@ -43,10 +37,106 @@
 			"revisionTime": "2016-01-10T10:55:54Z"
 		},
 		{
+			"checksumSHA1": "/+32ya0IPYUlvbsMXhI2WDbOxW0=",
+			"path": "github.com/pressly/chi",
+			"revision": "a57b1fbe2989382bdef31d3793d4a50a0e4a1d7c",
+			"revisionTime": "2017-04-14T20:35:15Z"
+		},
+		{
+			"checksumSHA1": "+xZ7SUlXdwGMiKEFdMEkX78umts=",
+			"path": "github.com/pressly/chi/middleware",
+			"revision": "a57b1fbe2989382bdef31d3793d4a50a0e4a1d7c",
+			"revisionTime": "2017-04-14T20:35:15Z"
+		},
+		{
 			"checksumSHA1": "8rxOh1Vlti1bzoIy6mH5eL0RYsI=",
 			"path": "github.com/stretchr/testify/assert",
 			"revision": "4d4bfba8f1d1027c4fdbe371823030df51419987",
 			"revisionTime": "2017-01-30T11:31:45Z"
+		},
+		{
+			"checksumSHA1": "zIU/rPzdMQmNRRRjPd7TiqF9pTI=",
+			"path": "golang.org/x/net/http2",
+			"revision": "5602c733f70afc6dcec6766be0d5034d4c4f14de",
+			"revisionTime": "2017-04-13T17:15:43Z"
+		},
+		{
+			"checksumSHA1": "w9T9HdZHyMO/IRcNV/pxVI5YbZk=",
+			"path": "golang.org/x/net/http2/hpack",
+			"revision": "5602c733f70afc6dcec6766be0d5034d4c4f14de",
+			"revisionTime": "2017-04-13T17:15:43Z"
+		},
+		{
+			"checksumSHA1": "OhVyHQKJq2jtURDWA2Zl5cS6InM=",
+			"path": "golang.org/x/net/idna",
+			"revision": "5602c733f70afc6dcec6766be0d5034d4c4f14de",
+			"revisionTime": "2017-04-13T17:15:43Z"
+		},
+		{
+			"checksumSHA1": "UOJDYDq9dPMJ3Re3Dc9vvbi+UI0=",
+			"path": "golang.org/x/net/lex/httplex",
+			"revision": "5602c733f70afc6dcec6766be0d5034d4c4f14de",
+			"revisionTime": "2017-04-13T17:15:43Z"
+		},
+		{
+			"checksumSHA1": "ZQdHbB9VYCXwQ+9/CmZPhJv0+SM=",
+			"path": "golang.org/x/text/internal/gen",
+			"revision": "19e3104b43db45fca0303f489a9536087b184802",
+			"revisionTime": "2017-03-28T20:20:29Z"
+		},
+		{
+			"checksumSHA1": "ag7y2tiDc1Yx4fxBrA/CuwKZptg=",
+			"path": "golang.org/x/text/internal/testtext",
+			"revision": "19e3104b43db45fca0303f489a9536087b184802",
+			"revisionTime": "2017-03-28T20:20:29Z"
+		},
+		{
+			"checksumSHA1": "gKFK/QdtO0abkFjDiEyOBgLxWoM=",
+			"path": "golang.org/x/text/internal/triegen",
+			"revision": "19e3104b43db45fca0303f489a9536087b184802",
+			"revisionTime": "2017-03-28T20:20:29Z"
+		},
+		{
+			"checksumSHA1": "GQ0REMGv0GeUMa3mjH2n5xw2UhY=",
+			"path": "golang.org/x/text/internal/ucd",
+			"revision": "19e3104b43db45fca0303f489a9536087b184802",
+			"revisionTime": "2017-03-28T20:20:29Z"
+		},
+		{
+			"checksumSHA1": "8Dlmo5mR4N67Ib1hCi7cYJHaCls=",
+			"path": "golang.org/x/text/secure/bidirule",
+			"revision": "19e3104b43db45fca0303f489a9536087b184802",
+			"revisionTime": "2017-03-28T20:20:29Z"
+		},
+		{
+			"checksumSHA1": "LXVplVWZWrHA8yelCVlNvlcwIMs=",
+			"path": "golang.org/x/text/transform",
+			"revision": "19e3104b43db45fca0303f489a9536087b184802",
+			"revisionTime": "2017-03-28T20:20:29Z"
+		},
+		{
+			"checksumSHA1": "QUjR6mu4hImTsoCF1AuhCiocAKg=",
+			"path": "golang.org/x/text/unicode/bidi",
+			"revision": "19e3104b43db45fca0303f489a9536087b184802",
+			"revisionTime": "2017-03-28T20:20:29Z"
+		},
+		{
+			"checksumSHA1": "INgqY3BrAsFW9jRC/EYhiRq+P+E=",
+			"path": "golang.org/x/text/unicode/cldr",
+			"revision": "19e3104b43db45fca0303f489a9536087b184802",
+			"revisionTime": "2017-03-28T20:20:29Z"
+		},
+		{
+			"checksumSHA1": "VVEjwCPAYJbfKmPVklLIk6ZXjhY=",
+			"path": "golang.org/x/text/unicode/norm",
+			"revision": "19e3104b43db45fca0303f489a9536087b184802",
+			"revisionTime": "2017-03-28T20:20:29Z"
+		},
+		{
+			"checksumSHA1": "GZWgNojmCEZfFA74Vbwlg5z76ik=",
+			"path": "golang.org/x/text/unicode/rangetable",
+			"revision": "19e3104b43db45fca0303f489a9536087b184802",
+			"revisionTime": "2017-03-28T20:20:29Z"
 		}
 	],
 	"rootPath": "github.com/brettscott/gocrud"
