@@ -6,7 +6,6 @@ stop_containers=true
 is_express_mode=false
 action_local=false
 action_ssh=false
-action
 while getopts 'lx' flag; do
   case $flag in
     l)
