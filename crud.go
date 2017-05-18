@@ -13,8 +13,11 @@ type crud struct {
 	statsd StatsDer
 }
 
-func NewCrud() *crud {
-	return &crud{}
+func NewCrud(log Logger, statsd StatsDer) *crud {
+	return &crud{
+		log: log,
+		statsd: statsd,
+	}
 }
 
 func (c *crud) AddEntity(entity entity.Entity) {

@@ -17,8 +17,8 @@ func TestInternal_Route(t *testing.T) {
 		route  string
 		result string
 	}{
-		{"/internal/healthcheck", "test response health check"},
-		{"/api/test-url", "test response health check for API route"},
+		{"/healthcheck", "test response health check"},
+		{"/api/test-url", "test response for API route"},
 	}
 
 	for _, testCase := range routeTests {
@@ -40,13 +40,13 @@ func routerWithTestHandlers(t *testing.T) http.Handler {
 	tsdConfig := tools.NewStatsDConfig(false, testLogger)
 	testStatsD, _ := tools.NewStatsD(tsdConfig)
 
-	healthcheckHandler := newHandler("test response health check")
-	apiRouteHandler := newChiRouteHandler("test response health check for API route")
+	healthcheckHandlerFunc := newHandlerFunc("test response health check")
+	apiRouteHandler := newChiRouteHandler("test response for API route")
 
-	return newRouter(testLogger, testStatsD, healthcheckHandler, apiRouteHandler)
+	return newRouter(testLogger, testStatsD, healthcheckHandlerFunc, apiRouteHandler)
 }
 
-func newHandler(body string) http.HandlerFunc {
+func newHandlerFunc(body string) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, body)
 	})
