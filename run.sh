@@ -23,20 +23,13 @@ while getopts 'lxy' flag; do
   esac
 done
 
-function on_error {
-  if [ "$verbose" == true ]; then
-      echo "Displaying docker compose logs:"
-      docker-compose logs
-  else
-    echo "  NOTICE: Docker error logs can be displayed here by adding -v"
-  fi
-  stopContainers
-  exit 1
-}
-trap on_error ERR
-
 function ctrl_c() {
-    printf "\nCTRL-C detected in run.sh\n"
+    if [ "$verbose" == true ]; then
+        echo " >  Displaying docker compose logs:"
+        docker-compose logs
+    else
+        echo "  >  NOTICE: Docker error logs can be displayed here by adding -v"
+    fi
     stopContainers
 }
 trap ctrl_c ERR INT SIGHUP SIGINT SIGTERM
@@ -45,26 +38,28 @@ trap ctrl_c ERR INT SIGHUP SIGINT SIGTERM
 function stopContainers() {
     docker-compose stop
     docker-compose rm -f
-    echo "  "
-    echo " >  Stopped containers ..."
-    echo "  "
+    printf "\n >  Stopped containers ...\n\n"
 }
 
 if [ "$build_containers_locally" == true ]; then
     stopContainers
     docker-compose build
-
-    echo "  "
-    echo " >  Containers built ..."
-    echo "  "
+    printf "\n >  Containers built ...\n\n"
+else
+    printf "\n >  Not building container ...\n\n"
 fi
 
 if [ "$action_local" == true ]; then
-    docker-compose run --rm --service-ports web
+    if [ "$build_containers_locally" == false ]; then
+        printf "\n >  Running \"go install\" to ensure latest changes are in binary ...\n\n"
+        docker-compose run --rm --service-ports web ./build-run.sh
+    else
+        docker-compose run --rm --service-ports web
+    fi
 elif [ "$action_ssh" == true ]; then
     docker-compose run --rm --service-ports web bash
 else
-    docker-compose run --rm --service-ports web ./build-app.sh
+    docker-compose run --rm --service-ports web ./build-tests.sh
 fi
 
 if [ "$stop_containers" == true ]; then
@@ -73,6 +68,4 @@ fi
 
 echo " "
 docker-compose ps
-echo " "
-echo " >  End ..."
-echo " "
+printf "\n >  End ...\n\n"
