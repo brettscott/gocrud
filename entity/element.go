@@ -1,6 +1,6 @@
 package entity
 
-// Element blah
+// Element (eg name) is an attribute of Entity (eg users)
 type Element struct {
 	ID           string
 	Label        ElementLabel

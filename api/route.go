@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"github.com/pressly/chi"
 	"net/http"
+	"github.com/brettscott/gocrud/entity"
 )
 
 // NewRoute prepares the routes for this package
-func NewRoute(logger Logger, statsd StatsDer) func(chi.Router) {
+func NewRoute(entities entity.Entities, logger Logger, statsd StatsDer) func(chi.Router) {
 
 	return func(r chi.Router) {
 		r.Get("/here", getHere)

@@ -41,12 +41,12 @@ func BasicExample() {
 				DefaultValue: 22,
 			},
 		},
-		Config: &entity.Config{
-			Database: "mongodb",
-		},
 	}
 
-	myCrud := crud.NewCrud(log, statsd)
+	myConfig := &crud.Config{
+		Database: "mongodb",
+	}
+	myCrud := crud.NewCrud(myConfig, log, statsd)
 
 	myCrud.AddEntity(users)
 

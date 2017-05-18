@@ -9,13 +9,15 @@ import (
 
 type Crud struct {
 	entities []entity.Entity
+	config   *Config
 	log      Logger
 	statsd   StatsDer
 }
 
 // NewCrud creates a new CRUD instance
-func NewCrud(log Logger, statsd StatsDer) *Crud {
+func NewCrud(config *Config, log Logger, statsd StatsDer) *Crud {
 	return &Crud{
+		config: config,
 		log:    log,
 		statsd: statsd,
 	}
@@ -31,7 +33,7 @@ func (c *Crud) Handler() http.Handler {
 		fmt.Fprint(w, "Healthy")
 	})
 
-	apiRouteHandler := api.NewRoute(c.log, c.statsd)
+	apiRouteHandler := api.NewRoute(c.entities, c.log, c.statsd)
 
 	return newRouter(c.log, c.statsd, healthcheckHandler, apiRouteHandler)
 }
