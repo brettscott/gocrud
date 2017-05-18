@@ -11,10 +11,17 @@ import (
 func NewRoute(entities entity.Entities, logger Logger, statsd StatsDer) func(chi.Router) {
 
 	return func(r chi.Router) {
-		r.Get("/here", getHere)
+
+		// List
+		// eg http://localhost:8080/gocrud/api/user
+		r.Get("/:entityID", list)
 	}
 }
 
-func getHere(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte(fmt.Sprint("Hello world")))
+func list(w http.ResponseWriter, r *http.Request) {
+	entityID := chi.URLParam(r, "entityID")
+	w.Write([]byte(fmt.Sprintf("List: %v", entityID)))
+
+
+
 }
