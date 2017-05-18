@@ -4,6 +4,8 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
+go test $(go list ./... | grep -v acceptance-tests | grep -v /vendor/) --cover -timeout 30s
+
 if [ ! $(command -v gometalinter) ]
 then
 	go get github.com/alecthomas/gometalinter
@@ -33,5 +35,3 @@ gometalinter \
 	./...
 
 go fmt $(go list ./... | grep -v /vendor/)
-go test $(go list ./... | grep -v acceptance-tests | grep -v /vendor/) --cover -timeout 30s
-go install
