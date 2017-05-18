@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/brettscott/gocrud/crud"
 	"github.com/brettscott/gocrud/entity"
+	"github.com/brettscott/gocrud/store"
 	"github.com/mergermarket/gotools"
 	"github.com/pressly/chi"
 	"log"
@@ -43,10 +44,15 @@ func BasicExample() {
 		},
 	}
 
-	myConfig := &crud.Config{
-		Database: "mongodb",
-	}
+	myConfig := &crud.Config{}
+
 	myCrud := crud.NewCrud(myConfig, log, statsd)
+
+	myStore, err := store.NewMongoStore("", "", "", statsd, log)
+	if err != nil {
+		fmt.Errorf("Error with store: %v", err)
+	}
+	myCrud.Store(myStore)
 
 	myCrud.AddEntity(users)
 
@@ -57,7 +63,7 @@ func BasicExample() {
 	// 2. Simple approach to mount CRUD routes
 	//router := Crud.Handler()
 
-	err := http.ListenAndServe(fmt.Sprintf(":%d", config.Port), router)
+	err = http.ListenAndServe(fmt.Sprintf(":%d", config.Port), router)
 	if err != nil {
 		log.Error("Problem starting server", err.Error())
 		os.Exit(1)

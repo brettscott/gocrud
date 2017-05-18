@@ -2,9 +2,9 @@ package api
 
 import (
 	"fmt"
+	"github.com/brettscott/gocrud/entity"
 	"github.com/pressly/chi"
 	"net/http"
-	"github.com/brettscott/gocrud/entity"
 )
 
 // NewRoute prepares the routes for this package

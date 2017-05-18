@@ -6,8 +6,8 @@ type Entity struct {
 	Label    string
 	Labels   string
 	Elements []Element
-	Form Form
-	List List
+	Form     Form
+	List     List
 }
 
 // Entities eg Users

@@ -1,4 +1,0 @@
-package store
-
-func main() {
-}

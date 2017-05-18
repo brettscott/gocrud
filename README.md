@@ -45,7 +45,8 @@ Everythings!
     * Results
     * Update
     * Delete
-
+* Mongo
+    * create indexes
 
 ## Schema
 
@@ -65,3 +66,6 @@ Everythings!
     - Delete Hook
     - Plugins
     
+- Store
+    - list/get/post/put/delete
+    - hooks
