@@ -1,10 +1,10 @@
-package main
+package crud
 
 import (
 	"github.com/mergermarket/gotools"
-	"net/http"
 	"github.com/pressly/chi"
 	"github.com/pressly/chi/middleware"
+	"net/http"
 	"time"
 )
 

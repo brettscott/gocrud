@@ -1,58 +1,61 @@
-package main
+package examples
 
 import (
-	"github.com/brettscott/gocrud/entity"
 	"fmt"
-	"os"
-	"net/http"
+	"github.com/brettscott/gocrud/crud"
+	"github.com/brettscott/gocrud/entity"
 	"github.com/mergermarket/gotools"
-	"log"
 	"github.com/pressly/chi"
+	"log"
+	"net/http"
+	"os"
 )
 
-func main() {
+// BasicExample should illustrate basic functionality of the CRUD
+func BasicExample() {
 	config, log, statsd := toolup()
 
 	// TODO: Define schema
 	// TODO: Build database connector - MySQL, Mongo
 	// TODO: Pre/post hooks and override actions
-	// TODO: http.ListenAndServe(<port>) - return a route/router for sample app to "listen and serve"
 	// TODO: Flexibility with rendering templates (custom head/foot/style)
 
 	users := entity.Entity{
-		ID: "users",
-		Label: "User",
+		ID:     "users",
+		Label:  "User",
 		Labels: "Users",
 		Elements: []entity.Element{
 			{
-				ID: "name",
-				Label: "Name",
-				FormType: entity.ELEMENT_FORM_TYPE_TEXT,
+				ID:        "name",
+				Label:     "Name",
+				FormType:  entity.ELEMENT_FORM_TYPE_TEXT,
 				ValueType: entity.ELEMENT_VALUE_TYPE_STRING,
-				Value: "",
+				Value:     "",
 			},
 			{
-				ID: "age",
-				Label: "Age",
-				FormType: entity.ELEMENT_FORM_TYPE_TEXT,
-				ValueType: entity.ELEMENT_VALUE_TYPE_INTEGER,
-				Value: "",
+				ID:           "age",
+				Label:        "Age",
+				FormType:     entity.ELEMENT_FORM_TYPE_TEXT,
+				ValueType:    entity.ELEMENT_VALUE_TYPE_INTEGER,
+				Value:        "",
 				DefaultValue: 22,
 			},
 		},
+		Config: &entity.Config{
+			Database: "mongodb",
+		},
 	}
 
+	myCrud := crud.NewCrud(log, statsd)
 
-	crud := NewCrud(log, statsd)
-
-	crud.AddEntity(users)
+	myCrud.AddEntity(users)
 
 	// Two ways to mount route in your application:
 	// 1. Mount CRUD routes to /gocrud (using Chi)
 	router := chi.NewRouter()
-	router.Mount("/gocrud", crud.Handler())
+	router.Mount("/gocrud", myCrud.Handler())
 	// 2. Simple approach to mount CRUD routes
-	//router := crud.Handler()
+	//router := Crud.Handler()
 
 	err := http.ListenAndServe(fmt.Sprintf(":%d", config.Port), router)
 	if err != nil {
@@ -61,7 +64,7 @@ func main() {
 	}
 }
 
-func toolup() (*appConfig, Logger, StatsDer) {
+func toolup() (*appConfig, crud.Logger, crud.StatsDer) {
 	config, err := loadAppConfig()
 	if err != nil {
 		log.Fatal("Error loading config", err.Error())

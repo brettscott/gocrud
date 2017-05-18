@@ -1,14 +1,13 @@
 package entity
 
-
+// Element blah
 type Element struct {
-	ID string
-	Label ElementLabel
-	FormType ElementFormType
-	Value interface{}
-	ValueType string  // type of "Value"
+	ID           string
+	Label        ElementLabel
+	FormType     ElementFormType
+	Value        interface{}
+	ValueType    string // type of "Value"
 	DefaultValue interface{}
-
 }
 
 type ElementLabel string
@@ -25,4 +24,3 @@ const ELEMENT_VALUE_TYPE_BOOLEAN = "boolean"
 //	"text",
 //	"select",
 //}
-

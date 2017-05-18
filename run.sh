@@ -7,10 +7,13 @@ is_express_mode=false
 action_local=false
 action_ssh=false
 verbose=false
-while getopts 'lxy' flag; do
+while getopts 'lvxy' flag; do
   case $flag in
     l)
         action_local=true
+        ;;
+    v)
+        verbose=true
         ;;
     x)
         build_containers_locally=false

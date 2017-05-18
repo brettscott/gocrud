@@ -1,12 +1,12 @@
-package main
+package crud
 
 import (
 	"fmt"
 	"github.com/mergermarket/gotools"
+	"github.com/pressly/chi"
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"github.com/pressly/chi"
 )
 
 func TestInternal_Route(t *testing.T) {
