@@ -9,7 +9,7 @@ import (
 )
 
 type Crud struct {
-	entities []entity.Entity
+	entities entity.Entities
 	config   *Config
 	log      Logger
 	statsd   StatsDer
@@ -22,6 +22,7 @@ func NewCrud(config *Config, log Logger, statsd StatsDer) *Crud {
 		config: config,
 		log:    log,
 		statsd: statsd,
+		entities: make(map[string]entity.Entity),
 	}
 }
 
@@ -32,7 +33,7 @@ func (c *Crud) Store(store store.Storer) {
 
 // AddEntity for each entity type (eg User)
 func (c *Crud) AddEntity(entity entity.Entity) {
-	c.entities = append(c.entities, entity)
+	c.entities[entity.ID] = entity
 }
 
 // Handler for mounting routes for CRUD

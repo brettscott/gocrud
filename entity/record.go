@@ -7,11 +7,11 @@ type Record struct {
 
 /* Represented as JSON:
 {
-	ID: "1234",
+	humanReadable: "1234",
 	KeyValues:
 	[
 		{
-			Key: "name",
+			Key: "humanReadable",
 			Type: "string",
 			ValueString: "brett",
 		},

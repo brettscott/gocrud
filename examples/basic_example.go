@@ -25,19 +25,19 @@ func BasicExample() {
 		ID:     "users",
 		Label:  "User",
 		Labels: "Users",
-		Elements: []entity.Element{
+		Elements: entity.Elements{
 			{
-				ID:        "name",
-				Label:     "Name",
-				FormType:  entity.ELEMENT_FORM_TYPE_TEXT,
-				ValueType: entity.ELEMENT_VALUE_TYPE_STRING,
-				Value:     "",
+				ID:       "name",
+				Label:    "Name",
+				FormType: entity.ELEMENT_FORM_TYPE_TEXT,
+				DataType: entity.ELEMENT_DATA_TYPE_STRING,
+				Value:    "",
 			},
 			{
 				ID:           "age",
 				Label:        "Age",
 				FormType:     entity.ELEMENT_FORM_TYPE_TEXT,
-				ValueType:    entity.ELEMENT_VALUE_TYPE_INTEGER,
+				DataType:     entity.ELEMENT_DATA_TYPE_INTEGER,
 				Value:        "",
 				DefaultValue: 22,
 			},

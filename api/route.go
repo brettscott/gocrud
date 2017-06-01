@@ -9,45 +9,56 @@ import (
 	"encoding/json"
 )
 
+type APIRoute struct {
+	entities entity.Entities
+	log Logger
+	statsd StatsDer
+}
 // NewRoute prepares the routes for this package
-func NewRoute(entities entity.Entities, logger Logger, statsd StatsDer) func(chi.Router) {
+func NewRoute(entities entity.Entities, log Logger, statsd StatsDer) func(chi.Router) {
+
+	apiRoute := &APIRoute{
+		entities: entities,
+		log: log,
+		statsd: statsd,
+	}
 
 	return func(r chi.Router) {
 
-		r.Get("/", root)
+		r.Get("/", apiRoute.root)
 
 		// List
 		// eg GET http://localhost:8080/gocrud/api/user
-		r.Get("/:entityID", list)
+		r.Get("/:entityID", apiRoute.list)
 
 		// Post/Create
 		// eg POST http://localhost:8080/gocrud/api/user
 		// TODO check content-type header on POST
 		// TODO validation
 		// TODO persist to DB
-		r.Post("/:entityID", post)
+		r.Post("/:entityID", apiRoute.post)
 
 		// Put/Update
 		// eg PUT http://localhost:8080/gocrud/api/user/1234
 		// TODO check content-type header on POST
 		// TODO validation
 		// TODO persist to DB
-		r.Put("/:entityID/:recordID", put)
+		r.Put("/:entityID/:recordID", apiRoute.put)
 
 
 	}
 }
 
-func root(w http.ResponseWriter, r *http.Request) {
+func (a *APIRoute) root(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Welcome to the API"))
 }
 
-func list(w http.ResponseWriter, r *http.Request) {
+func (a *APIRoute) list(w http.ResponseWriter, r *http.Request) {
 	entityID := chi.URLParam(r, "entityID")
 	w.Write([]byte(fmt.Sprintf("List - entityID: %s", entityID)))
 }
 
-func post(w http.ResponseWriter, r *http.Request) {
+func (a *APIRoute) post(w http.ResponseWriter, r *http.Request) {
 	entityID := chi.URLParam(r, "entityID")
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -56,36 +67,38 @@ func post(w http.ResponseWriter, r *http.Request) {
 		return
 
 	}
-	//decoder := json.NewDecoder(r.Body)
-	//var t test_struct
-	//err := decoder.Decode(&t)
-	//if err != nil {
-	//	// TODO failure
-	//
-	//}
 
-	recordID, err := convertPostBodyToRecord(body)
+	record, err := marshalBodyToRecord(body)
 	if err != nil {
-		// TODO failure
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(fmt.Sprintf("Failed to convert JSON - %v", err)))
 		return
 	}
 
-	w.Write([]byte(fmt.Sprintf("Post\nrecordID: %s\nentityID: %s\nbody: %s", recordID, entityID, body)))
+	entity := a.entities[entityID]
+	fmt.Println("Entity: %+v", entity)
+	err = entity.HydrateFromRecord(record)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(fmt.Sprintf("Failed to hydrate Entity from Record - %v", err)))
+		return
+	}
+
+	w.Write([]byte(fmt.Sprintf("Post\nrecordID: %s\nentityID: %s\nbody: %s", record.ID, entityID, body)))
 }
 
-func convertPostBodyToRecord(body []byte) (string, error) {
+// marshalBodyToRecord converts JSON to entity.Record
+func marshalBodyToRecord(body []byte) (*entity.Record, error) {
 	record := entity.Record{}
 	err := json.Unmarshal(body, &record)
 	if err != nil {
-		return "", fmt.Errorf("Unable to unmarshal body: %v", err)
+		return nil, fmt.Errorf("Unable to unmarshal body: %v", err)
 	}
-
-	return record.ID, nil  // Todo remove .ID
+	return &record, nil
 }
 
-func put(w http.ResponseWriter, r *http.Request) {
+
+func (a *APIRoute) put(w http.ResponseWriter, r *http.Request) {
 	entityID := chi.URLParam(r, "entityID")
 	recordID := chi.URLParam(r, "recordID")
 	w.Write([]byte(fmt.Sprintf("Put - entityID: %v, recordID: %v", entityID, recordID)))
