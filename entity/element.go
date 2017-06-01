@@ -12,7 +12,7 @@ type Element struct {
 	FormType     ElementFormType
 
 	// Value of element in record
-	Value        interface{}
+	Value        interface{} // TODO should this be private as we don't want it specified on instantiation??
 
 	// DataType of "Value" eg string,integer,boolean,keyValues
 	DataType     string

@@ -9,6 +9,8 @@ import (
 	"encoding/json"
 )
 
+const ACTION_POST = "post"
+
 type APIRoute struct {
 	entities entity.Entities
 	log Logger
@@ -77,14 +79,22 @@ func (a *APIRoute) post(w http.ResponseWriter, r *http.Request) {
 
 	entity := a.entities[entityID]
 	fmt.Println("Entity: %+v", entity)
-	err = entity.HydrateFromRecord(record)
+
+	err = entity.HydrateFromRecord(record, ACTION_POST)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(fmt.Sprintf("Failed to hydrate Entity from Record - %v", err)))
 		return
 	}
+	err = entity.Validate(ACTION_POST)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(fmt.Sprintf("Failed validation - %v", err)))
+		return
+	}
 
-	w.Write([]byte(fmt.Sprintf("Post\nrecordID: %s\nentityID: %s\nbody: %s", record.ID, entityID, body)))
+
+	w.Write([]byte(fmt.Sprintf("Post\nrecordID: %s\nentityID: %s\nbody: %s\nentity: %+v", record.ID, entityID, body, entity)))
 }
 
 // marshalBodyToRecord converts JSON to entity.Record

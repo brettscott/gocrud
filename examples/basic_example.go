@@ -31,17 +31,22 @@ func BasicExample() {
 				Label:    "Name",
 				FormType: entity.ELEMENT_FORM_TYPE_TEXT,
 				DataType: entity.ELEMENT_DATA_TYPE_STRING,
-				Value:    "",
 			},
 			{
 				ID:           "age",
 				Label:        "Age",
 				FormType:     entity.ELEMENT_FORM_TYPE_TEXT,
 				DataType:     entity.ELEMENT_DATA_TYPE_INTEGER,
-				Value:        "",
 				DefaultValue: 22,
 			},
 		},
+	}
+
+	// Todo: should do NewEntity and not newing up entity.Entity manually.
+	err := users.CheckConfiguration()
+	if err != nil {
+			log.Error(fmt.Sprintf(`Error with "users" entity: %v`, err))
+		os.Exit(1)
 	}
 
 	myConfig := &crud.Config{}
@@ -50,7 +55,8 @@ func BasicExample() {
 
 	myStore, err := store.NewMongoStore("", "", "", statsd, log)
 	if err != nil {
-		fmt.Errorf("Error with store: %v", err)
+		log.Error(fmt.Sprintf("Error with store: %v", err))
+		os.Exit(1)
 	}
 	myCrud.Store(myStore)
 
