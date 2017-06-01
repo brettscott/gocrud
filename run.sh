@@ -28,9 +28,13 @@ done
 
 function ctrl_c() {
     if [ "$verbose" == true ]; then
+        echo " "
+        echo " "
         echo " >  Displaying docker compose logs:"
         docker-compose logs
     else
+        echo " "
+        echo " "
         echo "  >  NOTICE: Docker error logs can be displayed here by adding -v"
     fi
     stopContainers

@@ -6,7 +6,7 @@ type Element struct {
 	Label        ElementLabel
 	FormType     ElementFormType
 	Value        interface{}
-	ValueType    string // type of "Value"
+	ValueType    string // type of "Value" eg string,integer,boolean
 	DefaultValue interface{}
 }
 

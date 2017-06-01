@@ -41,14 +41,28 @@ func NewMongoStore(mongoURL, mongoSSLCertificate, databaseName string, statsd St
 	return &mongoStore, nil
 }
 
+// Get a list of records
 func (m *Mongo) List() {
 	fmt.Println("Hello world")
 }
+
+// Get a record
 func (m *Mongo) Get()    {}
-func (m *Mongo) Post()   {}
+
+// When ID not known
+func (m *Mongo) Post()   {
+
+}
+
+// When ID is known
 func (m *Mongo) Put()    {}
+
+// Partial update
 func (m *Mongo) Patch()  {}
+
+// Remove
 func (m *Mongo) Delete() {}
+
 
 func (m *Mongo) connectToMongo() (*mgo.Session, error) {
 	if m.mongoSSLCertificate == "" {

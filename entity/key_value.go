@@ -1,12 +1,12 @@
 package entity
 
-type keyValue struct {
-	Key string
-	Type string  // eg string,int,bool,keyValues
-	ValueString string
-	ValueInteger int
-	ValueBoolean bool
-	ValueKeyValues keyValues
+type KeyValue struct {
+	Key            string `json:"key"`
+	Type           string `json:"type"` // eg string,integer,boolean,KeyValues
+	ValueString    string `json:"valueString"`
+	ValueInteger   int `json:"valueInteger"`
+	ValueBoolean   bool `json:"valueBoolean"`
+	ValueKeyValues KeyValues `json:"valueKeyValues"`
 }
 
-type keyValues []keyValue
+type KeyValues []KeyValue

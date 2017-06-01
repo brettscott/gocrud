@@ -27,7 +27,9 @@ Runs within Docker containers locally.  Assumes you have Docker installed.
 
 * Code: [./sample_app.go](./sample_app.go)
 * Execute: `run.sh -l`
-* View: [http://localhost:8080](http://localhost:8080)  _(where localhost is IP of your Docker VM)_
+* View: [http://localhost:8080/gocrud](http://localhost:8080/gocrud)  _(where localhost is IP of your Docker VM)_
+    * [http://localhost:8080/gocrud/healtcheck](http://localhost:8080/gocrud/healthcheck)
+    * [http://localhost:8080/gocrud/api/user](http://localhost:8080/gocrud/api/user)
 
 
 ## Todo
@@ -47,6 +49,31 @@ Everythings!
     * Delete
 * Mongo
     * create indexes
+
+## Packages
+
+* crud
+    * wire up CRUD for consumption by Developer
+* entity
+    * define a flexible schema
+    * ability to model DB schema into a generic data model for crud-ing
+* api
+    * handles HTTP requests to REST interface
+* store
+    * database abstraction - allow Developer to choose database eg Mongo, MySQL
+    
+*Workflows:*
+
+* POST:
+    * receive request (/api) <- crud pkg
+    * route request (post) <- api pkg 
+    * req.body -> entity.record <- api pkg for now
+    * validation <- api pkg for now
+    * entity.record -> database query <- api pkg for now
+    * database query -> mongo client <- store pkg
+    
+
+
 
 ## Schema
 

@@ -54,7 +54,14 @@ func BasicExample() {
 	}
 	myCrud.Store(myStore)
 
+	// Register Entity
 	myCrud.AddEntity(users)
+	//myCrud.AddEntity(computers)
+
+	// Add Sample data to DB
+	myStore.Post()
+
+
 
 	// Two ways to mount route in your application:
 	// 1. Mount CRUD routes to /gocrud (using Chi)
