@@ -53,7 +53,7 @@ func BasicExample() {
 
 	myCrud := crud.NewCrud(myConfig, log, statsd)
 
-	myStore, err := store.NewMongoStore("", "", "", statsd, log)
+	myStore, err := store.NewMongoStore(os.Getenv("MONGO_DB_CONNECTION"), "", os.Getenv("MONGO_DB_NAME"), statsd, log)
 	if err != nil {
 		log.Error(fmt.Sprintf("Error with store: %v", err))
 		os.Exit(1)
