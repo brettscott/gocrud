@@ -7,21 +7,24 @@ import (
 	"github.com/pressly/chi"
 	"io/ioutil"
 	"net/http"
+	"github.com/brettscott/gocrud/store"
 )
 
 const ACTION_POST = "post"
 
 type APIRoute struct {
 	entities entity.Entities
+	store store.Storer
 	log      Logger
 	statsd   StatsDer
 }
 
 // NewRoute prepares the routes for this package
-func NewRoute(entities entity.Entities, log Logger, statsd StatsDer) func(chi.Router) {
+func NewRoute(entities entity.Entities, store store.Storer, log Logger, statsd StatsDer) func(chi.Router) {
 
 	apiRoute := &APIRoute{
 		entities: entities,
+		store: store,
 		log:      log,
 		statsd:   statsd,
 	}
@@ -34,6 +37,13 @@ func NewRoute(entities entity.Entities, log Logger, statsd StatsDer) func(chi.Ro
 		// eg GET http://localhost:8080/gocrud/api/user
 		r.Get("/:entityID", apiRoute.list)
 
+		// Get record
+		// eg GET http://localhost:8080/gocrud/api/user/12345
+		// TODO check content-type header on POST
+		// TODO validation
+		// TODO get DB
+		//r.Get("/:entityID/:recordID", apiRoute.get)
+		
 		// Post/Create
 		// eg POST http://localhost:8080/gocrud/api/user
 		// TODO check content-type header on POST
@@ -80,6 +90,8 @@ func (a *APIRoute) post(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Entity: %+v", entity)
 
 	err = entity.HydrateFromRecord(record, ACTION_POST)
+	fmt.Println("Hydrated Entity: %+v", entity)
+
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(fmt.Sprintf("Failed to hydrate Entity from Record - %v", err)))
@@ -92,7 +104,14 @@ func (a *APIRoute) post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte(fmt.Sprintf("Post\nrecordID: %s\nentityID: %s\nbody: %s\nentity: %+v", record.ID, entityID, body, entity)))
+	dbID, err := a.store.Post(entity)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(fmt.Sprintf("Failed post entity %v.  Error: %v", entity, err)))
+		return
+	}
+
+	w.Write([]byte(fmt.Sprintf("Post\nrecordID: %s\nentityID: %s\nbody: %s\nentity: %+v\ndbID: %s", record.ID, entityID, body, entity, dbID)))
 }
 
 // marshalBodyToRecord converts JSON to entity.Record

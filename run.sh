@@ -43,9 +43,11 @@ trap ctrl_c ERR INT SIGHUP SIGINT SIGTERM
 
 
 function stopContainers() {
-    docker-compose stop
-    docker-compose rm -f
-    printf "\n >  Stopped containers ...\n\n"
+    if [ "$stop_containers" == true ]; then
+        docker-compose stop
+        docker-compose rm -f
+        printf "\n >  Stopped containers ...\n\n"
+    fi
 }
 
 if [ "$build_containers_locally" == true ]; then

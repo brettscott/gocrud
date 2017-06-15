@@ -39,6 +39,9 @@ Everythings!
 * API
     * GET
     * POST
+        * Handle KeyValues as an input (entity.go not permitting keyValues)
+        * persist to Mongo DB
+        * 
     * PUT
     * PATCH
     * DELETE
@@ -97,3 +100,9 @@ Everythings!
     - list/get/post/put/delete
     - hooks
 
+
+## Terminology
+
+* Entity - the content being CRUDed eg users, permissions, intelligence.
+* Element - a child of Entity.  An Entity will typically have more than one element eg id, name, description.
+* Record - represents an Entity Item made up of populated Element `value`s. Think of a Record as a row in a database table.

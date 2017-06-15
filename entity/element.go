@@ -1,8 +1,8 @@
 package entity
 
-// Element (eg humanReadable) is an attribute of Entity (eg users)
+// Element (eg id) is an attribute of Entity (eg users)
 type Element struct {
-	// humanReadable eg humanReadable, description
+	// Identifier eg id, description
 	ID string
 
 	// Label eg Name, Description

@@ -7,33 +7,33 @@ type Record struct {
 
 /* Represented as JSON:
 {
-	humanReadable: "1234",
+	ID: "1234",
 	KeyValues:
 	[
 		{
-			Key: "humanReadable",
-			Type: "string",
-			ValueString: "brett",
+			Key: "id",
+			DataType: "string",
+			Value: "brett",
 		},
 		{
 			Key: "age",
-			Type: "integer",
-			ValueInteger: "22",
+			DataType: "integer",
+			ValueInteger: 22,
 		},
 		{
 			Key: "likes",
-			Type: "KeyValues",
-			ValueKeyValues:
+			DataType: "KeyValues",
+			Value:
 			[
 				{
 					Key: "colour",
-					Type: "string",
-					ValueString: "blue",
+					DataType: "string",
+					Value: "blue",
 				},
 				{
 					Key: "temperature",
-					Type: "integer",
-					ValueInteger: "33",
+					DataType: "integer",
+					Value: 33,
 				},
 			],
 		},

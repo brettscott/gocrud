@@ -43,7 +43,7 @@ func (c *Crud) Handler() http.Handler {
 		fmt.Fprint(w, "Healthy")
 	})
 
-	apiRouteHandler := api.NewRoute(c.entities, c.log, c.statsd)
+	apiRouteHandler := api.NewRoute(c.entities, c.store, c.log, c.statsd)
 
 	return newRouter(c.log, c.statsd, healthcheckHandler, apiRouteHandler)
 }

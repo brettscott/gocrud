@@ -7,6 +7,8 @@ import (
 	"gopkg.in/mgo.v2"
 	"net"
 	"time"
+	"github.com/brettscott/gocrud/entity"
+	"gopkg.in/mgo.v2/bson"
 )
 
 //Mongo Represents Mongo data store
@@ -31,7 +33,7 @@ func NewMongoStore(mongoURL, mongoSSLCertificate, databaseName string, statsd St
 
 	session, err := mongoStore.connectToMongo()
 	if err != nil {
-		return nil, fmt.Errorf("problem connecting to Mongo db %s : %v", databaseName, err)
+		return nil, fmt.Errorf("Problem connecting to Mongo db %s : %v", databaseName, err)
 	}
 
 	//go mongoStore.ensureIndexes()
@@ -47,14 +49,41 @@ func (m *Mongo) List() {
 }
 
 // Get a record
-func (m *Mongo) Get() {}
-
-// When ID not known
-func (m *Mongo) Post() {
+func (m *Mongo) Get() {
 
 }
 
-// When ID is known
+// Create (ID not provided)
+func (m *Mongo) Post(entity entity.Entity) (string, error) {
+	session := m.session.Copy()
+	defer session.Close()
+
+	collectionName := entity.ID  // TODO: make more flexible?
+	c := session.DB(m.databaseName).C(collectionName)
+
+	dbID := bson.NewObjectIdWithTime(time.Now().UTC())
+	document := bson.M{
+		"_id": dbID,
+		"_crud": bson.M{
+			"dateCreated": time.Now().UTC().Format(time.RFC3339Nano),
+		},
+	}
+
+	for _, element := range entity.Elements {
+		document[element.ID] = element.Value
+	}
+
+	fmt.Printf("Post document: %v", document)
+
+	err := c.Insert(document)
+	if err != nil {
+		return "", fmt.Errorf("Problem inserting %s. Error: %v", entity, err)
+	}
+
+	return string(dbID), nil
+}
+
+// Update (when ID is known)
 func (m *Mongo) Put() {}
 
 // Partial update
