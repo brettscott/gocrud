@@ -42,8 +42,8 @@ func NewRoute(entities entity.Entities, store store.Storer, log Logger, statsd S
 		// TODO check content-type header on POST
 		// TODO validation
 		// TODO get DB
-		//r.Get("/:entityID/:recordID", apiRoute.get)
-		
+		r.Get("/:entityID/:recordID", apiRoute.get)
+
 		// Post/Create
 		// eg POST http://localhost:8080/gocrud/api/user
 		// TODO check content-type header on POST
@@ -111,7 +111,30 @@ func (a *APIRoute) post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte(fmt.Sprintf("Post\nrecordID: %s\nentityID: %s\nbody: %s\nentity: %+v\ndbID: %s", record.ID, entityID, body, entity, dbID)))
+	w.Write([]byte(fmt.Sprintf("Post\nrecordID: %s\nentityID: %s\nbody: %s\nentity: %+v\ndbID: %s\n", record.ID, entityID, body, entity, dbID)))
+}
+
+// get returns a record from the database for the given recordID in given entityID
+func (a *APIRoute) get(w http.ResponseWriter, r *http.Request) {
+	entityID := chi.URLParam(r, "entityID")
+	recordID := chi.URLParam(r, "recordID")
+
+	if entity, ok := a.entities[entityID]; ok {
+		fmt.Println("Entity: %+v", entity)
+
+		record, err := a.store.Get(entity, recordID)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(fmt.Sprintf("Failed to get entityID: %s, recordID: %s.  Error: %v", entityID, recordID, err)))
+			return
+		}
+
+		w.Write([]byte(fmt.Sprintf("Post\nrecordID: %s\nentityID: %s\nrecord: %+v", recordID, entityID, record)))
+		return
+	}
+
+	w.WriteHeader(http.StatusBadRequest)
+	w.Write([]byte(fmt.Sprintf("Invalid entityID %s", entityID)))
 }
 
 // marshalBodyToRecord converts JSON to entity.Record

@@ -49,8 +49,46 @@ func (m *Mongo) List() {
 }
 
 // Get a record
-func (m *Mongo) Get() {
+func (m *Mongo) Get(e entity.Entity, recordID string) (entity.Record, error) {
+	session := m.session.Copy()
+	defer session.Close()
 
+	collectionName := e.ID  // TODO: make more flexible?
+	c := session.DB(m.databaseName).C(collectionName)
+
+	record := entity.Record{
+		ID: recordID,
+	}
+
+	query := bson.M{
+		"_id": bson.ObjectIdHex(recordID),
+	}
+
+	var kvs bson.M
+	err := c.Find(query).One(&kvs)
+	if err != nil {
+		return record, fmt.Errorf("Failed to get record: %s", err)
+	}
+
+	// Loop through each of the entity's elements to pull element's value from DB row.
+	for _, element := range e.Elements {
+		fmt.Printf("\nElement: %+v\n", element)
+
+		kv := entity.KeyValue{
+			Key: element.ID,
+			DataType: element.DataType,
+		}
+
+		if _, ok := kvs[element.ID]; ok {
+			kv.Value = kvs[element.ID]
+		} else {
+			kv.Value = nil
+		}
+
+		record.KeyValues = append(record.KeyValues, kv)
+	}
+
+	return record, nil
 }
 
 // Create (ID not provided)
@@ -73,14 +111,14 @@ func (m *Mongo) Post(entity entity.Entity) (string, error) {
 		document[element.ID] = element.Value
 	}
 
-	fmt.Printf("Post document: %v", document)
+	fmt.Printf("Post document: %+v", document)
 
 	err := c.Insert(document)
 	if err != nil {
-		return "", fmt.Errorf("Problem inserting %s. Error: %v", entity, err)
+		return "", fmt.Errorf("Problem inserting %+v. Error: %v", entity, err)
 	}
 
-	return string(dbID), nil
+	return dbID.Hex(), nil
 }
 
 // Update (when ID is known)

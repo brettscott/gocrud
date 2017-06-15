@@ -38,10 +38,11 @@ Everythings!
 
 * API
     * GET
+        * Handle KeyValues as an input (entity.go not permitting keyValues)
+        * Write Mongo integration test
     * POST
         * Handle KeyValues as an input (entity.go not permitting keyValues)
-        * persist to Mongo DB
-        * 
+        * Write Mongo integration test
     * PUT
     * PATCH
     * DELETE

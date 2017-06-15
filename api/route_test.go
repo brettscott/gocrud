@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/pressly/chi"
+	"github.com/brettscott/gocrud/store"
 )
 
 func TestAPIRoute(t *testing.T) {
@@ -16,7 +17,7 @@ func TestAPIRoute(t *testing.T) {
 	tsdConfig := tools.NewStatsDConfig(false, testLogger)
 	testStatsD, _ := tools.NewStatsD(tsdConfig)
 
-	testAPIRoute := NewRoute(makeEntities(), testLogger, testStatsD)
+	testAPIRoute := NewRoute(makeEntities(), store.NewFakeStorer(), testLogger, testStatsD)
 	testRouter := chi.NewRouter()
 	testRouter.Route("/", testAPIRoute)
 
@@ -46,5 +47,4 @@ func makeEntities() entity.Entities {
 		"users":     entity.Entity{},
 		"computers": entity.Entity{},
 	}
-
 }
