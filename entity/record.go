@@ -1,7 +1,7 @@
 package entity
 
 type Record struct {
-	ID        string `json:"id"`
+	ID        string    `json:"id"`
 	KeyValues KeyValues `json:"KeyValues"`
 }
 

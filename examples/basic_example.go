@@ -45,7 +45,7 @@ func BasicExample() {
 	// Todo: should do NewEntity and not newing up entity.Entity manually.
 	err := users.CheckConfiguration()
 	if err != nil {
-			log.Error(fmt.Sprintf(`Error with "users" entity: %v`, err))
+		log.Error(fmt.Sprintf(`Error with "users" entity: %v`, err))
 		os.Exit(1)
 	}
 
@@ -66,8 +66,6 @@ func BasicExample() {
 
 	// Add Sample data to DB
 	myStore.Post()
-
-
 
 	// Two ways to mount route in your application:
 	// 1. Mount CRUD routes to /gocrud (using Chi)

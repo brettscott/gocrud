@@ -47,22 +47,21 @@ func (m *Mongo) List() {
 }
 
 // Get a record
-func (m *Mongo) Get()    {}
+func (m *Mongo) Get() {}
 
 // When ID not known
-func (m *Mongo) Post()   {
+func (m *Mongo) Post() {
 
 }
 
 // When ID is known
-func (m *Mongo) Put()    {}
+func (m *Mongo) Put() {}
 
 // Partial update
-func (m *Mongo) Patch()  {}
+func (m *Mongo) Patch() {}
 
 // Remove
 func (m *Mongo) Delete() {}
-
 
 func (m *Mongo) connectToMongo() (*mgo.Session, error) {
 	if m.mongoSSLCertificate == "" {

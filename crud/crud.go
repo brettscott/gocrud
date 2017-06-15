@@ -19,9 +19,9 @@ type Crud struct {
 // NewCrud creates a new CRUD instance
 func NewCrud(config *Config, log Logger, statsd StatsDer) *Crud {
 	return &Crud{
-		config: config,
-		log:    log,
-		statsd: statsd,
+		config:   config,
+		log:      log,
+		statsd:   statsd,
 		entities: make(map[string]entity.Entity),
 	}
 }

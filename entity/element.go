@@ -3,34 +3,34 @@ package entity
 // Element (eg humanReadable) is an attribute of Entity (eg users)
 type Element struct {
 	// humanReadable eg humanReadable, description
-	ID           string
+	ID string
 
 	// Label eg Name, Description
-	Label        ElementLabel
+	Label ElementLabel
 
 	// FormType eg hidden, text, select
-	FormType     ElementFormType
+	FormType ElementFormType
 
 	// Value of element in record
-	Value        interface{} // TODO should this be private as we don't want it specified on instantiation??
+	Value interface{} // TODO should this be private as we don't want it specified on instantiation??
 
 	// DataType of "Value" eg string,integer,boolean,keyValues
-	DataType     string
+	DataType string
 
 	// DefaultValue eg "1"
 	DefaultValue interface{}
 
 	// Validation rules
-	Validation   ElementValidation
+	Validation ElementValidation
 
 	// Immutability of element in record.  When "true", cannot be changed after creation/POST
-	Immutable    bool
+	Immutable bool
 
 	// Hydrated indicates whether this record was populated by user/API
-	Hydrated     bool
+	Hydrated bool
 
 	// PrimaryKey is set to "true" when primary key for record
-	PrimaryKey   bool
+	PrimaryKey bool
 }
 
 type Elements []Element
@@ -55,7 +55,7 @@ const ELEMENT_DATA_TYPE_BOOLEAN = "boolean"
 // Inspired by Joi https://github.com/hapijs/joi
 type ElementValidation struct {
 	// Required means the element must not be a zero value (0, false, "")
-	Required   bool
+	Required bool
 
 	// MustProvide means the element must be submitted on every POST and PUT
 	MustProvide bool

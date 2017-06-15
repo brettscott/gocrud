@@ -1,28 +1,29 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/brettscott/gocrud/entity"
 	"github.com/pressly/chi"
-	"net/http"
 	"io/ioutil"
-	"encoding/json"
+	"net/http"
 )
 
 const ACTION_POST = "post"
 
 type APIRoute struct {
 	entities entity.Entities
-	log Logger
-	statsd StatsDer
+	log      Logger
+	statsd   StatsDer
 }
+
 // NewRoute prepares the routes for this package
 func NewRoute(entities entity.Entities, log Logger, statsd StatsDer) func(chi.Router) {
 
 	apiRoute := &APIRoute{
 		entities: entities,
-		log: log,
-		statsd: statsd,
+		log:      log,
+		statsd:   statsd,
 	}
 
 	return func(r chi.Router) {
@@ -47,7 +48,6 @@ func NewRoute(entities entity.Entities, log Logger, statsd StatsDer) func(chi.Ro
 		// TODO persist to DB
 		r.Put("/:entityID/:recordID", apiRoute.put)
 
-
 	}
 }
 
@@ -67,12 +67,11 @@ func (a *APIRoute) post(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(fmt.Sprintf("Bad request - %v", err)))
 		return
-
 	}
 
 	record, err := marshalBodyToRecord(body)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(fmt.Sprintf("Failed to convert JSON - %v", err)))
 		return
 	}
@@ -93,7 +92,6 @@ func (a *APIRoute) post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-
 	w.Write([]byte(fmt.Sprintf("Post\nrecordID: %s\nentityID: %s\nbody: %s\nentity: %+v", record.ID, entityID, body, entity)))
 }
 
@@ -107,10 +105,8 @@ func marshalBodyToRecord(body []byte) (*entity.Record, error) {
 	return &record, nil
 }
 
-
 func (a *APIRoute) put(w http.ResponseWriter, r *http.Request) {
 	entityID := chi.URLParam(r, "entityID")
 	recordID := chi.URLParam(r, "recordID")
 	w.Write([]byte(fmt.Sprintf("Put - entityID: %v, recordID: %v", entityID, recordID)))
 }
-

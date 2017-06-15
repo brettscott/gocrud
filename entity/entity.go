@@ -18,7 +18,6 @@ type Entity struct {
 // Entities eg Users
 type Entities map[string]Entity
 
-
 func (e *Entity) GetElement(elementID string) (*Element, error) {
 
 	for _, element := range e.Elements {
@@ -31,6 +30,7 @@ func (e *Entity) GetElement(elementID string) (*Element, error) {
 
 const HYDRATE_FROM_RECORD_ACTION_POST = "post"
 const HYDRATE_FROM_RECORD_ACTION_PUT = "put"
+const HYDRATE_FROM_RECORD_ACTION_PATCH = "patch"
 
 func (e *Entity) HydrateFromRecord(record *Record, action string) error {
 	for i, _ := range e.Elements {
@@ -106,6 +106,7 @@ func (e *Entity) validateDataType(element Element) error {
 
 const VALIDATE_ACTION_POST = "post"
 const VALIDATE_ACTION_PUT = "put"
+const VALIDATE_ACTION_PATCH = "patch"
 
 // CheckConfiguration makes sure the entity and its elements have a sensible configuration
 // TODO this should be kicked off when application starts.  Create "NewEntity()".

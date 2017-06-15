@@ -1,11 +1,11 @@
 package api
 
 import (
-	"testing"
 	"github.com/brettscott/gocrud/entity"
 	"github.com/mergermarket/gotools"
 	"net/http"
 	"net/http/httptest"
+	"testing"
 
 	"github.com/pressly/chi"
 )
@@ -41,11 +41,10 @@ func TestAPIRoute(t *testing.T) {
 	}
 }
 
-
 func makeEntities() entity.Entities {
-	return 	entity.Entities{
-		entity.Entity{},
-		entity.Entity{},
+	return entity.Entities{
+		"users":     entity.Entity{},
+		"computers": entity.Entity{},
 	}
 
 }

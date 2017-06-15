@@ -1,8 +1,8 @@
 package entity
 
 import (
-	"testing"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 func TestEntity_HydrateFromRecord(t *testing.T) {
@@ -24,11 +24,11 @@ func TestEntity_HydrateFromRecord(t *testing.T) {
 			ID: "users",
 			KeyValues: KeyValues{
 				{
-					Key: "id",
+					Key:   "id",
 					Value: "1234",
 				},
 				{
-					Key: "name",
+					Key:   "name",
 					Value: "Brett Scott",
 				},
 			},
@@ -44,7 +44,7 @@ func TestEntity_HydrateFromRecord(t *testing.T) {
 	})
 }
 
-func TestEntity_ValidateSchema(t *testing.T) {
+func TestEntity_Validate(t *testing.T) {
 
 	t.Run("Validate POST", func(t *testing.T) {
 
@@ -57,8 +57,7 @@ func TestEntity_ValidateSchema(t *testing.T) {
 					DataType:   ELEMENT_DATA_TYPE_STRING,
 					Immutable:  true,
 					PrimaryKey: true,
-					Validation: ElementValidation{
-					},
+					Validation: ElementValidation{},
 				},
 				{
 					ID:       "name",
@@ -77,12 +76,11 @@ func TestEntity_ValidateSchema(t *testing.T) {
 				ID: "users",
 				KeyValues: KeyValues{
 					{
-						Key: "name",
+						Key:   "name",
 						Value: "Brett Scott",
 					},
 				},
 			}
-
 
 			entity.HydrateFromRecord(record, HYDRATE_FROM_RECORD_ACTION_POST)
 			err := entity.Validate(VALIDATE_ACTION_POST)
@@ -90,13 +88,12 @@ func TestEntity_ValidateSchema(t *testing.T) {
 			assert.NoError(t, err, "Should not have failed because required fields provided")
 		})
 
-
-		t.Run("Fails when required fields is empty", func(t *testing.T) {
+		t.Run("Fails when required field is empty", func(t *testing.T) {
 			record := &Record{
 				ID: "users",
 				KeyValues: KeyValues{
 					{
-						Key: "name",
+						Key:   "name",
 						Value: "",
 					},
 				},
@@ -113,7 +110,7 @@ func TestEntity_ValidateSchema(t *testing.T) {
 				ID: "users",
 				KeyValues: KeyValues{
 					{
-						Key: "name",
+						Key:   "name",
 						Value: 12345,
 					},
 				},
@@ -144,7 +141,7 @@ func TestEntity_ValidateSchema(t *testing.T) {
 				ID: "users",
 				KeyValues: KeyValues{
 					{
-						Key: "name",
+						Key:   "name",
 						Value: "Brett",
 					},
 				},
@@ -172,7 +169,7 @@ func TestEntity_ValidateSchema(t *testing.T) {
 			}
 
 			record := &Record{
-				ID: "users",
+				ID:        "users",
 				KeyValues: KeyValues{},
 			}
 
@@ -181,7 +178,6 @@ func TestEntity_ValidateSchema(t *testing.T) {
 
 			assert.Error(t, err, `Should have failed because field must be provided when "MustProvide" is set`)
 		})
-
 
 	})
 
