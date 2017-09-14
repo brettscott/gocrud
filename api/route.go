@@ -45,14 +45,14 @@ func NewRoute(entities entity.Entities, store store.Storer, log Logger, statsd S
 		// Post/Create
 		// eg POST http://localhost:8080/gocrud/api/user
 		// TODO check content-type header on POST
-		r.Post("/:entityID", apiRoute.saveRecord(true))
+		r.Post("/:entityID", apiRoute.save(true))
 
 		// Put/Update
 		// eg PUT http://localhost:8080/gocrud/api/user/1234
 		// TODO check content-type header on PUT
 		// TODO validation
 		// TODO persist to DB
-		r.Put("/:entityID/:recordID", apiRoute.saveRecord(false))
+		r.Put("/:entityID/:recordID", apiRoute.save(false))
 
 	}
 }
@@ -73,64 +73,6 @@ func (a *APIRoute) list(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusBadRequest)
 	w.Write([]byte(fmt.Sprintf("Invalid entityID: %s", entityID)))
 
-}
-
-func (a *APIRoute) post(w http.ResponseWriter, r *http.Request) {
-	entityID := chi.URLParam(r, "entityID")
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(fmt.Sprintf("Bad request - %v", err)))
-		return
-	}
-
-	record, err := marshalBodyToRecord(body)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(fmt.Sprintf("Failed to convert JSON - %v", err)))
-		return
-	}
-
-	entity := a.entities[entityID]
-	fmt.Println("Entity: %+v", entity)
-
-	err = entity.HydrateFromRecord(record, ACTION_POST)
-	fmt.Println("Hydrated Entity: %+v", entity)
-
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(fmt.Sprintf("Failed to hydrate Entity from Record - %v", err)))
-		return
-	}
-	err = entity.Validate(ACTION_POST)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(fmt.Sprintf("Failed validation - %v", err)))
-		return
-	}
-
-	recordID, err := a.store.Post(entity)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(fmt.Sprintf("Failed post entity %v.  Error: %v", entity, err)))
-		return
-	}
-
-	dbRecord, err := a.store.Get(entity, recordID)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(fmt.Sprintf("Failed to get newly created DB record. entityID: %s, recordID: %s.  Error: %v", entityID, recordID, err)))
-		return
-	}
-
-	jsonResponse, err := json.Marshal(dbRecord)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(fmt.Sprintf("Failed to convert DB record to json.  Error: %v", err)))
-		return
-	}
-	w.WriteHeader(http.StatusCreated)
-	w.Write(jsonResponse)
 }
 
 // get returns a record from the database for the given recordID in given entityID
@@ -172,12 +114,7 @@ func marshalBodyToRecord(body []byte) (*entity.Record, error) {
 	return &record, nil
 }
 
-func (a *APIRoute) put(w http.ResponseWriter, r *http.Request) {
-
-}
-
-func (a *APIRoute) saveRecord(isRecordNew bool) func(w http.ResponseWriter, r *http.Request) {
-
+func (a *APIRoute) save(isRecordNew bool) func(w http.ResponseWriter, r *http.Request) {
 	action := ACTION_PUT
 	if isRecordNew {
 		action = ACTION_POST
@@ -200,11 +137,7 @@ func (a *APIRoute) saveRecord(isRecordNew bool) func(w http.ResponseWriter, r *h
 		}
 
 		entity := a.entities[entityID]
-		fmt.Println("Entity: %+v", entity)
-
 		err = entity.HydrateFromRecord(record, action)
-		fmt.Println("Hydrated Entity: %+v", entity)
-
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(fmt.Sprintf("Failed to hydrate Entity from Record - %v", err)))
@@ -221,7 +154,12 @@ func (a *APIRoute) saveRecord(isRecordNew bool) func(w http.ResponseWriter, r *h
 		if action == ACTION_POST {
 			recordID, err = a.store.Post(entity)
 		} else {
-			recordID, err = a.store.Put(entity)
+			recordID = chi.URLParam(r, "recordID")
+			if recordID == "" {
+				w.WriteHeader(http.StatusBadRequest)
+				w.Write([]byte(fmt.Sprintf("Missing recordID - %v", err)))
+			}
+			err = a.store.Put(entity, recordID)
 		}
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)

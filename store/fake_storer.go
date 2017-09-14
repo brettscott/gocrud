@@ -23,8 +23,8 @@ func (f *FakeStorer) Post(entity entity.Entity) (string, error) {
 }
 
 // Put
-func (f *FakeStorer) Put(entity entity.Entity) (string, error) {
-	return "", nil
+func (f *FakeStorer) Put(entity entity.Entity, recordID string) error {
+	return nil
 }
 
 // Patch

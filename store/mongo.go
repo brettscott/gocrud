@@ -60,6 +60,9 @@ func (m *Mongo) Get(e entity.Entity, recordID string) (entity.Record, error) { /
 
 	record := entity.Record{}
 
+	if !bson.IsObjectIdHex(recordID) {
+		fmt.Println("invalid: ", recordID)
+	}
 	query := bson.M{
 		MONGO_ID: bson.ObjectIdHex(recordID),
 	}
@@ -103,16 +106,18 @@ func (m *Mongo) Post(entity entity.Entity) (string, error) {
 	collectionName := entity.ID
 	c := session.DB(m.databaseName).C(collectionName)
 
-	dbID := bson.NewObjectIdWithTime(time.Now().UTC())
+	objectID := bson.NewObjectIdWithTime(time.Now().UTC())
 	document := bson.M{
-		MONGO_ID: dbID,
+		MONGO_ID: objectID,
 		"_crud": bson.M{
 			"dateCreated": time.Now().UTC().Format(time.RFC3339Nano),
 		},
 	}
 
 	for _, element := range entity.Elements {
-		document[element.ID] = element.Value
+		if element.PrimaryKey != true {
+			document[element.ID] = element.Value
+		}
 	}
 
 	fmt.Printf("Post document: %+v", document)
@@ -122,44 +127,43 @@ func (m *Mongo) Post(entity entity.Entity) (string, error) {
 		return "", fmt.Errorf("Problem inserting %+v. Error: %v", entity, err)
 	}
 
-	return dbID.Hex(), nil
+	return objectID.Hex(), nil
 }
 
 // Update (when ID is known)
-func (m *Mongo) Put(entity entity.Entity) (string, error) {
+func (m *Mongo) Put(entity entity.Entity, recordID string) error {
+	if recordID == "" {
+		return fmt.Errorf("Failed to updated because primary key is empty.  Entity: %+v", entity)
+	}
+
 	session := m.session.Copy()
 	defer session.Close()
 
 	collectionName := entity.ID
 	c := session.DB(m.databaseName).C(collectionName)
 
+	documentKvs := bson.M{}
+	for _, element := range entity.Elements {
+		if element.PrimaryKey != true {
+			documentKvs[element.ID] = element.Value
+		}
+	}
+
 	document := bson.M{
 		"$push": bson.M{
 			"_crud.dateUpdated": time.Now().UTC().Format(time.RFC3339Nano),
 		},
+		"$set": documentKvs,
 	}
-
-	var id string
-	for _, element := range entity.Elements {
-		if element.PrimaryKey == true {
-			id = element.Value.(string)
-		} else {
-			document[element.ID] = element.Value
-		}
-	}
-
-	if id == "" {
-		return "", fmt.Errorf("Failed to updated because primary key is empty.  Entity: %+v", entity)
-	}
-
 	fmt.Printf("Put document: %+v", document)
 
-	err := c.UpdateId(id, document)
+	objectID := bson.ObjectIdHex(recordID)
+	err := c.UpdateId(objectID, document)
 	if err != nil {
-		return "", fmt.Errorf("Problem updating. Entity: %+v, ID: %v. Error: %v", entity, id, err)
+		return fmt.Errorf("Problem updating. RecordID: %s, Error: %v", recordID, err)
 	}
 
-	return id, nil
+	return nil
 }
 
 // Partial update
