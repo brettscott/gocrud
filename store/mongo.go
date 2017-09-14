@@ -11,6 +11,8 @@ import (
 	"time"
 )
 
+const MONGO_ID = "_id"
+
 //Mongo Represents Mongo data store
 type Mongo struct {
 	mongoURL            string
@@ -56,12 +58,10 @@ func (m *Mongo) Get(e entity.Entity, recordID string) (entity.Record, error) { /
 	collectionName := e.ID // TODO: make more flexible?
 	c := session.DB(m.databaseName).C(collectionName)
 
-	record := entity.Record{
-	//ID: recordID,
-	}
+	record := entity.Record{}
 
 	query := bson.M{
-		"_id": bson.ObjectIdHex(recordID),
+		MONGO_ID: bson.ObjectIdHex(recordID),
 	}
 
 	var kvs bson.M
@@ -80,7 +80,7 @@ func (m *Mongo) Get(e entity.Entity, recordID string) (entity.Record, error) { /
 		}
 
 		if element.PrimaryKey == true {
-			kv.Value = kvs["_id"]
+			kv.Value = kvs[MONGO_ID]
 		} else {
 			if _, ok := kvs[element.ID]; ok {
 				kv.Value = kvs[element.ID]
@@ -105,7 +105,7 @@ func (m *Mongo) Post(entity entity.Entity) (string, error) {
 
 	dbID := bson.NewObjectIdWithTime(time.Now().UTC())
 	document := bson.M{
-		"_id": dbID,
+		MONGO_ID: dbID,
 		"_crud": bson.M{
 			"dateCreated": time.Now().UTC().Format(time.RFC3339Nano),
 		},
