@@ -44,6 +44,19 @@ Runs within Docker containers locally.  Assumes you have Docker installed.
     	]
     }
     ```
+* Put:
+    ```
+    PUT http://localhost:8080/gocrud/api/users/59ba5a8a0000000000000000
+    Content-Type: application/json
+    {
+    	"keyValues": [
+    		{
+    			"key": "name",
+    			"value": "Brett"
+    		}
+    	]
+    }
+    ```    
 * View in MongoDB:  
     ```
     mongo
@@ -57,12 +70,11 @@ Everythings!
 
 * API
     * GET
-        * Handle KeyValues as an input (entity.go not permitting keyValues)
         * Write Mongo integration test
     * POST
-        * Handle KeyValues as an input (entity.go not permitting keyValues)
         * Write Mongo integration test
     * PUT
+        * Write Mongo integration test
     * PATCH
     * DELETE
 * Front-end
