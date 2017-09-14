@@ -39,21 +39,16 @@ func NewRoute(entities entity.Entities, store store.Storer, log Logger, statsd S
 
 		// Get record
 		// eg GET http://localhost:8080/gocrud/api/user/12345
-		// TODO check content-type header on POST
-		// TODO validation
-		// TODO get DB
 		r.Get("/:entityID/:recordID", apiRoute.get)
 
 		// Post/Create
 		// eg POST http://localhost:8080/gocrud/api/user
 		// TODO check content-type header on POST
-		// TODO validation
-		// TODO persist to DB
 		r.Post("/:entityID", apiRoute.post)
 
 		// Put/Update
 		// eg PUT http://localhost:8080/gocrud/api/user/1234
-		// TODO check content-type header on POST
+		// TODO check content-type header on PUT
 		// TODO validation
 		// TODO persist to DB
 		r.Put("/:entityID/:recordID", apiRoute.put)
