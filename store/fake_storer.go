@@ -23,7 +23,9 @@ func (f *FakeStorer) Post(entity entity.Entity) (string, error) {
 }
 
 // Put
-func (f *FakeStorer) Put() {}
+func (f *FakeStorer) Put(entity entity.Entity) (string, error) {
+	return "", nil
+}
 
 // Patch
 func (f *FakeStorer) Patch() {}

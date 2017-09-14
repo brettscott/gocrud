@@ -49,7 +49,7 @@ func (m *Mongo) List() {
 }
 
 // Get a record
-func (m *Mongo) Get(e entity.Entity, recordID string) (entity.Record, error) {
+func (m *Mongo) Get(e entity.Entity, recordID string) (entity.Record, error) { // TODO change to *entity.Record
 	session := m.session.Copy()
 	defer session.Close()
 
@@ -57,7 +57,7 @@ func (m *Mongo) Get(e entity.Entity, recordID string) (entity.Record, error) {
 	c := session.DB(m.databaseName).C(collectionName)
 
 	record := entity.Record{
-		ID: recordID,
+	//ID: recordID,
 	}
 
 	query := bson.M{
@@ -67,22 +67,26 @@ func (m *Mongo) Get(e entity.Entity, recordID string) (entity.Record, error) {
 	var kvs bson.M
 	err := c.Find(query).One(&kvs)
 	if err != nil {
-		return record, fmt.Errorf("Failed to get record: %s", err)
+		return record, fmt.Errorf("Failed to get record.  Query: %+v.  Error: %s", query, err)
 	}
 
 	// Loop through each of the entity's elements to pull element's value from DB row.
 	for _, element := range e.Elements {
-		fmt.Printf("\nElement: %+v\n", element)
+		//fmt.Printf("\nElement: %+v\n", element)
 
 		kv := entity.KeyValue{
 			Key:      element.ID,
 			DataType: element.DataType,
 		}
 
-		if _, ok := kvs[element.ID]; ok {
-			kv.Value = kvs[element.ID]
+		if element.PrimaryKey == true {
+			kv.Value = kvs["_id"]
 		} else {
-			kv.Value = nil
+			if _, ok := kvs[element.ID]; ok {
+				kv.Value = kvs[element.ID]
+			} else {
+				kv.Value = nil
+			}
 		}
 
 		record.KeyValues = append(record.KeyValues, kv)
@@ -96,7 +100,7 @@ func (m *Mongo) Post(entity entity.Entity) (string, error) {
 	session := m.session.Copy()
 	defer session.Close()
 
-	collectionName := entity.ID // TODO: make more flexible?
+	collectionName := entity.ID
 	c := session.DB(m.databaseName).C(collectionName)
 
 	dbID := bson.NewObjectIdWithTime(time.Now().UTC())
@@ -122,7 +126,41 @@ func (m *Mongo) Post(entity entity.Entity) (string, error) {
 }
 
 // Update (when ID is known)
-func (m *Mongo) Put() {}
+func (m *Mongo) Put(entity entity.Entity) (string, error) {
+	session := m.session.Copy()
+	defer session.Close()
+
+	collectionName := entity.ID
+	c := session.DB(m.databaseName).C(collectionName)
+
+	document := bson.M{
+		"$push": bson.M{
+			"_crud.dateUpdated": time.Now().UTC().Format(time.RFC3339Nano),
+		},
+	}
+
+	var id string
+	for _, element := range entity.Elements {
+		if element.PrimaryKey == true {
+			id = element.Value.(string)
+		} else {
+			document[element.ID] = element.Value
+		}
+	}
+
+	if id == "" {
+		return "", fmt.Errorf("Failed to updated because primary key is empty.  Entity: %+v", entity)
+	}
+
+	fmt.Printf("Put document: %+v", document)
+
+	err := c.UpdateId(id, document)
+	if err != nil {
+		return "", fmt.Errorf("Problem updating. Entity: %+v, ID: %v. Error: %v", entity, id, err)
+	}
+
+	return id, nil
+}
 
 // Partial update
 func (m *Mongo) Patch() {}

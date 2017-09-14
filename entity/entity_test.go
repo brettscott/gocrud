@@ -21,7 +21,6 @@ func TestEntity_HydrateFromRecord(t *testing.T) {
 		}
 
 		record := &Record{
-			ID: "users",
 			KeyValues: KeyValues{
 				{
 					Key:   "id",
@@ -73,7 +72,6 @@ func TestEntity_Validate(t *testing.T) {
 
 		t.Run("Passes when required fields provided", func(t *testing.T) {
 			record := &Record{
-				ID: "users",
 				KeyValues: KeyValues{
 					{
 						Key:   "name",
@@ -90,7 +88,6 @@ func TestEntity_Validate(t *testing.T) {
 
 		t.Run("Fails when required field is empty", func(t *testing.T) {
 			record := &Record{
-				ID: "users",
 				KeyValues: KeyValues{
 					{
 						Key:   "name",
@@ -107,7 +104,6 @@ func TestEntity_Validate(t *testing.T) {
 
 		t.Run("Fails when field receives the wrong type of data", func(t *testing.T) {
 			record := &Record{
-				ID: "users",
 				KeyValues: KeyValues{
 					{
 						Key:   "name",
@@ -126,6 +122,13 @@ func TestEntity_Validate(t *testing.T) {
 			entity := &Entity{
 				Elements: Elements{
 					{
+						ID:         "id",
+						Label:      "Identifier",
+						FormType:   ELEMENT_FORM_TYPE_TEXT,
+						DataType:   ELEMENT_DATA_TYPE_STRING,
+						PrimaryKey: true,
+					},
+					{
 						ID:       "name",
 						Label:    "Name",
 						FormType: ELEMENT_FORM_TYPE_TEXT,
@@ -138,7 +141,6 @@ func TestEntity_Validate(t *testing.T) {
 			}
 
 			record := &Record{
-				ID: "users",
 				KeyValues: KeyValues{
 					{
 						Key:   "name",
@@ -157,6 +159,13 @@ func TestEntity_Validate(t *testing.T) {
 			entity := &Entity{
 				Elements: Elements{
 					{
+						ID:         "id",
+						Label:      "Identifier",
+						FormType:   ELEMENT_FORM_TYPE_TEXT,
+						DataType:   ELEMENT_DATA_TYPE_STRING,
+						PrimaryKey: true,
+					},
+					{
 						ID:       "name",
 						Label:    "Name",
 						FormType: ELEMENT_FORM_TYPE_TEXT,
@@ -169,7 +178,6 @@ func TestEntity_Validate(t *testing.T) {
 			}
 
 			record := &Record{
-				ID:        "users",
 				KeyValues: KeyValues{},
 			}
 

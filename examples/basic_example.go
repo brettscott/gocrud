@@ -27,6 +27,13 @@ func BasicExample() {
 		Labels: "Users",
 		Elements: entity.Elements{
 			{
+				ID:         "id",
+				Label:      "ID",
+				PrimaryKey: true,
+				FormType:   entity.ELEMENT_FORM_TYPE_HIDDEN,
+				DataType:   entity.ELEMENT_DATA_TYPE_STRING,
+			},
+			{
 				ID:       "name",
 				Label:    "Name",
 				FormType: entity.ELEMENT_FORM_TYPE_TEXT,

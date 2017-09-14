@@ -55,6 +55,8 @@ func (e *Entity) HydrateFromRecord(record *Record, action string) error {
 func (e *Entity) Validate(action string) error {
 
 	errors := make([]string, 0)
+	var primaryKey ElementLabel
+
 	for _, element := range e.Elements {
 
 		if err := e.validateDataType(element); err != nil {
@@ -70,6 +72,18 @@ func (e *Entity) Validate(action string) error {
 		if element.Validation.MustProvide == true && element.Hydrated == false {
 			errors = append(errors, fmt.Sprintf(`"%s" (%s) must be provided`, element.Label, element.ID))
 		}
+
+		if element.PrimaryKey == true {
+			if primaryKey != "" {
+				errors = append(errors, fmt.Sprintf(`"%s" (%s) cannot be a primary key because "%s" is already one`, element.Label, element.ID, primaryKey))
+			} else {
+				primaryKey = element.Label
+			}
+		}
+	}
+
+	if primaryKey == "" {
+		errors = append(errors, fmt.Sprintf(`Missing a primary key element`))
 	}
 
 	if len(errors) > 0 {

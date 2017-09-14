@@ -2,13 +2,11 @@ package entity
 
 // Record is the representation of a database record "over the wire" between the client and app.
 type Record struct {
-	ID        string    `json:"id"`
 	KeyValues KeyValues `json:"keyValues"`
 }
 
 /* Represented as JSON:
 {
-	id: "1234",
 	keyValues:
 	[
 		{
