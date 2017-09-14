@@ -36,14 +36,19 @@ Runs within Docker containers locally.  Assumes you have Docker installed.
     POST http://localhost:8080/gocrud/api/users
     Content-Type: application/json
     {
-    	"id": "world",
     	"keyValues": [
     		{
     			"key": "name",
     			"value": "Brett"
     		}
-    		]
+    	]
     }
+    ```
+* View in MongoDB:  
+    ```
+    mongo
+    > use gocrud;
+    > db.users.find({});
     ```
 
 ## Todo

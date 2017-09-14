@@ -113,14 +113,28 @@ func (a *APIRoute) post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	dbID, err := a.store.Post(entity)
+	recordID, err := a.store.Post(entity)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(fmt.Sprintf("Failed post entity %v.  Error: %v", entity, err)))
 		return
 	}
 
-	w.Write([]byte(fmt.Sprintf("Post\nrecordID: %s\nentityID: %s\nbody: %s\nentity: %+v\ndbID: %s\n", record.ID, entityID, body, entity, dbID)))
+	dbRecord, err := a.store.Get(entity, recordID)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(fmt.Sprintf("Failed to get newly created DB record. entityID: %s, recordID: %s.  Error: %v", entityID, recordID, err)))
+		return
+	}
+
+	jsonResponse, err := json.Marshal(dbRecord)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(fmt.Sprintf("Failed to convert DB record to json.  Error: %v", err)))
+		return
+	}
+	w.WriteHeader(http.StatusCreated)
+	w.Write(jsonResponse)
 }
 
 // get returns a record from the database for the given recordID in given entityID
@@ -138,7 +152,13 @@ func (a *APIRoute) get(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		w.Write([]byte(fmt.Sprintf("Post\nrecordID: %s\nentityID: %s\nrecord: %+v", recordID, entityID, record)))
+		jsonResponse, err := json.Marshal(record)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(fmt.Sprintf("Failed to convert record to json.  Error: %v", err)))
+			return
+		}
+		w.Write(jsonResponse)
 		return
 	}
 
