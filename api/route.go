@@ -4,17 +4,17 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/brettscott/gocrud/entity"
+	"github.com/brettscott/gocrud/store"
 	"github.com/pressly/chi"
 	"io/ioutil"
 	"net/http"
-	"github.com/brettscott/gocrud/store"
 )
 
 const ACTION_POST = "post"
 
 type APIRoute struct {
 	entities entity.Entities
-	store store.Storer
+	store    store.Storer
 	log      Logger
 	statsd   StatsDer
 }
@@ -24,7 +24,7 @@ func NewRoute(entities entity.Entities, store store.Storer, log Logger, statsd S
 
 	apiRoute := &APIRoute{
 		entities: entities,
-		store: store,
+		store:    store,
 		log:      log,
 		statsd:   statsd,
 	}
@@ -67,7 +67,16 @@ func (a *APIRoute) root(w http.ResponseWriter, r *http.Request) {
 
 func (a *APIRoute) list(w http.ResponseWriter, r *http.Request) {
 	entityID := chi.URLParam(r, "entityID")
-	w.Write([]byte(fmt.Sprintf("List - entityID: %s", entityID)))
+
+	if entity, ok := a.entities[entityID]; ok {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(fmt.Sprintf("List - entityID: %s, entity: %s", entityID, entity.Labels)))
+		return
+	}
+
+	w.WriteHeader(http.StatusBadRequest)
+	w.Write([]byte(fmt.Sprintf("Invalid entityID: %s", entityID)))
+
 }
 
 func (a *APIRoute) post(w http.ResponseWriter, r *http.Request) {
@@ -134,7 +143,7 @@ func (a *APIRoute) get(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusBadRequest)
-	w.Write([]byte(fmt.Sprintf("Invalid entityID %s", entityID)))
+	w.Write([]byte(fmt.Sprintf("Invalid entityID: %s", entityID)))
 }
 
 // marshalBodyToRecord converts JSON to entity.Record

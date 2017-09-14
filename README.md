@@ -25,12 +25,26 @@ Runs within Docker containers locally.  Assumes you have Docker installed.
 
 ## Example
 
-* Code: [./sample_app.go](./sample_app.go)
+* Code: [./examples/basic_examples.go](./examples/basic_examples.go)
 * Execute: `run.sh -l`
 * View: [http://localhost:8080/gocrud](http://localhost:8080/gocrud)  _(where localhost is IP of your Docker VM)_
     * [http://localhost:8080/gocrud/healtcheck](http://localhost:8080/gocrud/healthcheck)
-    * [http://localhost:8080/gocrud/api/user](http://localhost:8080/gocrud/api/user)
-
+    * [http://localhost:8080/gocrud/api/users](http://localhost:8080/gocrud/api/users)
+    * [http://localhost:8080/gocrud/api/users/59ba5a8a0000000000000000](http://localhost:8080/gocrud/api/users/59ba5a8a0000000000000000) _(example record ID)
+* Post:
+    ```
+    POST http://localhost:8080/gocrud/api/users
+    Content-Type: application/json
+    {
+    	"id": "world",
+    	"keyValues": [
+    		{
+    			"key": "name",
+    			"value": "Brett"
+    		}
+    		]
+    }
+    ```
 
 ## Todo
 

@@ -7,8 +7,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/pressly/chi"
 	"github.com/brettscott/gocrud/store"
+	"github.com/pressly/chi"
 )
 
 func TestAPIRoute(t *testing.T) {

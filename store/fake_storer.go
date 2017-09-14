@@ -2,13 +2,12 @@ package store
 
 import "github.com/brettscott/gocrud/entity"
 
-
 func NewFakeStorer() *FakeStorer {
 	return &FakeStorer{}
 }
 
 // FakeStorer is a faked out storer
-type FakeStorer struct {}
+type FakeStorer struct{}
 
 // List
 func (f *FakeStorer) List() {}

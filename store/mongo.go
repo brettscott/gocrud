@@ -4,11 +4,11 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
+	"github.com/brettscott/gocrud/entity"
 	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 	"net"
 	"time"
-	"github.com/brettscott/gocrud/entity"
-	"gopkg.in/mgo.v2/bson"
 )
 
 //Mongo Represents Mongo data store
@@ -53,7 +53,7 @@ func (m *Mongo) Get(e entity.Entity, recordID string) (entity.Record, error) {
 	session := m.session.Copy()
 	defer session.Close()
 
-	collectionName := e.ID  // TODO: make more flexible?
+	collectionName := e.ID // TODO: make more flexible?
 	c := session.DB(m.databaseName).C(collectionName)
 
 	record := entity.Record{
@@ -75,7 +75,7 @@ func (m *Mongo) Get(e entity.Entity, recordID string) (entity.Record, error) {
 		fmt.Printf("\nElement: %+v\n", element)
 
 		kv := entity.KeyValue{
-			Key: element.ID,
+			Key:      element.ID,
 			DataType: element.DataType,
 		}
 
@@ -96,7 +96,7 @@ func (m *Mongo) Post(entity entity.Entity) (string, error) {
 	session := m.session.Copy()
 	defer session.Close()
 
-	collectionName := entity.ID  // TODO: make more flexible?
+	collectionName := entity.ID // TODO: make more flexible?
 	c := session.DB(m.databaseName).C(collectionName)
 
 	dbID := bson.NewObjectIdWithTime(time.Now().UTC())
