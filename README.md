@@ -68,6 +68,7 @@ Runs within Docker containers locally.  Assumes you have Docker installed.
 
 Everythings!
 
+* Update Chi to V3 (replaces /:id with /{id})
 * API
     * GET
         * Write Mongo integration test
@@ -76,6 +77,7 @@ Everythings!
     * PUT
         * Write Mongo integration test
     * PATCH
+        * **NEXT**
     * DELETE
 * Front-end
     * Create
