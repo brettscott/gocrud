@@ -151,14 +151,13 @@ func (a *APIRoute) save(isRecordNew bool, isPartialPayload bool) func(w http.Res
 		}
 
 		e := a.entities[entityID]
-		elementsData := entity.NewElementsData(e.Elements)
-		err = elementsData.HydrateFromRecord(record, action)
+		entityData := entity.HydrateFromRecord(record, action)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(fmt.Sprintf("Failed to hydrate Entity from ClientRecord - %v", err)))
 			return
 		}
-		err = elementsData.Validate(action)
+		err = entity.Validate(entityData, action)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte(fmt.Sprintf("Failed validation - %v", err)))
