@@ -81,6 +81,10 @@ func (e *Entity) Validate(action string) error {
 				primaryKey = element.Label
 			}
 		}
+
+		if action != HYDRATE_FROM_RECORD_ACTION_PATCH && element.PrimaryKey != true && element.Hydrated == false {
+			errors = append(errors, fmt.Sprintf(`"%s" (%s) was not supplied on "%s"`, element.Label, element.ID, action))
+		}
 	}
 
 	if primaryKey == "" {
@@ -94,8 +98,10 @@ func (e *Entity) Validate(action string) error {
 	return nil
 }
 
+// validateDataType
+// Unmarshal stores one of these in the interface value: "bool" for JSON booleans, "float64" for JSON numbers,
+// "string" for JSON strings, "[]interface{}" for JSON arrays, "map[string]interface{}" for JSON objects,  "nil" for JSON null
 func (e *Entity) validateDataType(element Element) error {
-
 	if element.Value == nil {
 		return nil
 	}
@@ -103,7 +109,7 @@ func (e *Entity) validateDataType(element Element) error {
 	// Todo Move out of here so it's only created once!
 	dataTypes := make(map[string]string)
 	dataTypes[ELEMENT_DATA_TYPE_STRING] = "string"
-	dataTypes[ELEMENT_DATA_TYPE_INTEGER] = "int"
+	dataTypes[ELEMENT_DATA_TYPE_NUMBER] = "float64"
 	dataTypes[ELEMENT_DATA_TYPE_BOOLEAN] = "bool"
 
 	if _, ok := dataTypes[element.DataType]; !ok {
@@ -130,7 +136,7 @@ func (e *Entity) CheckConfiguration() error {
 	// Todo Move out of here so it's only created once!
 	dataTypes := make(map[string]string)
 	dataTypes[ELEMENT_DATA_TYPE_STRING] = "string"
-	dataTypes[ELEMENT_DATA_TYPE_INTEGER] = "int"
+	dataTypes[ELEMENT_DATA_TYPE_NUMBER] = "float64"
 	dataTypes[ELEMENT_DATA_TYPE_BOOLEAN] = "bool"
 
 	errors := make([]string, 0)

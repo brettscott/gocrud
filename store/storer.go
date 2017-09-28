@@ -7,6 +7,6 @@ type Storer interface {
 	Get(e entity.Entity, recordID string) (entity.Record, error)
 	Post(entity entity.Entity) (string, error)
 	Put(entity entity.Entity, recordID string) error
-	Patch()
+	Patch(entity entity.Entity, recordID string) error
 	Delete()
 }

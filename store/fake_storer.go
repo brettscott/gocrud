@@ -30,7 +30,9 @@ func (f *FakeStorer) Put(entity entity.Entity, recordID string) error {
 }
 
 // Patch
-func (f *FakeStorer) Patch() {}
+func (f *FakeStorer) Patch(entity entity.Entity, recordID string) error {
+	return nil
+}
 
 // Delete
 func (f *FakeStorer) Delete() {}

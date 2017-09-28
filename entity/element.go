@@ -43,7 +43,7 @@ const ELEMENT_FORM_TYPE_TEXT = "text"
 const ELEMENT_FORM_TYPE_SELECT = "select"
 
 const ELEMENT_DATA_TYPE_STRING = "string"
-const ELEMENT_DATA_TYPE_INTEGER = "integer"
+const ELEMENT_DATA_TYPE_NUMBER = "number"
 const ELEMENT_DATA_TYPE_BOOLEAN = "boolean"
 
 //ElementTypes := []string {

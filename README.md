@@ -78,9 +78,12 @@ Everythings!
         * Write Mongo integration test
     * PATCH
         * **NEXT**
+        * age is float64 but want int. //
     * DELETE
     * LIST
+        * Write Mongo integration test
         * Pagination
+    * Authentication and authorisation
 * Front-end
     * Create
     * Results

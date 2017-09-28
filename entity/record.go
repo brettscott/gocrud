@@ -10,6 +10,8 @@ type Record struct {
 }
 
 // UnmarshalJSON converts from browser JSON
+// Unmarshal stores one of these in the interface value: "bool" for JSON booleans, "float64" for JSON numbers,
+// "string" for JSON strings, "[]interface{}" for JSON arrays, "map[string]interface{}" for JSON objects,  "nil" for JSON null
 func (r *Record) UnmarshalJSON(body []byte) error {
 	type Alias Record
 	if err := json.Unmarshal(body, (*Alias)(r)); err != nil {
@@ -29,8 +31,8 @@ func (r *Record) UnmarshalJSON(body []byte) error {
 		},
 		{
 			key: "age",
-			dataType: "integer",
-			valueInteger: 22,
+			dataType: "number",
+			value: 22,
 		},
 		{
 			key: "likes",
@@ -44,7 +46,7 @@ func (r *Record) UnmarshalJSON(body []byte) error {
 				},
 				{
 					key: "temperature",
-					dataType: "integer",
+					dataType: "number",
 					value: 33,
 				},
 			],

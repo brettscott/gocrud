@@ -43,7 +43,7 @@ func BasicExample() {
 				ID:           "age",
 				Label:        "Age",
 				FormType:     entity.ELEMENT_FORM_TYPE_TEXT,
-				DataType:     entity.ELEMENT_DATA_TYPE_INTEGER,
+				DataType:     entity.ELEMENT_DATA_TYPE_NUMBER,
 				DefaultValue: 22,
 			},
 		},

@@ -12,6 +12,7 @@ import (
 
 const ACTION_POST = "post"
 const ACTION_PUT = "put"
+const ACTION_PATCH = "patch"
 
 type APIRoute struct {
 	entities entity.Entities
@@ -46,14 +47,19 @@ func NewRoute(entities entity.Entities, store store.Storer, log Logger, statsd S
 		// Post/Create
 		// eg POST http://localhost:8080/gocrud/api/user
 		// TODO check content-type header on POST
-		r.Post("/:entityID", apiRoute.save(true))
+		r.Post("/:entityID", apiRoute.save(true, false))
 
 		// Put/Update
 		// eg PUT http://localhost:8080/gocrud/api/user/1234
 		// TODO check content-type header on PUT
 		// TODO validation
-		// TODO persist to DB
-		r.Put("/:entityID/:recordID", apiRoute.save(false))
+		r.Put("/:entityID/:recordID", apiRoute.save(false, false))
+
+		// Patch/Update partial
+		// eg PATCH http://localhost:8080/gocrud/api/user/1234
+		// TODO check content-type header on PUT
+		// TODO validation
+		r.Patch("/:entityID/:recordID", apiRoute.save(false, true))
 
 	}
 }
@@ -119,10 +125,12 @@ func (a *APIRoute) get(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(fmt.Sprintf("Invalid entityID: %s", entityID)))
 }
 
-func (a *APIRoute) save(isRecordNew bool) func(w http.ResponseWriter, r *http.Request) {
+func (a *APIRoute) save(isRecordNew bool, isPartialPayload bool) func(w http.ResponseWriter, r *http.Request) {
 	action := ACTION_PUT
-	if isRecordNew {
+	if isRecordNew && !isPartialPayload {
 		action = ACTION_POST
+	} else if isRecordNew && isPartialPayload {
+		action = ACTION_PATCH
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -157,15 +165,30 @@ func (a *APIRoute) save(isRecordNew bool) func(w http.ResponseWriter, r *http.Re
 		}
 
 		var recordID string
-		if action == ACTION_POST {
+		switch action {
+		case ACTION_POST:
 			recordID, err = a.store.Post(entity)
-		} else {
+			break
+		case ACTION_PUT:
 			recordID = chi.URLParam(r, "recordID")
 			if recordID == "" {
 				w.WriteHeader(http.StatusBadRequest)
 				w.Write([]byte(fmt.Sprintf("Missing recordID - %v", err)))
 			}
 			err = a.store.Put(entity, recordID)
+			break
+		case ACTION_PATCH:
+			recordID = chi.URLParam(r, "recordID")
+			if recordID == "" {
+				w.WriteHeader(http.StatusBadRequest)
+				w.Write([]byte(fmt.Sprintf("Missing recordID - %v", err)))
+			}
+			err = a.store.Patch(entity, recordID)
+			break
+		default:
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte(fmt.Sprintf("Invalid action - %s", action)))
+			break
 		}
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)

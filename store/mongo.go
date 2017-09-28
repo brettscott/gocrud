@@ -168,8 +168,10 @@ func (m *Mongo) Put(entity entity.Entity, recordID string) error {
 	return nil
 }
 
-// Partial update
-func (m *Mongo) Patch() {}
+// Partial update - an alias to "put" in Mongo
+func (m *Mongo) Patch(entity entity.Entity, recordID string) error {
+	return m.Put(entity, recordID)
+}
 
 // Remove
 func (m *Mongo) Delete() {}
