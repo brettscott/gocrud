@@ -46,8 +46,32 @@ func NewMongoStore(mongoURL, mongoSSLCertificate, databaseName string, statsd St
 }
 
 // Get a list of records
-func (m *Mongo) List() {
-	fmt.Println("Hello world")
+func (m *Mongo) List(e entity.Entity) (list entity.List, err error) {
+	session := m.session.Copy()
+	defer session.Close()
+
+	collectionName := e.ID
+	c := session.DB(m.databaseName).C(collectionName)
+
+	query := bson.M{}
+
+	var rows []bson.M
+	err = c.Find(query).All(&rows)
+	if err != nil {
+		return entity.List{}, fmt.Errorf("Failed to get records.  Entity: %s.  Query: %+v.  Error: %s", e.ID, query, err)
+	}
+
+	fmt.Printf("\nEntity: %s Records: %+v", e.ID, rows)
+
+	for _, row := range rows {
+		// Loop through each of the entity's elements to pull element's value from DB row.
+
+		record := marshalRowToRecord(e, row)
+
+		list.Records = append(list.Records, record)
+	}
+
+	return list, nil
 }
 
 // Get a record
@@ -58,8 +82,6 @@ func (m *Mongo) Get(e entity.Entity, recordID string) (entity.Record, error) { /
 	collectionName := e.ID // TODO: make more flexible?
 	c := session.DB(m.databaseName).C(collectionName)
 
-	record := entity.Record{}
-
 	if !bson.IsObjectIdHex(recordID) {
 		fmt.Println("invalid: ", recordID)
 	}
@@ -67,33 +89,13 @@ func (m *Mongo) Get(e entity.Entity, recordID string) (entity.Record, error) { /
 		MONGO_ID: bson.ObjectIdHex(recordID),
 	}
 
-	var kvs bson.M
-	err := c.Find(query).One(&kvs)
+	var row bson.M
+	err := c.Find(query).One(&row)
 	if err != nil {
-		return record, fmt.Errorf("Failed to get record.  Query: %+v.  Error: %s", query, err)
+		return entity.Record{}, fmt.Errorf("Failed to get record.  Query: %+v.  Error: %s", query, err)
 	}
 
-	// Loop through each of the entity's elements to pull element's value from DB row.
-	for _, element := range e.Elements {
-		//fmt.Printf("\nElement: %+v\n", element)
-
-		kv := entity.KeyValue{
-			Key:      element.ID,
-			DataType: element.DataType,
-		}
-
-		if element.PrimaryKey == true {
-			kv.Value = kvs[MONGO_ID]
-		} else {
-			if _, ok := kvs[element.ID]; ok {
-				kv.Value = kvs[element.ID]
-			} else {
-				kv.Value = nil
-			}
-		}
-
-		record.KeyValues = append(record.KeyValues, kv)
-	}
+	record := marshalRowToRecord(e, row)
 
 	return record, nil
 }
@@ -208,4 +210,28 @@ func (m *Mongo) getSecureSession() (*mgo.Session, error) {
 	dialInfo.Timeout = 60 * time.Second
 
 	return mgo.DialWithInfo(dialInfo)
+}
+
+// marshalRowToRecord converts a Mongo row to a entity.Record
+func marshalRowToRecord(e entity.Entity, row bson.M) (record entity.Record) {
+
+	for _, element := range e.Elements {
+		//fmt.Printf("\nElement: %+v\n", element)
+		kv := entity.KeyValue{
+			Key:      element.ID,
+			DataType: element.DataType,
+		}
+
+		if element.PrimaryKey == true {
+			kv.Value = row[MONGO_ID]
+		} else {
+			if _, ok := row[element.ID]; ok {
+				kv.Value = row[element.ID]
+			} else {
+				kv.Value = nil
+			}
+		}
+		record.KeyValues = append(record.KeyValues, kv)
+	}
+	return record
 }

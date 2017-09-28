@@ -79,6 +79,8 @@ Everythings!
     * PATCH
         * **NEXT**
     * DELETE
+    * LIST
+        * Pagination
 * Front-end
     * Create
     * Results

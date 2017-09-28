@@ -36,6 +36,7 @@ func NewRoute(entities entity.Entities, store store.Storer, log Logger, statsd S
 
 		// List
 		// eg GET http://localhost:8080/gocrud/api/user
+		// TODO pagination
 		r.Get("/:entityID", apiRoute.list)
 
 		// Get record
@@ -65,8 +66,22 @@ func (a *APIRoute) list(w http.ResponseWriter, r *http.Request) {
 	entityID := chi.URLParam(r, "entityID")
 
 	if entity, ok := a.entities[entityID]; ok {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(fmt.Sprintf("List - entityID: %s, entity: %s", entityID, entity.Labels)))
+
+		records, err := a.store.List(entity)
+		fmt.Printf("\nRecords: %+v", records)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte(fmt.Sprintf("Invalid entityID: %s", entityID)))
+			return
+		}
+
+		jsonResponse, err := json.Marshal(records)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(fmt.Sprintf("Failed to convert record to json.  Error: %v", err)))
+			return
+		}
+		w.Write(jsonResponse)
 		return
 	}
 
@@ -104,16 +119,6 @@ func (a *APIRoute) get(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(fmt.Sprintf("Invalid entityID: %s", entityID)))
 }
 
-// marshalBodyToRecord converts JSON to entity.Record
-func marshalBodyToRecord(body []byte) (*entity.Record, error) {
-	record := entity.Record{}
-	err := json.Unmarshal(body, &record)
-	if err != nil {
-		return nil, fmt.Errorf("Unable to unmarshal body: %v", err)
-	}
-	return &record, nil
-}
-
 func (a *APIRoute) save(isRecordNew bool) func(w http.ResponseWriter, r *http.Request) {
 	action := ACTION_PUT
 	if isRecordNew {
@@ -129,7 +134,8 @@ func (a *APIRoute) save(isRecordNew bool) func(w http.ResponseWriter, r *http.Re
 			return
 		}
 
-		record, err := marshalBodyToRecord(body)
+		record := &entity.Record{}
+		err = record.UnmarshalJSON(body)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte(fmt.Sprintf("Failed to convert JSON - %v", err)))

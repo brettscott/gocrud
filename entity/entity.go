@@ -32,6 +32,7 @@ const HYDRATE_FROM_RECORD_ACTION_POST = "post"
 const HYDRATE_FROM_RECORD_ACTION_PUT = "put"
 const HYDRATE_FROM_RECORD_ACTION_PATCH = "patch"
 
+// HydrateFromRecord hydrates entity with record data (record data is usually marshalled from JSON to Record struct)
 func (e *Entity) HydrateFromRecord(record *Record, action string) error {
 	for i, _ := range e.Elements {
 		element := &e.Elements[i]

@@ -10,7 +10,9 @@ func NewFakeStorer() *FakeStorer {
 type FakeStorer struct{}
 
 // List
-func (f *FakeStorer) List() {}
+func (f *FakeStorer) List(e entity.Entity) (entity.List, error) {
+	return entity.List{}, nil
+}
 
 // Get
 func (f *FakeStorer) Get(e entity.Entity, recordID string) (entity.Record, error) {
