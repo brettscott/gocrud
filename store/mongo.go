@@ -75,7 +75,7 @@ func (m *Mongo) List(e entity.Entity) (list entity.List, err error) {
 }
 
 // Get a record
-func (m *Mongo) Get(e entity.Entity, recordID string) (entity.Record, error) { // TODO change to *entity.Record
+func (m *Mongo) Get(e entity.Entity, recordID string) (entity.ClientRecord, error) { // TODO change to *entity.ClientRecord
 	session := m.session.Copy()
 	defer session.Close()
 
@@ -92,7 +92,7 @@ func (m *Mongo) Get(e entity.Entity, recordID string) (entity.Record, error) { /
 	var row bson.M
 	err := c.Find(query).One(&row)
 	if err != nil {
-		return entity.Record{}, fmt.Errorf("Failed to get record.  Query: %+v.  Error: %s", query, err)
+		return entity.ClientRecord{}, fmt.Errorf("Failed to get record.  Query: %+v.  Error: %s", query, err)
 	}
 
 	record := marshalRowToRecord(e, row)
@@ -101,7 +101,7 @@ func (m *Mongo) Get(e entity.Entity, recordID string) (entity.Record, error) { /
 }
 
 // Create (ID not provided)
-func (m *Mongo) Post(entity entity.Entity) (string, error) {
+func (m *Mongo) Post(entity entity.Entity, elementsData entity.EntityData) (string, error) {
 	session := m.session.Copy()
 	defer session.Close()
 
@@ -133,7 +133,7 @@ func (m *Mongo) Post(entity entity.Entity) (string, error) {
 }
 
 // Update (when ID is known)
-func (m *Mongo) Put(entity entity.Entity, recordID string) error {
+func (m *Mongo) Put(entity entity.Entity, elementsData entity.EntityData, recordID string) error {
 	if recordID == "" {
 		return fmt.Errorf("Failed to updated because primary key is empty.  Entity: %+v", entity)
 	}
@@ -169,8 +169,8 @@ func (m *Mongo) Put(entity entity.Entity, recordID string) error {
 }
 
 // Partial update - an alias to "put" in Mongo
-func (m *Mongo) Patch(entity entity.Entity, recordID string) error {
-	return m.Put(entity, recordID)
+func (m *Mongo) Patch(entity entity.Entity, elementsData entity.EntityData, recordID string) error {
+	return m.Put(entity, elementsData, recordID)
 }
 
 // Remove
@@ -216,8 +216,8 @@ func (m *Mongo) getSecureSession() (*mgo.Session, error) {
 	return mgo.DialWithInfo(dialInfo)
 }
 
-// marshalRowToRecord converts a Mongo row to a entity.Record
-func marshalRowToRecord(e entity.Entity, row bson.M) (record entity.Record) {
+// marshalRowToRecord converts a Mongo row to a entity.ClientRecord
+func marshalRowToRecord(e entity.Entity, row bson.M) (record entity.ClientRecord) {
 
 	for _, element := range e.Elements {
 		//fmt.Printf("\nElement: %+v\n", element)

@@ -142,7 +142,7 @@ func (a *APIRoute) save(isRecordNew bool, isPartialPayload bool) func(w http.Res
 			return
 		}
 
-		record := &entity.Record{}
+		record := &entity.ClientRecord{}
 		err = record.UnmarshalJSON(body)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
@@ -150,14 +150,15 @@ func (a *APIRoute) save(isRecordNew bool, isPartialPayload bool) func(w http.Res
 			return
 		}
 
-		entity := a.entities[entityID]
-		err = entity.HydrateFromRecord(record, action)
+		e := a.entities[entityID]
+		elementsData := entity.NewElementsData(e.Elements)
+		err = elementsData.HydrateFromRecord(record, action)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(fmt.Sprintf("Failed to hydrate Entity from Record - %v", err)))
+			w.Write([]byte(fmt.Sprintf("Failed to hydrate Entity from ClientRecord - %v", err)))
 			return
 		}
-		err = entity.Validate(action)
+		err = elementsData.Validate(action)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte(fmt.Sprintf("Failed validation - %v", err)))
@@ -167,7 +168,7 @@ func (a *APIRoute) save(isRecordNew bool, isPartialPayload bool) func(w http.Res
 		var recordID string
 		switch action {
 		case ACTION_POST:
-			recordID, err = a.store.Post(entity)
+			recordID, err = a.store.Post(e, elementsData)
 			break
 		case ACTION_PUT:
 			recordID = chi.URLParam(r, "recordID")
@@ -175,7 +176,7 @@ func (a *APIRoute) save(isRecordNew bool, isPartialPayload bool) func(w http.Res
 				w.WriteHeader(http.StatusBadRequest)
 				w.Write([]byte(fmt.Sprintf("Missing recordID - %v", err)))
 			}
-			err = a.store.Put(entity, recordID)
+			err = a.store.Put(e, elementsData, recordID)
 			break
 		case ACTION_PATCH:
 			recordID = chi.URLParam(r, "recordID")
@@ -183,7 +184,7 @@ func (a *APIRoute) save(isRecordNew bool, isPartialPayload bool) func(w http.Res
 				w.WriteHeader(http.StatusBadRequest)
 				w.Write([]byte(fmt.Sprintf("Missing recordID - %v", err)))
 			}
-			err = a.store.Patch(entity, recordID)
+			err = a.store.Patch(e, elementsData, recordID)
 			break
 		default:
 			w.WriteHeader(http.StatusBadRequest)
@@ -192,11 +193,11 @@ func (a *APIRoute) save(isRecordNew bool, isPartialPayload bool) func(w http.Res
 		}
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(fmt.Sprintf("Failed post/put entity %v.  Error: %v", entity, err)))
+			w.Write([]byte(fmt.Sprintf("Failed post/put e %v.  Error: %v", e, err)))
 			return
 		}
 
-		dbRecord, err := a.store.Get(entity, recordID)
+		dbRecord, err := a.store.Get(e, recordID)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(fmt.Sprintf("Failed to get newly created DB record. entityID: %s, recordID: %s.  Error: %v", entityID, recordID, err)))

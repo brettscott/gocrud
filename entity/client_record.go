@@ -4,16 +4,19 @@ import (
 	"encoding/json"
 )
 
-// Record is the representation of a database record "over the wire" between the client and app.
-type Record struct {
+// ClientRecords represents a list of rows from the database in a format for the client/browser
+type ClientRecords []ClientRecord
+
+// ClientRecord is the representation of a database record "over the wire" between the client/browser and api/app.
+type ClientRecord struct {
 	KeyValues KeyValues `json:"keyValues"`
 }
 
 // UnmarshalJSON converts from browser JSON
 // Unmarshal stores one of these in the interface value: "bool" for JSON booleans, "float64" for JSON numbers,
 // "string" for JSON strings, "[]interface{}" for JSON arrays, "map[string]interface{}" for JSON objects,  "nil" for JSON null
-func (r *Record) UnmarshalJSON(body []byte) error {
-	type Alias Record
+func (r *ClientRecord) UnmarshalJSON(body []byte) error {
+	type Alias ClientRecord
 	if err := json.Unmarshal(body, (*Alias)(r)); err != nil {
 		return err
 	}

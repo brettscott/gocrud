@@ -69,6 +69,7 @@ Runs within Docker containers locally.  Assumes you have Docker installed.
 Everythings!
 
 * Update Chi to V3 (replaces /:id with /{id})
+* Problem persisting record in Entity as it'll be mutated by other requests **next**
 * API
     * GET
         * Write Mongo integration test
@@ -77,8 +78,7 @@ Everythings!
     * PUT
         * Write Mongo integration test
     * PATCH
-        * **NEXT**
-        * age is float64 but want int. //
+        * Write Mongo integration test
     * DELETE
     * LIST
         * Write Mongo integration test
@@ -145,3 +145,35 @@ Everythings!
 * Entity - the content being CRUDed eg users, permissions, intelligence.
 * Element - a child of Entity.  An Entity will typically have more than one element eg id, name, description.
 * Record - represents an Entity Item made up of populated Element `value`s. Think of a Record as a row in a database table.
+
+
+## Models in context
+```
+BROWSER                                    API (CRUD)                                  DATABASE
+
+LIST
+1. ------ GET /api/<entity>  ---------------->
+                                            
+2.                                             <----------- Retrieve list ----------------- 
+                                                            "[]bson.M{}" from Mongo
+                                                         
+3.                                Convert "[]bson.M{}" into
+                                  "[]Record"
+
+4.                                Marshal "[]Record" into JSON
+                                                                                                                                       
+5. <------- Return JSON list ------------------
+            JSON
+
+SAVE
+1.  ------- POST /api/<entity>  ---------------->
+            JSON 
+        
+2.                                 Unmarshal JSON into "Record"    
+        
+3.                                 Iterate over record and place into "bson.M{}"
+                                   
+4.                                              ------------- Persist in DB -------------->
+                                                              "bson.M{}" into Mongo
+                                                                                                      
+```

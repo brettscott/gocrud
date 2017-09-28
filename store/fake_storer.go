@@ -15,8 +15,8 @@ func (f *FakeStorer) List(e entity.Entity) (entity.List, error) {
 }
 
 // Get
-func (f *FakeStorer) Get(e entity.Entity, recordID string) (entity.Record, error) {
-	return entity.Record{}, nil
+func (f *FakeStorer) Get(e entity.Entity, recordID string) (entity.ClientRecord, error) {
+	return entity.ClientRecord{}, nil
 }
 
 // Post
