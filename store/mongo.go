@@ -108,7 +108,7 @@ func (m *Mongo) Post(entity entity.Entity) (string, error) {
 	collectionName := entity.ID
 	c := session.DB(m.databaseName).C(collectionName)
 
-	objectID := bson.NewObjectIdWithTime(time.Now().UTC())
+	objectID := bson.NewObjectId()
 	document := bson.M{
 		MONGO_ID: objectID,
 		"_crud": bson.M{
