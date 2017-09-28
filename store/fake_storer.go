@@ -35,4 +35,6 @@ func (f *FakeStorer) Patch(entity entity.Entity, recordID string) error {
 }
 
 // Delete
-func (f *FakeStorer) Delete() {}
+func (f *FakeStorer) Delete(entity entity.Entity, recordID string) error {
+	return nil
+}

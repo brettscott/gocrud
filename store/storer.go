@@ -8,5 +8,5 @@ type Storer interface {
 	Post(entity entity.Entity) (string, error)
 	Put(entity entity.Entity, recordID string) error
 	Patch(entity entity.Entity, recordID string) error
-	Delete()
+	Delete(entity entity.Entity, recordID string) error
 }

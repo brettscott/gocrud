@@ -174,7 +174,9 @@ func (m *Mongo) Patch(entity entity.Entity, recordID string) error {
 }
 
 // Remove
-func (m *Mongo) Delete() {}
+func (m *Mongo) Delete(entity entity.Entity, recordID string) error {
+	return nil
+}
 
 func (m *Mongo) connectToMongo() (*mgo.Session, error) {
 	if m.mongoSSLCertificate == "" {
