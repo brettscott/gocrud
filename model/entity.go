@@ -1,8 +1,10 @@
-package entity
+package model
 
 import (
 	"fmt"
 	"reflect"
+	"github.com/brettscott/gocrud/store"
+	"github.com/brettscott/gocrud/api"
 )
 
 // Entity eg User
@@ -32,59 +34,58 @@ const HYDRATE_FROM_RECORD_ACTION_POST = "post"
 const HYDRATE_FROM_RECORD_ACTION_PUT = "put"
 const HYDRATE_FROM_RECORD_ACTION_PATCH = "patch"
 
-// HydrateFromRecord hydrates entity with record data (record data is usually marshalled from JSON to ClientRecord struct)
-func (e *Entity) HydrateFromRecord(record *ClientRecord, action string) (data EntityData, err error) {
+// MarshalRecordToEntityData marshals the data received from client
+func (e *Entity) MarshalRecordToEntityData(clientRecord *api.Record, action string) (data store.Record, err error) {
 
 	for i, _ := range e.Elements {
 		element := &e.Elements[i]
 
-		datum := EntityDatum{}
+		datum := store.Field{
+			ID: element.ID,
+		}
 
-		for _, keyValue := range record.KeyValues {
+		for _, keyValue := range clientRecord.KeyValues {
 
 			if action == HYDRATE_FROM_RECORD_ACTION_POST && element.PrimaryKey == true {
 				continue
 			}
 
 			if keyValue.Key == element.ID {
-				datum.ElementID = element.ID
 				datum.Value = keyValue.Value
-				//element.Hydrated = true  // TODO
+				datum.Hydrated = true
 				break
 			}
 		}
+
+		data = append(data, datum)
+
 	}
 	return data, nil
 }
 
-func (e *Entity) Validate(entityData EntityData, action string) error {
+func (e *Entity) Validate(record store.Record, action string) error {
 
 	errors := make([]string, 0)
 	var primaryKey ElementLabel
 
-	for _, entityDatum := range entityData {
-
-		element, err := e.GetElement(entityDatum.ElementID)
+	for _, element := range e.Elements {
+		
+		userData, err := record.GetField(element.ID)
 		if err != nil {
-			errors = append(errors, fmt.Sprintf(`Entity data has invalid element "%s" - %v`, entityDatum.ElementID, err))
+			errors = append(errors, fmt.Sprintf(`Missing element "%s" - %v`, element.ID, err))
 		}
 
-
-	}
-
-	for _, element := range e.Elements {
-
-		if err := e.validateDataType(element); err != nil {
+		if err := e.validateDataType(element, userData.Value); err != nil {
 			errors = append(errors, fmt.Sprintf(`"%s" (%s) has invalid data type: %s`, element.Label, element.ID, err))
 		}
 
 		// This is useful to see if value was provided and whether a string is empty or not.  Use "Min" and "Max" for integers.
 		// Don't use anything for boolean because it'll either be true or false (or "nil" and be classed as not provided).
-		if element.Validation.Required && (element.Hydrated == false || element.Value == nil || element.Value == "") {
+		if element.Validation.Required && (userData.Hydrated == false || userData.Value == nil || userData.Value == "") {
 			errors = append(errors, fmt.Sprintf(`"%s" (%s) is required and cannot be empty`, element.Label, element.ID))
 		}
 
-		if element.Validation.MustProvide == true && element.Hydrated == false {
+		if element.Validation.MustProvide == true && userData.Hydrated == false {
 			errors = append(errors, fmt.Sprintf(`"%s" (%s) must be provided`, element.Label, element.ID))
 		}
 
@@ -96,12 +97,10 @@ func (e *Entity) Validate(entityData EntityData, action string) error {
 			}
 		}
 
-		if action != HYDRATE_FROM_RECORD_ACTION_PATCH && element.PrimaryKey != true && element.Hydrated == false {
+		if action != HYDRATE_FROM_RECORD_ACTION_PATCH && element.PrimaryKey != true && userData.Hydrated == false {
 			errors = append(errors, fmt.Sprintf(`"%s" (%s) was not supplied on "%s"`, element.Label, element.ID, action))
-		}
+		}		
 	}
-
-	// TODO error if entityData contains keys which are not in Elements
 
 	if primaryKey == "" {
 		errors = append(errors, fmt.Sprintf(`Missing a primary key element`))
@@ -117,8 +116,8 @@ func (e *Entity) Validate(entityData EntityData, action string) error {
 // validateDataType
 // Unmarshal stores one of these in the interface value: "bool" for JSON booleans, "float64" for JSON numbers,
 // "string" for JSON strings, "[]interface{}" for JSON arrays, "map[string]interface{}" for JSON objects,  "nil" for JSON null
-func (e *Entity) validateDataType(element Element) error {
-	if element.Value == nil {
+func (e *Entity) validateDataType(element Element, value interface{}) error {
+	if value == nil {
 		return nil
 	}
 
@@ -132,10 +131,10 @@ func (e *Entity) validateDataType(element Element) error {
 		return fmt.Errorf(`undefined data type "%s"`, element.DataType)
 	}
 
-	actualType := reflect.TypeOf(element.Value).String()
+	actualType := reflect.TypeOf(value).String()
 	expectedType := dataTypes[element.DataType]
 	if actualType != expectedType {
-		return fmt.Errorf(`expected type to be "%s" but got "%s" with value "%v"`, expectedType, actualType, element.Value)
+		return fmt.Errorf(`expected type to be "%s" but got "%s" with value "%v"`, expectedType, actualType, value)
 	}
 
 	return nil

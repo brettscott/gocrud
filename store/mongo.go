@@ -9,6 +9,9 @@ import (
 	"gopkg.in/mgo.v2/bson"
 	"net"
 	"time"
+	"github.com/brettscott/gocrud/api"
+	"github.com/brettscott/gocrud/model"
+	"github.com/mergermarket/notifications-scheduler-service/store"
 )
 
 const MONGO_ID = "_id"
@@ -46,7 +49,7 @@ func NewMongoStore(mongoURL, mongoSSLCertificate, databaseName string, statsd St
 }
 
 // Get a list of records
-func (m *Mongo) List(e entity.Entity) (list entity.List, err error) {
+func (m *Mongo) List(e model.Entity) (list model.List, err error) {
 	session := m.session.Copy()
 	defer session.Close()
 
@@ -58,7 +61,7 @@ func (m *Mongo) List(e entity.Entity) (list entity.List, err error) {
 	var rows []bson.M
 	err = c.Find(query).All(&rows)
 	if err != nil {
-		return entity.List{}, fmt.Errorf("Failed to get records.  Entity: %s.  Query: %+v.  Error: %s", e.ID, query, err)
+		return model.List{}, fmt.Errorf("Failed to get records.  Entity: %s.  Query: %+v.  Error: %s", e.ID, query, err)
 	}
 
 	fmt.Printf("\nEntity: %s Records: %+v", e.ID, rows)
@@ -75,7 +78,7 @@ func (m *Mongo) List(e entity.Entity) (list entity.List, err error) {
 }
 
 // Get a record
-func (m *Mongo) Get(e entity.Entity, recordID string) (entity.ClientRecord, error) { // TODO change to *entity.ClientRecord
+func (m *Mongo) Get(e model.Entity, recordID string) (api.Record, error) { // TODO change to *
 	session := m.session.Copy()
 	defer session.Close()
 
@@ -92,7 +95,7 @@ func (m *Mongo) Get(e entity.Entity, recordID string) (entity.ClientRecord, erro
 	var row bson.M
 	err := c.Find(query).One(&row)
 	if err != nil {
-		return entity.ClientRecord{}, fmt.Errorf("Failed to get record.  Query: %+v.  Error: %s", query, err)
+		return api.Record{}, fmt.Errorf("Failed to get record.  Query: %+v.  Error: %s", query, err)
 	}
 
 	record := marshalRowToRecord(e, row)
@@ -101,7 +104,7 @@ func (m *Mongo) Get(e entity.Entity, recordID string) (entity.ClientRecord, erro
 }
 
 // Create (ID not provided)
-func (m *Mongo) Post(entity entity.Entity, elementsData entity.EntityData) (string, error) {
+func (m *Mongo) Post(entity model.Entity, record Record) (string, error) {
 	session := m.session.Copy()
 	defer session.Close()
 
@@ -118,7 +121,11 @@ func (m *Mongo) Post(entity entity.Entity, elementsData entity.EntityData) (stri
 
 	for _, element := range entity.Elements {
 		if element.PrimaryKey != true {
-			document[element.ID] = element.Value
+			data, err := record.GetField(element.ID)
+			if err != nil {
+				return "", fmt.Errorf("Could not find field %s for entity %s", element.ID, entity.ID)
+			}
+			document[element.ID] = data.Value
 		}
 	}
 
@@ -133,7 +140,7 @@ func (m *Mongo) Post(entity entity.Entity, elementsData entity.EntityData) (stri
 }
 
 // Update (when ID is known)
-func (m *Mongo) Put(entity entity.Entity, elementsData entity.EntityData, recordID string) error {
+func (m *Mongo) Put(entity model.Entity, record Record, recordID string) error {
 	if recordID == "" {
 		return fmt.Errorf("Failed to updated because primary key is empty.  Entity: %+v", entity)
 	}
@@ -147,7 +154,11 @@ func (m *Mongo) Put(entity entity.Entity, elementsData entity.EntityData, record
 	documentKvs := bson.M{}
 	for _, element := range entity.Elements {
 		if element.PrimaryKey != true {
-			documentKvs[element.ID] = element.Value
+			data, err := record.GetField(element.ID)
+			if err != nil {
+				return "", fmt.Errorf("Could not find field %s for entity %s", element.ID, entity.ID)
+			}
+			documentKvs[element.ID] = data.Value
 		}
 	}
 
@@ -169,12 +180,12 @@ func (m *Mongo) Put(entity entity.Entity, elementsData entity.EntityData, record
 }
 
 // Partial update - an alias to "put" in Mongo
-func (m *Mongo) Patch(entity entity.Entity, elementsData entity.EntityData, recordID string) error {
+func (m *Mongo) Patch(entity model.Entity, elementsData Record, recordID string) error {
 	return m.Put(entity, elementsData, recordID)
 }
 
 // Remove
-func (m *Mongo) Delete(entity entity.Entity, recordID string) error {
+func (m *Mongo) Delete(entity model.Entity, recordID string) error {
 	return nil
 }
 
@@ -216,12 +227,12 @@ func (m *Mongo) getSecureSession() (*mgo.Session, error) {
 	return mgo.DialWithInfo(dialInfo)
 }
 
-// marshalRowToRecord converts a Mongo row to a entity.ClientRecord
-func marshalRowToRecord(e entity.Entity, row bson.M) (record entity.ClientRecord) {
+// marshalRowToRecord converts a Mongo row to a api.Record
+func marshalRowToRecord(entity model.Entity, row bson.M) (record api.Record) {
 
-	for _, element := range e.Elements {
+	for _, element := range entity.Elements {
 		//fmt.Printf("\nElement: %+v\n", element)
-		kv := entity.KeyValue{
+		kv := api.KeyValue{
 			Key:      element.ID,
 			DataType: element.DataType,
 		}
@@ -239,3 +250,6 @@ func marshalRowToRecord(e entity.Entity, row bson.M) (record entity.ClientRecord
 	}
 	return record
 }
+
+
+//func marshalRecordToRow(entity model.Entity, record Record)

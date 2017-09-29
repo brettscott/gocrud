@@ -1,4 +1,4 @@
-package entity
+package model
 
 // Element (eg id) is an attribute of Entity (eg users)
 type Element struct {
@@ -11,9 +11,6 @@ type Element struct {
 	// FormType eg hidden, text, select
 	FormType ElementFormType
 
-	// Value of element in record
-	//Value interface{} // WARNING: This cannot be done here as it this struct is stateless
-
 	// DataType of "Value" eg string,integer,boolean,keyValues
 	DataType string
 
@@ -25,9 +22,6 @@ type Element struct {
 
 	// Immutability of element in record.  When "true", cannot be changed after creation/POST
 	Immutable bool
-
-	// Hydrated indicates whether this record was populated by user/API
-	Hydrated bool
 
 	// PrimaryKey is set to "true" when primary key for record
 	PrimaryKey bool

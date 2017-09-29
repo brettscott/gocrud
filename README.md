@@ -169,9 +169,9 @@ SAVE
 1.  ------- POST /api/<entity>  ---------------->
             JSON 
         
-2.                                 Unmarshal JSON into "Record"    
+2.                                 Unmarshal JSON into "Client_Record"    
         
-3.                                 Iterate over record and place into "bson.M{}"
+3.                                 Iterate over "Client_Record" and place into "bson.M{}"
                                    
 4.                                              ------------- Persist in DB -------------->
                                                               "bson.M{}" into Mongo

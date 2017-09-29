@@ -3,11 +3,11 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/brettscott/gocrud/entity"
 	"github.com/brettscott/gocrud/store"
 	"github.com/pressly/chi"
 	"io/ioutil"
 	"net/http"
+	"github.com/brettscott/gocrud/model"
 )
 
 const ACTION_POST = "post"
@@ -15,14 +15,14 @@ const ACTION_PUT = "put"
 const ACTION_PATCH = "patch"
 
 type APIRoute struct {
-	entities entity.Entities
+	entities model.Entities
 	store    store.Storer
 	log      Logger
 	statsd   StatsDer
 }
 
 // NewRoute prepares the routes for this package
-func NewRoute(entities entity.Entities, store store.Storer, log Logger, statsd StatsDer) func(chi.Router) {
+func NewRoute(entities model.Entities, store store.Storer, log Logger, statsd StatsDer) func(chi.Router) {
 
 	apiRoute := &APIRoute{
 		entities: entities,
@@ -104,12 +104,16 @@ func (a *APIRoute) get(w http.ResponseWriter, r *http.Request) {
 	if entity, ok := a.entities[entityID]; ok {
 		fmt.Println("Entity: %+v", entity)
 
-		record, err := a.store.Get(entity, recordID)
+		record, err := a.store.Get(entity, recordID)  // return StoreRecord
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(fmt.Sprintf("Failed to get entityID: %s, recordID: %s.  Error: %v", entityID, recordID, err)))
 			return
 		}
+
+		// MarshalStoreRecordToClientRecord
+
+
 
 		jsonResponse, err := json.Marshal(record)
 		if err != nil {
@@ -142,7 +146,7 @@ func (a *APIRoute) save(isRecordNew bool, isPartialPayload bool) func(w http.Res
 			return
 		}
 
-		record := &entity.ClientRecord{}
+		record := &Record{}
 		err = record.UnmarshalJSON(body)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
@@ -150,8 +154,8 @@ func (a *APIRoute) save(isRecordNew bool, isPartialPayload bool) func(w http.Res
 			return
 		}
 
-		e := a.entities[entityID]
-		entityData := entity.HydrateFromRecord(record, action)
+		entity := a.entities[entityID]
+		entityData, err := entity.MarshalRecordToEntityData(record, action)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(fmt.Sprintf("Failed to hydrate Entity from ClientRecord - %v", err)))
@@ -167,7 +171,7 @@ func (a *APIRoute) save(isRecordNew bool, isPartialPayload bool) func(w http.Res
 		var recordID string
 		switch action {
 		case ACTION_POST:
-			recordID, err = a.store.Post(e, elementsData)
+			recordID, err = a.store.Post(entity, entityData)
 			break
 		case ACTION_PUT:
 			recordID = chi.URLParam(r, "recordID")
@@ -175,7 +179,7 @@ func (a *APIRoute) save(isRecordNew bool, isPartialPayload bool) func(w http.Res
 				w.WriteHeader(http.StatusBadRequest)
 				w.Write([]byte(fmt.Sprintf("Missing recordID - %v", err)))
 			}
-			err = a.store.Put(e, elementsData, recordID)
+			err = a.store.Put(entity, entityData, recordID)
 			break
 		case ACTION_PATCH:
 			recordID = chi.URLParam(r, "recordID")
@@ -183,7 +187,7 @@ func (a *APIRoute) save(isRecordNew bool, isPartialPayload bool) func(w http.Res
 				w.WriteHeader(http.StatusBadRequest)
 				w.Write([]byte(fmt.Sprintf("Missing recordID - %v", err)))
 			}
-			err = a.store.Patch(e, elementsData, recordID)
+			err = a.store.Patch(entity, entityData, recordID)
 			break
 		default:
 			w.WriteHeader(http.StatusBadRequest)
@@ -192,11 +196,11 @@ func (a *APIRoute) save(isRecordNew bool, isPartialPayload bool) func(w http.Res
 		}
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(fmt.Sprintf("Failed post/put e %v.  Error: %v", e, err)))
+			w.Write([]byte(fmt.Sprintf("Failed post/put e %v.  Error: %v", entity, err)))
 			return
 		}
 
-		dbRecord, err := a.store.Get(e, recordID)
+		dbRecord, err := a.store.Get(entity, recordID)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(fmt.Sprintf("Failed to get newly created DB record. entityID: %s, recordID: %s.  Error: %v", entityID, recordID, err)))
