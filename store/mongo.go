@@ -4,14 +4,11 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
-	"github.com/brettscott/gocrud/entity"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"net"
 	"time"
-	"github.com/brettscott/gocrud/api"
 	"github.com/brettscott/gocrud/model"
-	"github.com/mergermarket/notifications-scheduler-service/store"
 )
 
 const MONGO_ID = "_id"
@@ -61,7 +58,7 @@ func (m *Mongo) List(e model.Entity) (list []Record, err error) {
 	var rows []bson.M
 	err = c.Find(query).All(&rows)
 	if err != nil {
-		return model.List{}, fmt.Errorf("Failed to get records.  Entity: %s.  Query: %+v.  Error: %s", e.ID, query, err)
+		return list, fmt.Errorf("Failed to get records.  Entity: %s.  Query: %+v.  Error: %s", e.ID, query, err)
 	}
 
 	fmt.Printf("\nEntity: %s Records: %+v", e.ID, rows)
@@ -93,7 +90,7 @@ func (m *Mongo) Get(e model.Entity, recordID string) (Record, error) { // TODO c
 	var row bson.M
 	err := c.Find(query).One(&row)
 	if err != nil {
-		return api.Record{}, fmt.Errorf("Failed to get record.  Query: %+v.  Error: %s", query, err)
+		return Record{}, fmt.Errorf("Failed to get record.  Query: %+v.  Error: %s", query, err)
 	}
 
 	record := marshalRowToStoreRecord(e, row)
@@ -118,14 +115,19 @@ func (m *Mongo) Post(entity model.Entity, storeRecord Record) (string, error) {
 	}
 
 
-	row := marshalStoreRecordToRow(entity, storeRecord);
+	row, err := marshalStoreRecordToRow(entity, storeRecord);
+	if err != nil {
+		return "", err
+	}
 
 	// TODO merge document and row
-
+	for i, doc := range document {
+		row[i] = doc
+	}
 
 	fmt.Printf("Post document: %+v", row)
 
-	err := c.Insert(row)
+	err = c.Insert(row)
 	if err != nil {
 		return "", fmt.Errorf("Problem inserting %+v. Error: %v", entity, err)
 	}
@@ -150,7 +152,7 @@ func (m *Mongo) Put(entity model.Entity, record Record, recordID string) error {
 		if element.PrimaryKey != true {
 			data, err := record.GetField(element.ID)
 			if err != nil {
-				return "", fmt.Errorf("Could not find field %s for entity %s", element.ID, entity.ID)
+				return fmt.Errorf("Could not find field %s for entity %s", element.ID, entity.ID)
 			}
 			documentKvs[element.ID] = data.Value
 		}
@@ -240,41 +242,16 @@ func marshalRowToStoreRecord(entity model.Entity, row bson.M) (storeRecord Recor
 	return storeRecord
 }
 
-func marshalStoreRecordToRow(entity model.Entity, storeRecord Record) (row bson.M) {
+func marshalStoreRecordToRow(entity model.Entity, storeRecord Record) (row bson.M, err error) {
 	for _, element := range entity.Elements {
 		if element.PrimaryKey != true {
 			data, err := storeRecord.GetField(element.ID)
 			if err != nil {
-				return "", fmt.Errorf("Could not find field %s for entity %s", element.ID, entity.ID)
+				return row, fmt.Errorf("Could not find field %s for entity %s", element.ID, entity.ID)
 			}
 			row[element.ID] = data.Value
 		}
 	}
-	return row
+	return row, nil
 }
 
-// marshalRowToRecord converts a Mongo row to a api.Record
-//func marshalRowToClientRecord(entity model.Entity, row bson.M) (record api.Record) {
-//
-//	for _, element := range entity.Elements {
-//		//fmt.Printf("\nElement: %+v\n", element)
-//		kv := api.KeyValue{
-//			Key:      element.ID,
-//			DataType: element.DataType,
-//		}
-//
-//		if element.PrimaryKey == true {
-//			kv.Value = row[MONGO_ID]
-//		} else {
-//			if _, ok := row[element.ID]; ok {
-//				kv.Value = row[element.ID]
-//			} else {
-//				kv.Value = nil
-//			}
-//		}
-//		record.KeyValues = append(record.KeyValues, kv)
-//	}
-//	return record
-//}
-
-//func marshalRecordToRow(entity model.Entity, record Record)

@@ -3,13 +3,13 @@ package crud
 import (
 	"fmt"
 	"github.com/brettscott/gocrud/api"
-	"github.com/brettscott/gocrud/entity"
 	"github.com/brettscott/gocrud/store"
 	"net/http"
+	"github.com/brettscott/gocrud/model"
 )
 
 type Crud struct {
-	entities entity.Entities
+	entities model.Entities
 	config   *Config
 	log      Logger
 	statsd   StatsDer
@@ -22,7 +22,7 @@ func NewCrud(config *Config, log Logger, statsd StatsDer) *Crud {
 		config:   config,
 		log:      log,
 		statsd:   statsd,
-		entities: make(map[string]entity.Entity),
+		entities: make(map[string]model.Entity),
 	}
 }
 
@@ -32,7 +32,7 @@ func (c *Crud) Store(store store.Storer) {
 }
 
 // AddEntity for each entity type (eg User)
-func (c *Crud) AddEntity(entity entity.Entity) {
+func (c *Crud) AddEntity(entity model.Entity) {
 	c.entities[entity.ID] = entity
 }
 

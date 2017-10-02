@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"github.com/brettscott/gocrud/model"
+	"reflect"
 )
 
 const ACTION_POST = "post"
@@ -155,13 +156,13 @@ func (a *APIRoute) save(isRecordNew bool, isPartialPayload bool) func(w http.Res
 		}
 
 		entity := a.entities[entityID]
-		entityData, err := entity.MarshalRecordToEntityData(record, action)
+		entityData, err := marshalRecordToEntityData(entity, record, action)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(fmt.Sprintf("Failed to hydrate Entity from ClientRecord - %v", err)))
 			return
 		}
-		err = entity.Validate(entityData, action)
+		err = validate(entity, entityData, action)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte(fmt.Sprintf("Failed validation - %v", err)))
@@ -219,6 +220,35 @@ func (a *APIRoute) save(isRecordNew bool, isPartialPayload bool) func(w http.Res
 }
 
 
+// MarshalRecordToEntityData marshals the data received from client
+func marshalRecordToEntityData(entity model.Entity, clientRecord *Record, action string) (data store.Record, err error) {
+
+	for i, _ := range entity.Elements {
+		element := &entity.Elements[i]
+
+		datum := store.Field{
+			ID: element.ID,
+		}
+
+		for _, keyValue := range clientRecord.KeyValues {
+
+			if action == ACTION_POST && element.PrimaryKey == true {
+				continue
+			}
+
+			if keyValue.Key == element.ID {
+				datum.Value = keyValue.Value
+				datum.Hydrated = true
+				break
+			}
+		}
+
+		data = append(data, datum)
+
+	}
+	return data, nil
+}
+
 func marshalStoreRecordToClientRecord(storeRecord store.Record) Record {
 	clientRecord := Record{}
 	kvs := KeyValues{}
@@ -228,4 +258,81 @@ func marshalStoreRecordToClientRecord(storeRecord store.Record) Record {
 	}
 	clientRecord.KeyValues = kvs
 	return clientRecord
+}
+
+func validate(entity model.Entity, record store.Record, action string) error {
+
+	errors := make([]string, 0)
+	var primaryKey model.ElementLabel
+
+	for _, element := range entity.Elements {
+
+		userData, err := record.GetField(element.ID)
+		if err != nil {
+			errors = append(errors, fmt.Sprintf(`Missing element "%s" - %v`, element.ID, err))
+		}
+
+		if err := validateDataType(element, userData.Value); err != nil {
+			errors = append(errors, fmt.Sprintf(`"%s" (%s) has invalid data type: %s`, element.Label, element.ID, err))
+		}
+
+		// This is useful to see if value was provided and whether a string is empty or not.  Use "Min" and "Max" for integers.
+		// Don't use anything for boolean because it'll either be true or false (or "nil" and be classed as not provided).
+		if element.Validation.Required && (userData.Hydrated == false || userData.Value == nil || userData.Value == "") {
+			errors = append(errors, fmt.Sprintf(`"%s" (%s) is required and cannot be empty`, element.Label, element.ID))
+		}
+
+		if element.Validation.MustProvide == true && userData.Hydrated == false {
+			errors = append(errors, fmt.Sprintf(`"%s" (%s) must be provided`, element.Label, element.ID))
+		}
+
+		if element.PrimaryKey == true {
+			if primaryKey != "" {
+				errors = append(errors, fmt.Sprintf(`"%s" (%s) cannot be a primary key because "%s" is already one`, element.Label, element.ID, primaryKey))
+			} else {
+				primaryKey = element.Label
+			}
+		}
+
+		if action != ACTION_PATCH && element.PrimaryKey != true && userData.Hydrated == false {
+			errors = append(errors, fmt.Sprintf(`"%s" (%s) was not supplied on "%s"`, element.Label, element.ID, action))
+		}
+	}
+
+	if primaryKey == "" {
+		errors = append(errors, fmt.Sprintf(`Missing a primary key element`))
+	}
+
+	if len(errors) > 0 {
+		return fmt.Errorf("Validation errors: %v", errors)
+	}
+
+	return nil
+}
+
+// validateDataType
+// Unmarshal stores one of these in the interface value: "bool" for JSON booleans, "float64" for JSON numbers,
+// "string" for JSON strings, "[]interface{}" for JSON arrays, "map[string]interface{}" for JSON objects,  "nil" for JSON null
+func validateDataType(element model.Element, value interface{}) error {
+	if value == nil {
+		return nil
+	}
+
+	// Todo Move out of here so it's only created once!
+	dataTypes := make(map[string]string)
+	dataTypes[model.ELEMENT_DATA_TYPE_STRING] = "string"
+	dataTypes[model.ELEMENT_DATA_TYPE_NUMBER] = "float64"
+	dataTypes[model.ELEMENT_DATA_TYPE_BOOLEAN] = "bool"
+
+	if _, ok := dataTypes[element.DataType]; !ok {
+		return fmt.Errorf(`undefined data type "%s"`, element.DataType)
+	}
+
+	actualType := reflect.TypeOf(value).String()
+	expectedType := dataTypes[element.DataType]
+	if actualType != expectedType {
+		return fmt.Errorf(`expected type to be "%s" but got "%s" with value "%v"`, expectedType, actualType, value)
+	}
+
+	return nil
 }

@@ -1,6 +1,8 @@
 package store
 
-import "github.com/brettscott/gocrud/entity"
+import (
+	"github.com/brettscott/gocrud/model"
+)
 
 func NewFakeStorer() *FakeStorer {
 	return &FakeStorer{}
@@ -10,31 +12,31 @@ func NewFakeStorer() *FakeStorer {
 type FakeStorer struct{}
 
 // List
-func (f *FakeStorer) List(e entity.Entity) (entity.List, error) {
-	return entity.List{}, nil
+func (f *FakeStorer) List(e model.Entity) ([]Record, error) {
+	return []Record{}, nil
 }
 
 // Get
-func (f *FakeStorer) Get(e entity.Entity, recordID string) (entity.ClientRecord, error) {
-	return entity.ClientRecord{}, nil
+func (f *FakeStorer) Get(e model.Entity, recordID string) (Record, error) {
+	return Record{}, nil
 }
 
 // Post
-func (f *FakeStorer) Post(entity entity.Entity) (string, error) {
+func (f *FakeStorer) Post(entity model.Entity) (string, error) {
 	return "", nil
 }
 
 // Put
-func (f *FakeStorer) Put(entity entity.Entity, recordID string) error {
+func (f *FakeStorer) Put(entity model.Entity, recordID string) error {
 	return nil
 }
 
 // Patch
-func (f *FakeStorer) Patch(entity entity.Entity, recordID string) error {
+func (f *FakeStorer) Patch(entity model.Entity, recordID string) error {
 	return nil
 }
 
 // Delete
-func (f *FakeStorer) Delete(entity entity.Entity, recordID string) error {
+func (f *FakeStorer) Delete(entity model.Entity, recordID string) error {
 	return nil
 }

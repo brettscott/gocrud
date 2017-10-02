@@ -17,9 +17,9 @@ type Field struct {
 
 func (r *Record) GetField(elementID string) (*Field, error) {
 
-	for _, field := range r {
+	for _, field := range *r {
 		if field.ID == elementID {
-			return *field, nil
+			return &field, nil
 		}
 	}
 	return nil, fmt.Errorf("Did not find elementID \"%s\" in list of fields", elementID)
