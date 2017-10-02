@@ -49,7 +49,7 @@ func NewMongoStore(mongoURL, mongoSSLCertificate, databaseName string, statsd St
 }
 
 // Get a list of records
-func (m *Mongo) List(e model.Entity) (list model.List, err error) {
+func (m *Mongo) List(e model.Entity) (list []Record, err error) {
 	session := m.session.Copy()
 	defer session.Close()
 
@@ -68,17 +68,15 @@ func (m *Mongo) List(e model.Entity) (list model.List, err error) {
 
 	for _, row := range rows {
 		// Loop through each of the entity's elements to pull element's value from DB row.
-
-		record := marshalRowToRecord(e, row)
-
-		list.Records = append(list.Records, record)
+		record := marshalRowToStoreRecord(e, row)
+		list = append(list, record)
 	}
 
 	return list, nil
 }
 
 // Get a record
-func (m *Mongo) Get(e model.Entity, recordID string) (api.Record, error) { // TODO change to *
+func (m *Mongo) Get(e model.Entity, recordID string) (Record, error) { // TODO change to *
 	session := m.session.Copy()
 	defer session.Close()
 
@@ -98,13 +96,13 @@ func (m *Mongo) Get(e model.Entity, recordID string) (api.Record, error) { // TO
 		return api.Record{}, fmt.Errorf("Failed to get record.  Query: %+v.  Error: %s", query, err)
 	}
 
-	record := marshalRowToRecord(e, row)
+	record := marshalRowToStoreRecord(e, row)
 
 	return record, nil
 }
 
 // Create (ID not provided)
-func (m *Mongo) Post(entity model.Entity, record Record) (string, error) {
+func (m *Mongo) Post(entity model.Entity, storeRecord Record) (string, error) {
 	session := m.session.Copy()
 	defer session.Close()
 
@@ -119,19 +117,15 @@ func (m *Mongo) Post(entity model.Entity, record Record) (string, error) {
 		},
 	}
 
-	for _, element := range entity.Elements {
-		if element.PrimaryKey != true {
-			data, err := record.GetField(element.ID)
-			if err != nil {
-				return "", fmt.Errorf("Could not find field %s for entity %s", element.ID, entity.ID)
-			}
-			document[element.ID] = data.Value
-		}
-	}
 
-	fmt.Printf("Post document: %+v", document)
+	row := marshalStoreRecordToRow(entity, storeRecord);
 
-	err := c.Insert(document)
+	// TODO merge document and row
+
+
+	fmt.Printf("Post document: %+v", row)
+
+	err := c.Insert(row)
 	if err != nil {
 		return "", fmt.Errorf("Problem inserting %+v. Error: %v", entity, err)
 	}
@@ -227,29 +221,60 @@ func (m *Mongo) getSecureSession() (*mgo.Session, error) {
 	return mgo.DialWithInfo(dialInfo)
 }
 
-// marshalRowToRecord converts a Mongo row to a api.Record
-func marshalRowToRecord(entity model.Entity, row bson.M) (record api.Record) {
 
+func marshalRowToStoreRecord(entity model.Entity, row bson.M) (storeRecord Record) {
 	for _, element := range entity.Elements {
-		//fmt.Printf("\nElement: %+v\n", element)
-		kv := api.KeyValue{
-			Key:      element.ID,
-			DataType: element.DataType,
-		}
+		field := Field{ID:element.ID}
 
 		if element.PrimaryKey == true {
-			kv.Value = row[MONGO_ID]
+			field.Value = row[MONGO_ID]
 		} else {
 			if _, ok := row[element.ID]; ok {
-				kv.Value = row[element.ID]
+				field.Value = row[element.ID]
 			} else {
-				kv.Value = nil
+				field.Value = nil
 			}
 		}
-		record.KeyValues = append(record.KeyValues, kv)
+		storeRecord = append(storeRecord, field)
 	}
-	return record
+	return storeRecord
 }
 
+func marshalStoreRecordToRow(entity model.Entity, storeRecord Record) (row bson.M) {
+	for _, element := range entity.Elements {
+		if element.PrimaryKey != true {
+			data, err := storeRecord.GetField(element.ID)
+			if err != nil {
+				return "", fmt.Errorf("Could not find field %s for entity %s", element.ID, entity.ID)
+			}
+			row[element.ID] = data.Value
+		}
+	}
+	return row
+}
+
+// marshalRowToRecord converts a Mongo row to a api.Record
+//func marshalRowToClientRecord(entity model.Entity, row bson.M) (record api.Record) {
+//
+//	for _, element := range entity.Elements {
+//		//fmt.Printf("\nElement: %+v\n", element)
+//		kv := api.KeyValue{
+//			Key:      element.ID,
+//			DataType: element.DataType,
+//		}
+//
+//		if element.PrimaryKey == true {
+//			kv.Value = row[MONGO_ID]
+//		} else {
+//			if _, ok := row[element.ID]; ok {
+//				kv.Value = row[element.ID]
+//			} else {
+//				kv.Value = nil
+//			}
+//		}
+//		record.KeyValues = append(record.KeyValues, kv)
+//	}
+//	return record
+//}
 
 //func marshalRecordToRow(entity model.Entity, record Record)

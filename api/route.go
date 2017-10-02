@@ -104,7 +104,7 @@ func (a *APIRoute) get(w http.ResponseWriter, r *http.Request) {
 	if entity, ok := a.entities[entityID]; ok {
 		fmt.Println("Entity: %+v", entity)
 
-		record, err := a.store.Get(entity, recordID)  // return StoreRecord
+		storeRecord, err := a.store.Get(entity, recordID)  // return StoreRecord
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(fmt.Sprintf("Failed to get entityID: %s, recordID: %s.  Error: %v", entityID, recordID, err)))
@@ -112,10 +112,10 @@ func (a *APIRoute) get(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// MarshalStoreRecordToClientRecord
+		// todo next step
+		clientRecord := marshalStoreRecordToClientRecord(storeRecord)
 
-
-
-		jsonResponse, err := json.Marshal(record)
+		jsonResponse, err := json.Marshal(clientRecord)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(fmt.Sprintf("Failed to convert record to json.  Error: %v", err)))
@@ -216,4 +216,16 @@ func (a *APIRoute) save(isRecordNew bool, isPartialPayload bool) func(w http.Res
 		w.WriteHeader(http.StatusCreated)
 		w.Write(jsonResponse)
 	}
+}
+
+
+func marshalStoreRecordToClientRecord(storeRecord store.Record) Record {
+	clientRecord := Record{}
+	kvs := KeyValues{}
+	for _, field := range storeRecord {
+		kv := KeyValue{Key: field.ID, Value: field.Value}
+		kvs = append(kvs, kv)
+	}
+	clientRecord.KeyValues = kvs
+	return clientRecord
 }
