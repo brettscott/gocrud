@@ -69,7 +69,6 @@ Runs within Docker containers locally.  Assumes you have Docker installed.
 Everythings!
 
 * Update Chi to V3 (replaces /:id with /{id})
-* Problem persisting record in Entity as it'll be mutated by other requests **next**
 * API
     * GET
         * Write Mongo integration test
@@ -158,22 +157,26 @@ LIST
                                                             "[]bson.M{}" from Mongo
                                                          
 3.                                Convert "[]bson.M{}" into
-                                  "[]Record"
+                                  "[]store.Record"
 
-4.                                Marshal "[]Record" into JSON
+4.                                Marshal "[]store.Record" into "[]api.Record"
+
+5.                                Marshal "[]api.Record" into JSON
                                                                                                                                        
-5. <------- Return JSON list ------------------
+6. <------- Return JSON list ------------------
             JSON
 
 SAVE
 1.  ------- POST /api/<entity>  ---------------->
             JSON 
         
-2.                                 Unmarshal JSON into "Client_Record"    
+2.                                 Unmarshal JSON into "api.Record"    
         
-3.                                 Iterate over "Client_Record" and place into "bson.M{}"
+3.                                 Marshal "api.Record" into "store.Record"
+        
+4.                                 Marshal "store.Record" into "bson.M{}"
                                    
-4.                                              ------------- Persist in DB -------------->
+5.                                              ------------- Persist in DB -------------->
                                                               "bson.M{}" into Mongo
                                                                                                       
 ```
