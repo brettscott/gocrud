@@ -5,11 +5,10 @@ import (
 	"github.com/brettscott/gocrud/api"
 	"github.com/brettscott/gocrud/store"
 	"net/http"
-	"github.com/brettscott/gocrud/model"
 )
 
 type Crud struct {
-	entities model.Entities
+	entities Entities
 	config   *Config
 	log      Logger
 	statsd   StatsDer
@@ -22,7 +21,7 @@ func NewCrud(config *Config, log Logger, statsd StatsDer) *Crud {
 		config:   config,
 		log:      log,
 		statsd:   statsd,
-		entities: make(map[string]model.Entity),
+		entities: make(map[string]Entity),
 	}
 }
 
@@ -32,7 +31,7 @@ func (c *Crud) Store(store store.Storer) {
 }
 
 // AddEntity for each entity type (eg User)
-func (c *Crud) AddEntity(entity model.Entity) {
+func (c *Crud) AddEntity(entity Entity) {
 	c.entities[entity.ID] = entity
 }
 

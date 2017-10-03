@@ -4,7 +4,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
-	"github.com/brettscott/gocrud/model"
+	"github.com/brettscott/gocrud/crud"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"net"
@@ -46,7 +46,7 @@ func NewMongoStore(mongoURL, mongoSSLCertificate, databaseName string, statsd St
 }
 
 // Get a list of records
-func (m *Mongo) List(e model.Entity) (list []Record, err error) {
+func (m *Mongo) List(e crud.Entity) (list []Record, err error) {
 	session := m.session.Copy()
 	defer session.Close()
 
@@ -73,7 +73,7 @@ func (m *Mongo) List(e model.Entity) (list []Record, err error) {
 }
 
 // Get a record
-func (m *Mongo) Get(e model.Entity, recordID string) (Record, error) { // TODO change to *
+func (m *Mongo) Get(e crud.Entity, recordID string) (Record, error) { // TODO change to *
 	session := m.session.Copy()
 	defer session.Close()
 
@@ -99,7 +99,7 @@ func (m *Mongo) Get(e model.Entity, recordID string) (Record, error) { // TODO c
 }
 
 // Create (ID not provided)
-func (m *Mongo) Post(entity model.Entity, storeRecord Record) (string, error) {
+func (m *Mongo) Post(entity crud.Entity, storeRecord Record) (string, error) {
 	session := m.session.Copy()
 	defer session.Close()
 

@@ -3,7 +3,6 @@ package examples
 import (
 	"fmt"
 	"github.com/brettscott/gocrud/crud"
-	"github.com/brettscott/gocrud/model"
 	"github.com/brettscott/gocrud/store"
 	"github.com/mergermarket/gotools"
 	"github.com/pressly/chi"
@@ -21,35 +20,35 @@ func BasicExample() {
 	// TODO: Pre/post hooks and override actions
 	// TODO: Flexibility with rendering templates (custom head/foot/style)
 
-	users := model.Entity{
+	users := crud.Entity{
 		ID:     "users",
 		Label:  "User",
 		Labels: "Users",
-		Elements: model.Elements{
+		Elements: crud.Elements{
 			{
 				ID:         "id",
 				Label:      "ID",
 				PrimaryKey: true,
-				FormType:   model.ELEMENT_FORM_TYPE_HIDDEN,
-				DataType:   model.ELEMENT_DATA_TYPE_STRING,
+				FormType:   crud.ELEMENT_FORM_TYPE_HIDDEN,
+				DataType:   crud.ELEMENT_DATA_TYPE_STRING,
 			},
 			{
 				ID:       "name",
 				Label:    "Name",
-				FormType: model.ELEMENT_FORM_TYPE_TEXT,
-				DataType: model.ELEMENT_DATA_TYPE_STRING,
+				FormType: crud.ELEMENT_FORM_TYPE_TEXT,
+				DataType: crud.ELEMENT_DATA_TYPE_STRING,
 			},
 			{
 				ID:           "age",
 				Label:        "Age",
-				FormType:     model.ELEMENT_FORM_TYPE_TEXT,
-				DataType:     model.ELEMENT_DATA_TYPE_NUMBER,
+				FormType:     crud.ELEMENT_FORM_TYPE_TEXT,
+				DataType:     crud.ELEMENT_DATA_TYPE_NUMBER,
 				DefaultValue: 22,
 			},
 		},
 	}
 
-	// Todo: should do NewEntity and not newing up model.Entity manually.
+	// Todo: should do NewEntity and not newing up crud.Entity manually.
 	err := users.CheckConfiguration()
 	if err != nil {
 		log.Error(fmt.Sprintf(`Error with "users" entity: %v`, err))

@@ -1,7 +1,7 @@
 package store
 
 import (
-	"github.com/brettscott/gocrud/model"
+	"github.com/brettscott/gocrud/crud"
 )
 
 func NewFakeStorer() *FakeStorer {
@@ -12,31 +12,31 @@ func NewFakeStorer() *FakeStorer {
 type FakeStorer struct{}
 
 // List
-func (f *FakeStorer) List(e model.Entity) ([]Record, error) {
+func (f *FakeStorer) List(e crud.Entity) ([]Record, error) {
 	return []Record{}, nil
 }
 
 // Get
-func (f *FakeStorer) Get(e model.Entity, recordID string) (Record, error) {
+func (f *FakeStorer) Get(e crud.Entity, recordID string) (Record, error) {
 	return Record{}, nil
 }
 
 // Post
-func (f *FakeStorer) Post(entity model.Entity) (string, error) {
+func (f *FakeStorer) Post(entity crud.Entity) (string, error) {
 	return "", nil
 }
 
 // Put
-func (f *FakeStorer) Put(entity model.Entity, recordID string) error {
+func (f *FakeStorer) Put(entity crud.Entity, recordID string) error {
 	return nil
 }
 
 // Patch
-func (f *FakeStorer) Patch(entity model.Entity, recordID string) error {
+func (f *FakeStorer) Patch(entity crud.Entity, recordID string) error {
 	return nil
 }
 
 // Delete
-func (f *FakeStorer) Delete(entity model.Entity, recordID string) error {
+func (f *FakeStorer) Delete(entity crud.Entity, recordID string) error {
 	return nil
 }

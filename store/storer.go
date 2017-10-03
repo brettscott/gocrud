@@ -1,14 +1,14 @@
 package store
 
 import (
-	"github.com/brettscott/gocrud/model"
+	"github.com/brettscott/gocrud/crud"
 )
 
 type Storer interface {
-	List(entity model.Entity) ([]Record, error)
-	Get(e model.Entity, recordID string) (Record, error)
-	Post(entity model.Entity, storeRecord Record) (string, error)
-	Put(entity model.Entity, storeRecord Record, recordID string) error
-	Patch(entity model.Entity, storeRecord Record, recordID string) error
-	Delete(entity model.Entity, recordID string) error
+	List(entity crud.Entity) ([]Record, error)
+	Get(e crud.Entity, recordID string) (Record, error)
+	Post(entity crud.Entity, storeRecord Record) (string, error)
+	Put(entity crud.Entity, storeRecord Record, recordID string) error
+	Patch(entity crud.Entity, storeRecord Record, recordID string) error
+	Delete(entity crud.Entity, recordID string) error
 }

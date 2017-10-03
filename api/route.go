@@ -3,11 +3,11 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/brettscott/gocrud/crud"
 	"github.com/brettscott/gocrud/store"
 	"github.com/pressly/chi"
 	"io/ioutil"
 	"net/http"
-	"github.com/brettscott/gocrud/model"
 	"reflect"
 )
 
@@ -16,14 +16,14 @@ const ACTION_PUT = "put"
 const ACTION_PATCH = "patch"
 
 type APIRoute struct {
-	entities model.Entities
+	entities crud.Entities
 	store    store.Storer
 	log      Logger
 	statsd   StatsDer
 }
 
 // NewRoute prepares the routes for this package
-func NewRoute(entities model.Entities, store store.Storer, log Logger, statsd StatsDer) func(chi.Router) {
+func NewRoute(entities crud.Entities, store store.Storer, log Logger, statsd StatsDer) func(chi.Router) {
 
 	apiRoute := &APIRoute{
 		entities: entities,
@@ -105,7 +105,7 @@ func (a *APIRoute) get(w http.ResponseWriter, r *http.Request) {
 	if entity, ok := a.entities[entityID]; ok {
 		fmt.Println("Entity: %+v", entity)
 
-		storeRecord, err := a.store.Get(entity, recordID)  // return StoreRecord
+		storeRecord, err := a.store.Get(entity, recordID) // return StoreRecord
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(fmt.Sprintf("Failed to get entityID: %s, recordID: %s.  Error: %v", entityID, recordID, err)))
@@ -217,9 +217,8 @@ func (a *APIRoute) save(isRecordNew bool, isPartialPayload bool) func(w http.Res
 	}
 }
 
-
 // MarshalRecordToEntityData marshals the data received from client
-func marshalRecordToEntityData(entity model.Entity, clientRecord *Record, action string) (data store.Record, err error) {
+func marshalRecordToEntityData(entity crud.Entity, clientRecord *Record, action string) (data store.Record, err error) {
 
 	for i, _ := range entity.Elements {
 		element := &entity.Elements[i]
@@ -258,10 +257,10 @@ func marshalStoreRecordToClientRecord(storeRecord store.Record) Record {
 	return clientRecord
 }
 
-func validate(entity model.Entity, record store.Record, action string) error {
+func validate(entity crud.Entity, record store.Record, action string) error {
 
 	errors := make([]string, 0)
-	var primaryKey model.ElementLabel
+	var primaryKey crud.ElementLabel
 
 	for _, element := range entity.Elements {
 
@@ -311,16 +310,16 @@ func validate(entity model.Entity, record store.Record, action string) error {
 // validateDataType
 // Unmarshal stores one of these in the interface value: "bool" for JSON booleans, "float64" for JSON numbers,
 // "string" for JSON strings, "[]interface{}" for JSON arrays, "map[string]interface{}" for JSON objects,  "nil" for JSON null
-func validateDataType(element model.Element, value interface{}) error {
+func validateDataType(element crud.Element, value interface{}) error {
 	if value == nil {
 		return nil
 	}
 
 	// Todo Move out of here so it's only created once!
 	dataTypes := make(map[string]string)
-	dataTypes[model.ELEMENT_DATA_TYPE_STRING] = "string"
-	dataTypes[model.ELEMENT_DATA_TYPE_NUMBER] = "float64"
-	dataTypes[model.ELEMENT_DATA_TYPE_BOOLEAN] = "bool"
+	dataTypes[crud.ELEMENT_DATA_TYPE_STRING] = "string"
+	dataTypes[crud.ELEMENT_DATA_TYPE_NUMBER] = "float64"
+	dataTypes[crud.ELEMENT_DATA_TYPE_BOOLEAN] = "bool"
 
 	if _, ok := dataTypes[element.DataType]; !ok {
 		return fmt.Errorf(`undefined data type "%s"`, element.DataType)

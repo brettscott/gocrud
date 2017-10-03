@@ -2,7 +2,6 @@ package store
 
 import (
 	"fmt"
-	//"reflect"
 )
 
 // EntityData represents a database row from the entity's database

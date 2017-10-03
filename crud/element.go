@@ -1,4 +1,4 @@
-package model
+package crud
 
 // Element (eg id) is an attribute of Entity (eg users)
 type Element struct {
