@@ -3,13 +3,13 @@ package examples
 import (
 	"fmt"
 	"github.com/brettscott/gocrud/crud"
+	"github.com/brettscott/gocrud/model"
 	"github.com/brettscott/gocrud/store"
 	"github.com/mergermarket/gotools"
 	"github.com/pressly/chi"
 	"log"
 	"net/http"
 	"os"
-	"github.com/brettscott/gocrud/model"
 )
 
 // BasicExample should illustrate basic functionality of the CRUD
@@ -79,7 +79,7 @@ func BasicExample() {
 	router := chi.NewRouter()
 	router.Mount("/gocrud", myCrud.Handler())
 	// 2. Simple approach to mount CRUD routes
-	//router := Crud.Handler()
+	//router := myCrud.Handler()
 
 	err = http.ListenAndServe(fmt.Sprintf(":%d", config.Port), router)
 	if err != nil {

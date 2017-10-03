@@ -82,7 +82,9 @@ Everythings!
     * LIST
         * Write Mongo integration test
         * Pagination
+    * Router is very fat.  Write tests and break it up **NEXT**
     * Authentication and authorisation
+    * Move `model.Entity` to `crud.Entity`
 * Front-end
     * Create
     * Results
@@ -90,6 +92,10 @@ Everythings!
     * Delete
 * Mongo
     * create indexes
+* SQL
+    * Add a SQL adapter as a proof of concept to ensure they can be easily created
+* Neo4j
+    * Add adapter
 
 ## Packages
 
