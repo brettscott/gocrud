@@ -4,11 +4,11 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
+	"github.com/brettscott/gocrud/model"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"net"
 	"time"
-	"github.com/brettscott/gocrud/model"
 )
 
 const MONGO_ID = "_id"
@@ -106,6 +106,11 @@ func (m *Mongo) Post(entity model.Entity, storeRecord Record) (string, error) {
 	collectionName := entity.ID
 	c := session.DB(m.databaseName).C(collectionName)
 
+	row, err := marshalStoreRecordToRow(entity, storeRecord)
+	if err != nil {
+		return "", err
+	}
+
 	objectID := bson.NewObjectId()
 	document := bson.M{
 		MONGO_ID: objectID,
@@ -113,14 +118,6 @@ func (m *Mongo) Post(entity model.Entity, storeRecord Record) (string, error) {
 			"dateCreated": time.Now().UTC().Format(time.RFC3339Nano),
 		},
 	}
-
-
-	row, err := marshalStoreRecordToRow(entity, storeRecord);
-	if err != nil {
-		return "", err
-	}
-
-	// TODO merge document and row
 	for i, doc := range document {
 		row[i] = doc
 	}
@@ -136,7 +133,7 @@ func (m *Mongo) Post(entity model.Entity, storeRecord Record) (string, error) {
 }
 
 // Update (when ID is known)
-func (m *Mongo) Put(entity model.Entity, record Record, recordID string) error {
+func (m *Mongo) Put(entity model.Entity, storeRecord Record, recordID string) error {
 	if recordID == "" {
 		return fmt.Errorf("Failed to updated because primary key is empty.  Entity: %+v", entity)
 	}
@@ -147,27 +144,23 @@ func (m *Mongo) Put(entity model.Entity, record Record, recordID string) error {
 	collectionName := entity.ID
 	c := session.DB(m.databaseName).C(collectionName)
 
-	documentKvs := bson.M{}
-	for _, element := range entity.Elements {
-		if element.PrimaryKey != true {
-			data, err := record.GetField(element.ID)
-			if err != nil {
-				return fmt.Errorf("Could not find field %s for entity %s", element.ID, entity.ID)
-			}
-			documentKvs[element.ID] = data.Value
-		}
+	row, err := marshalStoreRecordToRow(entity, storeRecord)
+	if err != nil {
+		return err
 	}
 
 	document := bson.M{
 		"$push": bson.M{
 			"_crud.dateUpdated": time.Now().UTC().Format(time.RFC3339Nano),
 		},
-		"$set": documentKvs,
+		"$set": row,
 	}
-	fmt.Printf("Put document: %+v", document)
+	for i, doc := range document {
+		row[i] = doc
+	}
 
 	objectID := bson.ObjectIdHex(recordID)
-	err := c.UpdateId(objectID, document)
+	err = c.UpdateId(objectID, document)
 	if err != nil {
 		return fmt.Errorf("Problem updating. RecordID: %s, Error: %v", recordID, err)
 	}
@@ -223,10 +216,9 @@ func (m *Mongo) getSecureSession() (*mgo.Session, error) {
 	return mgo.DialWithInfo(dialInfo)
 }
 
-
 func marshalRowToStoreRecord(entity model.Entity, row bson.M) (storeRecord Record) {
 	for _, element := range entity.Elements {
-		field := Field{ID:element.ID}
+		field := Field{ID: element.ID}
 
 		if element.PrimaryKey == true {
 			field.Value = row[MONGO_ID]
@@ -242,7 +234,8 @@ func marshalRowToStoreRecord(entity model.Entity, row bson.M) (storeRecord Recor
 	return storeRecord
 }
 
-func marshalStoreRecordToRow(entity model.Entity, storeRecord Record) (row bson.M, err error) {
+func marshalStoreRecordToRow(entity model.Entity, storeRecord Record) (bson.M, error) {
+	row := bson.M{}
 	for _, element := range entity.Elements {
 		if element.PrimaryKey != true {
 			data, err := storeRecord.GetField(element.ID)
@@ -254,4 +247,3 @@ func marshalStoreRecordToRow(entity model.Entity, storeRecord Record) (row bson.
 	}
 	return row, nil
 }
-

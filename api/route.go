@@ -112,10 +112,7 @@ func (a *APIRoute) get(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// MarshalStoreRecordToClientRecord
-		// todo next step
 		clientRecord := marshalStoreRecordToClientRecord(storeRecord)
-
 		jsonResponse, err := json.Marshal(clientRecord)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -201,14 +198,15 @@ func (a *APIRoute) save(isRecordNew bool, isPartialPayload bool) func(w http.Res
 			return
 		}
 
-		dbRecord, err := a.store.Get(entity, recordID)
+		storeRecord, err := a.store.Get(entity, recordID)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(fmt.Sprintf("Failed to get newly created DB record. entityID: %s, recordID: %s.  Error: %v", entityID, recordID, err)))
 			return
 		}
 
-		jsonResponse, err := json.Marshal(dbRecord)
+		clientRecord := marshalStoreRecordToClientRecord(storeRecord)
+		jsonResponse, err := json.Marshal(clientRecord)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(fmt.Sprintf("Failed to convert DB record to json.  Error: %v", err)))
