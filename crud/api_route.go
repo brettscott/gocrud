@@ -74,15 +74,21 @@ func (a *APIRoute) list(w http.ResponseWriter, r *http.Request) {
 
 	if entity, ok := a.entities[entityID]; ok {
 
-		records, err := a.store.List(entity)
-		fmt.Printf("\nRecords: %+v", records)
+		storeRecords, err := a.store.List(entity)
+		fmt.Printf("\nRecords: %+v", storeRecords)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte(fmt.Sprintf("Invalid entityID: %s", entityID)))
 			return
 		}
 
-		jsonResponse, err := json.Marshal(records)
+		clientRecords := []Record{}
+		for _, storeRecord := range storeRecords {
+			clientRecord := marshalStoreRecordToClientRecord(storeRecord)
+			clientRecords = append(clientRecords, clientRecord)
+		}
+
+		jsonResponse, err := json.Marshal(clientRecords)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(fmt.Sprintf("Failed to convert record to json.  Error: %v", err)))
