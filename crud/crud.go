@@ -13,6 +13,7 @@ type Crud struct {
 	log      Logger
 	statsd   StatsDer
 	store    store.Storer
+	apiService apiService
 }
 
 // NewCrud creates a new CRUD instance
@@ -37,12 +38,15 @@ func (c *Crud) AddEntity(entity model.Entity) {
 
 // Handler for mounting routes for CRUD
 func (c *Crud) Handler() http.Handler {
+
+	c.apiService = newApiService(c.store)
+
 	healthcheckHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		fmt.Fprint(w, "Healthy")
 	})
 
-	apiRouteHandler := NewApiRoute(c.entities, c.store, c.log, c.statsd)
+	apiRouteHandler := NewApiRoute(c.entities, c.store, c.apiService, c.log, c.statsd)
 
 	return newRouter(c.log, c.statsd, healthcheckHandler, apiRouteHandler)
 }

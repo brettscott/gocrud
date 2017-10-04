@@ -20,16 +20,18 @@ type APIRoute struct {
 	store    store.Storer
 	log      Logger
 	statsd   StatsDer
+	apiService apiService
 }
 
 // NewRoute prepares the routes for this package
-func NewApiRoute(entities model.Entities, store store.Storer, log Logger, statsd StatsDer) func(chi.Router) {
+func NewApiRoute(entities model.Entities, store store.Storer, apiService apiService, log Logger, statsd StatsDer) func(chi.Router) {
 
 	apiRoute := &APIRoute{
 		entities: entities,
 		store:    store,
 		log:      log,
 		statsd:   statsd,
+		apiService: apiService,
 	}
 
 	return func(r chi.Router) {
@@ -73,34 +75,18 @@ func (a *APIRoute) list(w http.ResponseWriter, r *http.Request) {
 	entityID := chi.URLParam(r, "entityID")
 
 	if entity, ok := a.entities[entityID]; ok {
-
-		storeRecords, err := a.store.List(entity)
-		fmt.Printf("\nRecords: %+v", storeRecords)
-		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(fmt.Sprintf("Invalid entityID: %s", entityID)))
-			return
-		}
-
-		clientRecords := []Record{}
-		for _, storeRecord := range storeRecords {
-			clientRecord := marshalStoreRecordToClientRecord(storeRecord)
-			clientRecords = append(clientRecords, clientRecord)
-		}
-
-		jsonResponse, err := json.Marshal(clientRecords)
+		jsonResponse, err := a.apiService.list(entity)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(fmt.Sprintf("Failed to convert record to json.  Error: %v", err)))
+			w.Write([]byte(err.Error()))
 			return
 		}
+		w.WriteHeader(http.StatusOK)
 		w.Write(jsonResponse)
 		return
 	}
-
 	w.WriteHeader(http.StatusBadRequest)
 	w.Write([]byte(fmt.Sprintf("Invalid entityID: %s", entityID)))
-
 }
 
 // get returns a record from the database for the given recordID in given entityID
@@ -109,26 +95,16 @@ func (a *APIRoute) get(w http.ResponseWriter, r *http.Request) {
 	recordID := chi.URLParam(r, "recordID")
 
 	if entity, ok := a.entities[entityID]; ok {
-		fmt.Println("Entity: %+v", entity)
-
-		storeRecord, err := a.store.Get(entity, recordID) // return StoreRecord
+		jsonResponse, err := a.apiService.get(entity, recordID)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(fmt.Sprintf("Failed to get entityID: %s, recordID: %s.  Error: %v", entityID, recordID, err)))
+			w.Write([]byte(err.Error()))
 			return
 		}
-
-		clientRecord := marshalStoreRecordToClientRecord(storeRecord)
-		jsonResponse, err := json.Marshal(clientRecord)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(fmt.Sprintf("Failed to convert record to json.  Error: %v", err)))
-			return
-		}
+		w.WriteHeader(http.StatusOK)
 		w.Write(jsonResponse)
 		return
 	}
-
 	w.WriteHeader(http.StatusBadRequest)
 	w.Write([]byte(fmt.Sprintf("Invalid entityID: %s", entityID)))
 }
@@ -223,45 +199,6 @@ func (a *APIRoute) save(isRecordNew bool, isPartialPayload bool) func(w http.Res
 	}
 }
 
-// MarshalRecordToEntityData marshals the data received from client
-func marshalRecordToEntityData(entity model.Entity, clientRecord *Record, action string) (data store.Record, err error) {
-
-	for i, _ := range entity.Elements {
-		element := &entity.Elements[i]
-
-		datum := store.Field{
-			ID: element.ID,
-		}
-
-		for _, keyValue := range clientRecord.KeyValues {
-
-			if action == ACTION_POST && element.PrimaryKey == true {
-				continue
-			}
-
-			if keyValue.Key == element.ID {
-				datum.Value = keyValue.Value
-				datum.Hydrated = true
-				break
-			}
-		}
-
-		data = append(data, datum)
-
-	}
-	return data, nil
-}
-
-func marshalStoreRecordToClientRecord(storeRecord store.Record) Record {
-	clientRecord := Record{}
-	kvs := KeyValues{}
-	for _, field := range storeRecord {
-		kv := KeyValue{Key: field.ID, Value: field.Value}
-		kvs = append(kvs, kv)
-	}
-	clientRecord.KeyValues = kvs
-	return clientRecord
-}
 
 func validate(entity model.Entity, record store.Record, action string) error {
 
