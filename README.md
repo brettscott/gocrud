@@ -83,8 +83,13 @@ Everythings!
         * Write Mongo integration test
         * Pagination
     * Router is very fat.  Write tests and break it up **NEXT**
+    * Better error messages back to the client via /api
+    * More validation rules
+    * More examples (eg basic_example.go)
     * Authentication and authorisation
-    * Move `model.Entity` to `crud.Entity`
+    * Support for search - ES?
+    * Move `model.Entity` to `crud.Entity` - cannot do due to "import cycle" error
+    * Convert Entity setup into JSON which is unmarshalled into model.Entity
 * Front-end
     * Create
     * Results

@@ -1,13 +1,13 @@
-package api
+package crud
 
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/brettscott/gocrud/model"
 	"github.com/brettscott/gocrud/store"
 	"github.com/pressly/chi"
 	"io/ioutil"
 	"net/http"
-	"github.com/brettscott/gocrud/model"
 	"reflect"
 )
 
@@ -23,7 +23,7 @@ type APIRoute struct {
 }
 
 // NewRoute prepares the routes for this package
-func NewRoute(entities model.Entities, store store.Storer, log Logger, statsd StatsDer) func(chi.Router) {
+func NewApiRoute(entities model.Entities, store store.Storer, log Logger, statsd StatsDer) func(chi.Router) {
 
 	apiRoute := &APIRoute{
 		entities: entities,
@@ -105,7 +105,7 @@ func (a *APIRoute) get(w http.ResponseWriter, r *http.Request) {
 	if entity, ok := a.entities[entityID]; ok {
 		fmt.Println("Entity: %+v", entity)
 
-		storeRecord, err := a.store.Get(entity, recordID)  // return StoreRecord
+		storeRecord, err := a.store.Get(entity, recordID) // return StoreRecord
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(fmt.Sprintf("Failed to get entityID: %s, recordID: %s.  Error: %v", entityID, recordID, err)))
@@ -216,7 +216,6 @@ func (a *APIRoute) save(isRecordNew bool, isPartialPayload bool) func(w http.Res
 		w.Write(jsonResponse)
 	}
 }
-
 
 // MarshalRecordToEntityData marshals the data received from client
 func marshalRecordToEntityData(entity model.Entity, clientRecord *Record, action string) (data store.Record, err error) {

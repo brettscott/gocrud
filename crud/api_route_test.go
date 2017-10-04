@@ -1,4 +1,4 @@
-package api
+package crud
 
 import (
 	"github.com/brettscott/gocrud/entity"
@@ -9,6 +9,7 @@ import (
 
 	"github.com/brettscott/gocrud/store"
 	"github.com/pressly/chi"
+	"github.com/brettscott/gocrud/model"
 )
 
 func TestAPIRoute(t *testing.T) {
@@ -17,7 +18,7 @@ func TestAPIRoute(t *testing.T) {
 	tsdConfig := tools.NewStatsDConfig(false, testLogger)
 	testStatsD, _ := tools.NewStatsD(tsdConfig)
 
-	testAPIRoute := NewRoute(makeEntities(), store.NewFakeStorer(), testLogger, testStatsD)
+	testAPIRoute := NewApiRoute(makeEntities(), store.NewFakeStorer(), testLogger, testStatsD)
 	testRouter := chi.NewRouter()
 	testRouter.Route("/", testAPIRoute)
 
@@ -42,9 +43,9 @@ func TestAPIRoute(t *testing.T) {
 	}
 }
 
-func makeEntities() entity.Entities {
-	return entity.Entities{
-		"users":     entity.Entity{},
-		"computers": entity.Entity{},
+func makeEntities() model.Entities {
+	return model.Entities{
+		"users":     model.Entity{},
+		"computers": model.Entity{},
 	}
 }

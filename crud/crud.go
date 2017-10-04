@@ -2,10 +2,9 @@ package crud
 
 import (
 	"fmt"
-	"github.com/brettscott/gocrud/api"
+	"github.com/brettscott/gocrud/model"
 	"github.com/brettscott/gocrud/store"
 	"net/http"
-	"github.com/brettscott/gocrud/model"
 )
 
 type Crud struct {
@@ -43,7 +42,7 @@ func (c *Crud) Handler() http.Handler {
 		fmt.Fprint(w, "Healthy")
 	})
 
-	apiRouteHandler := api.NewRoute(c.entities, c.store, c.log, c.statsd)
+	apiRouteHandler := NewApiRoute(c.entities, c.store, c.log, c.statsd)
 
 	return newRouter(c.log, c.statsd, healthcheckHandler, apiRouteHandler)
 }
