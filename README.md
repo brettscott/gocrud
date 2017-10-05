@@ -83,6 +83,7 @@ Everythings!
         * Write Mongo integration test
         * Pagination
     * Router is very fat.  Write tests and break it up **NEXT**
+    * models.Entity() - should this be an interface in the packages using it? https://github.com/golang/go/wiki/CodeReviewComments#interfaces
     * Better error messages back to the client via /api
     * More validation rules
     * More examples (eg basic_example.go)

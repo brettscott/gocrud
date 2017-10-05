@@ -1,7 +1,6 @@
 package crud
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/brettscott/gocrud/model"
 	"github.com/brettscott/gocrud/store"
@@ -16,10 +15,10 @@ const ACTION_PUT = "put"
 const ACTION_PATCH = "patch"
 
 type APIRoute struct {
-	entities model.Entities
-	store    store.Storer
-	log      Logger
-	statsd   StatsDer
+	entities   model.Entities
+	store      store.Storer
+	log        Logger
+	statsd     StatsDer
 	apiService apiService
 }
 
@@ -27,10 +26,10 @@ type APIRoute struct {
 func NewApiRoute(entities model.Entities, store store.Storer, apiService apiService, log Logger, statsd StatsDer) func(chi.Router) {
 
 	apiRoute := &APIRoute{
-		entities: entities,
-		store:    store,
-		log:      log,
-		statsd:   statsd,
+		entities:   entities,
+		store:      store,
+		log:        log,
+		statsd:     statsd,
 		apiService: apiService,
 	}
 
@@ -119,86 +118,36 @@ func (a *APIRoute) save(isRecordNew bool, isPartialPayload bool) func(w http.Res
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		entityID := chi.URLParam(r, "entityID")
-		body, err := ioutil.ReadAll(r.Body)
-		if err != nil {
+		recordID := chi.URLParam(r, "recordID")
+
+		if (action == ACTION_PUT || action == ACTION_PATCH) && len(recordID) == 0 {
 			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(fmt.Sprintf("Bad request - %v", err)))
+			w.Write([]byte("Bad request - missing recordID"))
 			return
 		}
 
-		record := &Record{}
-		err = record.UnmarshalJSON(body)
-		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(fmt.Sprintf("Failed to convert JSON - %v", err)))
-			return
-		}
-
-		entity := a.entities[entityID]
-		entityData, err := marshalRecordToEntityData(entity, record, action)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(fmt.Sprintf("Failed to hydrate Entity from ClientRecord - %v", err)))
-			return
-		}
-		err = validate(entity, entityData, action)
-		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(fmt.Sprintf("Failed validation - %v", err)))
-			return
-		}
-
-		var recordID string
-		switch action {
-		case ACTION_POST:
-			recordID, err = a.store.Post(entity, entityData)
-			break
-		case ACTION_PUT:
-			recordID = chi.URLParam(r, "recordID")
-			if recordID == "" {
+		if entity, ok := a.entities[entityID]; ok {
+			body, err := ioutil.ReadAll(r.Body)
+			if err != nil {
 				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte(fmt.Sprintf("Missing recordID - %v", err)))
+				w.Write([]byte(fmt.Sprintf("Bad request - %v", err)))
+				return
 			}
-			err = a.store.Put(entity, entityData, recordID)
-			break
-		case ACTION_PATCH:
-			recordID = chi.URLParam(r, "recordID")
-			if recordID == "" {
-				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte(fmt.Sprintf("Missing recordID - %v", err)))
+			jsonResponse, err := a.apiService.save(entity, action, body, recordID)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				w.Write([]byte(err.Error()))
+				return
 			}
-			err = a.store.Patch(entity, entityData, recordID)
-			break
-		default:
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(fmt.Sprintf("Invalid action - %s", action)))
-			break
-		}
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(fmt.Sprintf("Failed post/put e %v.  Error: %v", entity, err)))
+			w.WriteHeader(http.StatusCreated)
+			w.Write(jsonResponse)
 			return
 		}
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(fmt.Sprintf("Invalid entityID: %s", entityID)))
 
-		storeRecord, err := a.store.Get(entity, recordID)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(fmt.Sprintf("Failed to get newly created DB record. entityID: %s, recordID: %s.  Error: %v", entityID, recordID, err)))
-			return
-		}
-
-		clientRecord := marshalStoreRecordToClientRecord(storeRecord)
-		jsonResponse, err := json.Marshal(clientRecord)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(fmt.Sprintf("Failed to convert DB record to json.  Error: %v", err)))
-			return
-		}
-		w.WriteHeader(http.StatusCreated)
-		w.Write(jsonResponse)
 	}
 }
-
 
 func validate(entity model.Entity, record store.Record, action string) error {
 
