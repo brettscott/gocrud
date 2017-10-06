@@ -91,6 +91,7 @@ Everythings!
     * Support for search - ES?
     * Move `model.Entity` to `crud.Entity` - cannot do due to "import cycle" error
     * Convert Entity setup into JSON which is unmarshalled into model.Entity
+    * Return _crud information in KV to client
 * Front-end
     * Create
     * Results
