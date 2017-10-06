@@ -145,3 +145,4 @@ func marshalStoreRecordToClientRecord(storeRecord store.Record) Record {
 	clientRecord.KeyValues = kvs
 	return clientRecord
 }
+
