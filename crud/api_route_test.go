@@ -14,28 +14,6 @@ import (
 
 func TestAPIRoute(t *testing.T) {
 
-	testRouter := makeTestRouter(t, makeEntities(), NewFakeApiServicer())
-
-	var routeTests = []struct {
-		route  string
-		result string
-	}{
-		{"/", "Welcome to the API"},
-	}
-
-	for _, testCase := range routeTests {
-		w := httptest.NewRecorder()
-		req, _ := http.NewRequest(http.MethodGet, testCase.route, nil)
-
-		testRouter.ServeHTTP(w, req)
-		if http.StatusOK != w.Code {
-			t.Error("bad status, expected", http.StatusOK, "got", w.Code, "body:", w.Body.String())
-		}
-		if testCase.result != w.Body.String() {
-			t.Error(testCase.route, "bad response, expected", testCase.result, "got", w.Body.String())
-		}
-	}
-
 	t.Run("GET /<entity> returns 200", func(t *testing.T) {
 		fakeApiService := &fakeApiServicer{
 			listResponseBody: []byte("the-test-response"),
@@ -274,8 +252,8 @@ func TestAPIRoute(t *testing.T) {
 
 func makeTestRouter(t *testing.T, entities model.Entities, apiService apiServicer) chi.Router {
 	testLogger := &tools.TestLogger{T: t}
-	tsdConfig := tools.NewStatsDConfig(false, testLogger)
-	testStatsD, _ := tools.NewStatsD(tsdConfig)
+	testConfig := tools.NewStatsDConfig(false, testLogger)
+	testStatsD, _ := tools.NewStatsD(testConfig)
 
 	testAPIRoute := NewApiRoute(entities, apiService, testLogger, testStatsD)
 	testRouter := chi.NewRouter()

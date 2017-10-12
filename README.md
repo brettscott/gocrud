@@ -22,6 +22,12 @@ Runs within Docker containers locally.  Assumes you have Docker installed.
 * `./run.sh -lx` - run locally without building containers
 * `./run.sh` - run tests
 
+Running tests within your IDE, start Mongo:
+
+    docker-compose run --service-ports mongodb
+
+Create an entry in your `hosts` file for `mongodb` to point to your Docker VM's IP address.
+
 
 ## Example
 

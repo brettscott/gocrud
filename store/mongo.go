@@ -74,15 +74,16 @@ func (m *Mongo) List(e model.Entity) (list []Record, err error) {
 
 // Get a record
 func (m *Mongo) Get(e model.Entity, recordID string) (Record, error) { // TODO change to *
+	if !bson.IsObjectIdHex(recordID) {
+		return nil, fmt.Errorf("invalid recordID: %s", recordID)
+	}
+
 	session := m.session.Copy()
 	defer session.Close()
 
 	collectionName := e.ID // TODO: make more flexible?
 	c := session.DB(m.databaseName).C(collectionName)
 
-	if !bson.IsObjectIdHex(recordID) {
-		fmt.Println("invalid: ", recordID)
-	}
 	query := bson.M{
 		MONGO_ID: bson.ObjectIdHex(recordID),
 	}
@@ -90,7 +91,7 @@ func (m *Mongo) Get(e model.Entity, recordID string) (Record, error) { // TODO c
 	var row bson.M
 	err := c.Find(query).One(&row)
 	if err != nil {
-		return Record{}, fmt.Errorf("Failed to get record.  Query: %+v.  Error: %s", query, err)
+		return Record{}, fmt.Errorf("failed to get record.  Query: %+v.  Error: %s", query, err)
 	}
 
 	record := marshalRowToStoreRecord(e, row)
@@ -173,8 +174,40 @@ func (m *Mongo) Patch(entity model.Entity, elementsData Record, recordID string)
 	return m.Put(entity, elementsData, recordID)
 }
 
-// Remove
+// Delete removes a record
 func (m *Mongo) Delete(entity model.Entity, recordID string) error {
+	if !bson.IsObjectIdHex(recordID) {
+		return fmt.Errorf("invalid recordID: %s", recordID)
+	}
+
+	session := m.session.Copy()
+	defer session.Close()
+
+	collectionName := entity.ID
+	c := session.DB(m.databaseName).C(collectionName)
+	query := bson.M{
+		MONGO_ID: bson.ObjectIdHex(recordID),
+	}
+	err := c.Remove(query)
+	if err != nil {
+		return fmt.Errorf("failed to remove record %s.  Error: %s", recordID, err)
+	}
+	return nil
+}
+
+// DeleteAll removes all records.  Used by integration tests only.
+func (m *Mongo) DeleteAll(entity model.Entity) error {
+	session := m.session.Copy()
+	defer session.Close()
+
+	collectionName := entity.ID
+	c := session.DB(m.databaseName).C(collectionName)
+	query := bson.M{}
+	changed, err := c.RemoveAll(query)
+	if err != nil {
+		return fmt.Errorf("failed to remove all records.  Error: %s", err)
+	}
+	fmt.Println("Records removed: ", changed.Removed)
 	return nil
 }
 
