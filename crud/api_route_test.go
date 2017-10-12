@@ -60,7 +60,7 @@ func TestAPIRoute(t *testing.T) {
 		}
 		testRouter := makeTestRouter(t, makeEntities(), fakeApiService)
 		w := httptest.NewRecorder()
-		req, _ := http.NewRequest(http.MethodGet, "/users/1234567890", nil)
+		req, _ := http.NewRequest(http.MethodGet, "/users/59df7716ed16fc4a2ca31c08", nil)
 		testRouter.ServeHTTP(w, req)
 		if http.StatusOK != w.Code {
 			t.Error("bad status: expected", http.StatusOK, "got", w.Code, "body:", w.Body.String())
@@ -76,7 +76,7 @@ func TestAPIRoute(t *testing.T) {
 		}
 		testRouter := makeTestRouter(t, makeEntities(), fakeApiService)
 		w := httptest.NewRecorder()
-		req, _ := http.NewRequest(http.MethodGet, "/users/1234567890", nil)
+		req, _ := http.NewRequest(http.MethodGet, "/users/59df7716ed16fc4a2ca31c08", nil)
 		testRouter.ServeHTTP(w, req)
 		if http.StatusInternalServerError != w.Code {
 			t.Error("bad status: expected", http.StatusInternalServerError, "got", w.Code)
@@ -87,7 +87,7 @@ func TestAPIRoute(t *testing.T) {
 		fakeApiService := &fakeApiServicer{}
 		testRouter := makeTestRouter(t, makeEntities(), fakeApiService)
 		w := httptest.NewRecorder()
-		req, _ := http.NewRequest(http.MethodGet, "/doesnt-exist/1234567890", nil)
+		req, _ := http.NewRequest(http.MethodGet, "/doesnt-exist/59df7716ed16fc4a2ca31c08", nil)
 		testRouter.ServeHTTP(w, req)
 		if http.StatusBadRequest != w.Code {
 			t.Error("bad status: expected", http.StatusBadRequest, "got", w.Code, "body:", w.Body.String())
@@ -157,7 +157,7 @@ func TestAPIRoute(t *testing.T) {
 		}
 		testRouter := makeTestRouter(t, makeEntities(), fakeApiService)
 		w := httptest.NewRecorder()
-		req, _ := http.NewRequest(http.MethodPut, "/users/1234567890", bytes.NewBufferString(""))
+		req, _ := http.NewRequest(http.MethodPut, "/users/59df7716ed16fc4a2ca31c08", bytes.NewBufferString(""))
 		req.Header.Set("content-type", "application/json")
 		testRouter.ServeHTTP(w, req)
 		if http.StatusOK != w.Code {
@@ -188,7 +188,7 @@ func TestAPIRoute(t *testing.T) {
 		}
 		testRouter := makeTestRouter(t, makeEntities(), fakeApiService)
 		w := httptest.NewRecorder()
-		req, _ := http.NewRequest(http.MethodPatch, "/users/1234567890", bytes.NewBufferString(""))
+		req, _ := http.NewRequest(http.MethodPatch, "/users/59df7716ed16fc4a2ca31c08", bytes.NewBufferString(""))
 		req.Header.Set("content-type", "application/json")
 		testRouter.ServeHTTP(w, req)
 		if http.StatusOK != w.Code {
@@ -217,7 +217,7 @@ func TestAPIRoute(t *testing.T) {
 		fakeApiService := &fakeApiServicer{}
 		testRouter := makeTestRouter(t, makeEntities(), fakeApiService)
 		w := httptest.NewRecorder()
-		req, _ := http.NewRequest(http.MethodDelete, "/users/1234567890", nil)
+		req, _ := http.NewRequest(http.MethodDelete, "/users/59df7716ed16fc4a2ca31c08", nil)
 		testRouter.ServeHTTP(w, req)
 		if http.StatusNoContent != w.Code {
 			t.Error("bad status: expected", http.StatusNoContent, "got", w.Code, "body:", w.Body.String())
@@ -228,7 +228,7 @@ func TestAPIRoute(t *testing.T) {
 		fakeApiService := &fakeApiServicer{}
 		testRouter := makeTestRouter(t, makeEntities(), fakeApiService)
 		w := httptest.NewRecorder()
-		req, _ := http.NewRequest(http.MethodDelete, "/doesnt-exist/1234567890", nil)
+		req, _ := http.NewRequest(http.MethodDelete, "/doesnt-exist/59df7716ed16fc4a2ca31c08", nil)
 		testRouter.ServeHTTP(w, req)
 		if http.StatusBadRequest != w.Code {
 			t.Error("bad status: expected", http.StatusBadRequest, "got", w.Code, "body:", w.Body.String())

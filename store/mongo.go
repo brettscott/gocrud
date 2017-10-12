@@ -61,11 +61,12 @@ func (m *Mongo) List(e model.Entity) (list []Record, err error) {
 		return list, fmt.Errorf("Failed to get records.  Entity: %s.  Query: %+v.  Error: %s", e.ID, query, err)
 	}
 
-	fmt.Printf("\nEntity: %s Records: %+v", e.ID, rows)
-
 	for _, row := range rows {
 		// Loop through each of the entity's elements to pull element's value from DB row.
-		record := marshalRowToStoreRecord(e, row)
+		record, err := marshalRowToStoreRecord(e, row)
+		if err != nil {
+			return list, err
+		}
 		list = append(list, record)
 	}
 
@@ -75,7 +76,7 @@ func (m *Mongo) List(e model.Entity) (list []Record, err error) {
 // Get a record
 func (m *Mongo) Get(e model.Entity, recordID string) (Record, error) { // TODO change to *
 	if !bson.IsObjectIdHex(recordID) {
-		return nil, fmt.Errorf("invalid recordID: %s", recordID)
+		return nil, fmt.Errorf("recordID is not a hexidecimal representation of an ObjectID : %s", recordID)
 	}
 
 	session := m.session.Copy()
@@ -88,14 +89,18 @@ func (m *Mongo) Get(e model.Entity, recordID string) (Record, error) { // TODO c
 		MONGO_ID: bson.ObjectIdHex(recordID),
 	}
 
+	//fmt.Printf("\nGet query: %v\n", query)
+
 	var row bson.M
 	err := c.Find(query).One(&row)
 	if err != nil {
 		return Record{}, fmt.Errorf("failed to get record.  Query: %+v.  Error: %s", query, err)
 	}
 
-	record := marshalRowToStoreRecord(e, row)
-
+	record, err := marshalRowToStoreRecord(e, row)
+	if err != nil {
+		return record, err
+	}
 	return record, nil
 }
 
@@ -123,7 +128,7 @@ func (m *Mongo) Post(entity model.Entity, storeRecord Record) (string, error) {
 		row[i] = doc
 	}
 
-	fmt.Printf("Post document: %+v", row)
+	fmt.Printf("\nPost document: %+v\n", row)
 
 	err = c.Insert(row)
 	if err != nil {
@@ -137,6 +142,9 @@ func (m *Mongo) Post(entity model.Entity, storeRecord Record) (string, error) {
 func (m *Mongo) Put(entity model.Entity, storeRecord Record, recordID string) error {
 	if recordID == "" {
 		return fmt.Errorf("Failed to updated because primary key is empty.  Entity: %+v", entity)
+	}
+	if !bson.IsObjectIdHex(recordID) {
+		return fmt.Errorf("recordID is not a hexidecimal representation of an ObjectID : %s", recordID)
 	}
 
 	session := m.session.Copy()
@@ -176,8 +184,12 @@ func (m *Mongo) Patch(entity model.Entity, elementsData Record, recordID string)
 
 // Delete removes a record
 func (m *Mongo) Delete(entity model.Entity, recordID string) error {
+	if recordID == "" {
+		return fmt.Errorf("Failed to delete because primary key is empty.  Entity: %+v", entity)
+	}
+
 	if !bson.IsObjectIdHex(recordID) {
-		return fmt.Errorf("invalid recordID: %s", recordID)
+		return fmt.Errorf("recordID is not a hexidecimal representation of an ObjectID : %s", recordID)
 	}
 
 	session := m.session.Copy()
@@ -203,11 +215,10 @@ func (m *Mongo) DeleteAll(entity model.Entity) error {
 	collectionName := entity.ID
 	c := session.DB(m.databaseName).C(collectionName)
 	query := bson.M{}
-	changed, err := c.RemoveAll(query)
+	_, err := c.RemoveAll(query)
 	if err != nil {
 		return fmt.Errorf("failed to remove all records.  Error: %s", err)
 	}
-	fmt.Println("Records removed: ", changed.Removed)
 	return nil
 }
 
@@ -249,12 +260,20 @@ func (m *Mongo) getSecureSession() (*mgo.Session, error) {
 	return mgo.DialWithInfo(dialInfo)
 }
 
-func marshalRowToStoreRecord(entity model.Entity, row bson.M) (storeRecord Record) {
+func marshalRowToStoreRecord(entity model.Entity, row bson.M) (storeRecord Record, err error) {
+	if len(entity.Elements) == 0 {
+		return storeRecord, fmt.Errorf("Entity \"%s\" does not have any elements defined", entity.ID)
+	}
 	for _, element := range entity.Elements {
 		field := Field{ID: element.ID}
 
 		if element.PrimaryKey == true {
-			field.Value = row[MONGO_ID]
+			objectID, ok :=  row[MONGO_ID].(bson.ObjectId)
+			if !ok {
+				return storeRecord, fmt.Errorf("Primary key \"%s\" is not an ObjectId in row: %+v", element.ID, row)
+			}
+			field.Value = objectID.Hex()
+
 		} else {
 			if _, ok := row[element.ID]; ok {
 				field.Value = row[element.ID]
@@ -264,7 +283,7 @@ func marshalRowToStoreRecord(entity model.Entity, row bson.M) (storeRecord Recor
 		}
 		storeRecord = append(storeRecord, field)
 	}
-	return storeRecord
+	return storeRecord, nil
 }
 
 func marshalStoreRecordToRow(entity model.Entity, storeRecord Record) (bson.M, error) {

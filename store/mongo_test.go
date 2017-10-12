@@ -1,12 +1,11 @@
 package store
 
 import (
+	"github.com/brettscott/gocrud/model"
 	"github.com/mergermarket/gotools"
+	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
-	"fmt"
-	"github.com/brettscott/gocrud/model"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestMongo(t *testing.T) {
@@ -22,60 +21,115 @@ func TestMongo(t *testing.T) {
 	if len(mongoDbName) == 0 {
 		mongoDbName = "unit_tests"
 	}
+
 	entity := model.Entity{
-		ID: "unitTest",
-		Label: "unitTest",
-		Labels: "unitTests",
-		Elements: model.Elements{},
+		ID:     "users",
+		Label:  "User",
+		Labels: "Users",
+		Elements: model.Elements{
+			{
+				ID:         "id",
+				Label:      "identifier",
+				PrimaryKey: true,
+			},
+		},
 		Form: model.Form{},
 	}
+
+	// todo remove
+	mongoDbConnection = "mongodb://mongodb:27017/gocrud"
+	mongoDbName = "gocrud"
 
 	mongo, err := NewMongoStore(mongoDbConnection, "", mongoDbName, testStatsD, testLogger)
 	if err != nil {
 		t.Fatalf("failed to connect to MongoDB at %s with error: %s", mongoDbConnection, err)
 	}
-	t.Logf(`Connected to MongoDB at "%s" with DB "%s"`, mongoDbConnection, mongoDbName)
-
-	err = setupDBForTests(mongo, entity)
-	if err != nil {
-		t.Fatal(err)
-	}
+	//t.Logf(`Connected to MongoDB at "%s" with DB "%s"`, mongoDbConnection, mongoDbName)
 
 	t.Run("List returns a number of records", func(t *testing.T) {
+		numRecords := 10
+		err = setupDBForTest(mongo, entity, numRecords)
+		if err != nil {
+			t.Fatal(err)
+		}
+
 		results, err := mongo.List(entity)
 		if err != nil {
 			t.Error(err)
 			return
 		}
 
-		assert.Equal(t, 10, len(results), "Expected 10 results returned")
+		assert.Equal(t, numRecords, len(results), "Expected 10 results returned")
 	})
 
+	t.Run("List returns no records", func(t *testing.T) {
+		numRecords := 0
+		err = setupDBForTest(mongo, entity, numRecords)
+		if err != nil {
+			t.Fatal(err)
+		}
 
+		results, err := mongo.List(entity)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+
+		assert.Equal(t, numRecords, len(results), "Expected no results returned")
+	})
+
+	t.Run("Post and Get record", func(t *testing.T) {
+		err = setupDBForTest(mongo, entity, 0)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		recordID, err := createRecord(mongo, entity)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		results, err := mongo.Get(entity, recordID)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+
+		primaryKey, err := results.GetField("id")
+		if err != nil {
+			t.Fatal(err)
+		}
+		assert.Equal(t, 1, len(results), "Expected 1 results returned")
+		assert.Equal(t, recordID, primaryKey.Value, "Expected 1 results returned")
+	})
 }
 
-func setupDBForTests(mongo *Mongo, entity model.Entity) error {
-	err := mongo.DeleteAll(entity)
+func setupDBForTest(mongo *Mongo, entity model.Entity, recordCount int) error {
+	err := deleteAllRecords(mongo, entity)
 	if err != nil {
 		return err
 	}
-	records := makeRecords(10)
-	for i := 0; i < len(records); i++ {
-		mongo.Post(entity, records[i])
+	if recordCount == 0 {
+		return nil
+	}
+	for i := 0; i < recordCount; i++ {
+		_, err = createRecord(mongo, entity)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
 
-func makeRecords(count int) (records []Record) {
-	for i := 0; i < count; i++ {
-		record := Record{
-			{
-				fmt.Sprintf("unit_test_%d", i),
-				"the-value",
-				true,
-			},
-		}
-		records = append(records, record)
+func deleteAllRecords(mongo *Mongo, entity model.Entity) error {
+	return mongo.DeleteAll(entity)
+}
+
+func createRecord(mongo *Mongo, entity model.Entity) (string, error) {
+	record := Record{}
+	id, err := mongo.Post(entity, record)
+	if err != nil {
+		return "", err
 	}
-	return records
+	return id, nil
 }
