@@ -1,10 +1,10 @@
 package crud
 
 import (
-	"github.com/brettscott/gocrud/model"
 	"fmt"
-	"reflect"
+	"github.com/brettscott/gocrud/model"
 	"github.com/brettscott/gocrud/store"
+	"reflect"
 )
 
 func validate(entity model.Entity, record store.Record, action string) error {

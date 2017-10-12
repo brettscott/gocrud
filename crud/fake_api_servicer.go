@@ -9,12 +9,12 @@ func NewFakeApiServicer() *fakeApiServicer {
 }
 
 type fakeApiServicer struct {
-	listResponseBody []byte
-	listResponseError error
-	getResponseBody []byte
-	getResponseError error
-	saveResponseBody []byte
-	saveResponseError error
+	listResponseBody    []byte
+	listResponseError   error
+	getResponseBody     []byte
+	getResponseError    error
+	saveResponseBody    []byte
+	saveResponseError   error
 	deleteResponseError error
 }
 

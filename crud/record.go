@@ -33,7 +33,6 @@ type KeyValue struct {
 // KeyValue represents a list of key-values, typically all elements within an entity
 type KeyValues []KeyValue
 
-
 /* Represented as JSON:
 {
 	keyValues:
