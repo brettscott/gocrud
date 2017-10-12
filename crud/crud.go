@@ -8,11 +8,11 @@ import (
 )
 
 type Crud struct {
-	entities model.Entities
-	config   *Config
-	log      Logger
-	statsd   StatsDer
-	store    store.Storer
+	entities   model.Entities
+	config     *Config
+	log        Logger
+	statsd     StatsDer
+	store      store.Storer
 	apiService apiService
 }
 
@@ -39,14 +39,14 @@ func (c *Crud) AddEntity(entity model.Entity) {
 // Handler for mounting routes for CRUD
 func (c *Crud) Handler() http.Handler {
 
-	c.apiService = newApiService(c.store)
+	c.apiService = newApiService(c.store) // TODO  change to &c.store
 
 	healthcheckHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		fmt.Fprint(w, "Healthy")
 	})
 
-	apiRouteHandler := NewApiRoute(c.entities, c.store, c.apiService, c.log, c.statsd)
+	apiRouteHandler := NewApiRoute(c.entities, &c.apiService, c.log, c.statsd)
 
 	return newRouter(c.log, c.statsd, healthcheckHandler, apiRouteHandler)
 }

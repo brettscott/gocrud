@@ -7,14 +7,14 @@ import (
 	"github.com/brettscott/gocrud/store"
 )
 
-type apiService struct {
-	store store.Storer
-}
-
 func newApiService(store store.Storer) apiService {
 	return apiService{
 		store: store,
 	}
+}
+
+type apiService struct {
+	store store.Storer
 }
 
 func (a *apiService) list(entity model.Entity) (jsonResponse []byte, err error) {
@@ -107,6 +107,14 @@ func (a *apiService) save(entity model.Entity, action string, body []byte, recor
 	return jsonResponse, nil
 }
 
+func (a *apiService) delete(entity model.Entity, recordID string) error {
+	err := a.store.Delete(entity, recordID)
+	if err != nil {
+		return fmt.Errorf(`Store delete failed for entity "%s" recordID "%s" - %s`, entity.Label, recordID, err)
+	}
+	return nil
+}
+
 func marshalClientRecordToStoreRecord(entity model.Entity, clientRecord *Record, action string) (data store.Record, err error) {
 
 	for i, _ := range entity.Elements {
@@ -145,4 +153,3 @@ func marshalStoreRecordToClientRecord(storeRecord store.Record) Record {
 	clientRecord.KeyValues = kvs
 	return clientRecord
 }
-

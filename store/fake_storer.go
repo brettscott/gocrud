@@ -12,7 +12,7 @@ func NewFakeStorer() *FakeStorer {
 type FakeStorer struct{}
 
 // List
-func (f *FakeStorer) List(e model.Entity) ([]Record, error) {
+func (f *FakeStorer) List(entity model.Entity) ([]Record, error) {
 	return []Record{}, nil
 }
 
@@ -22,17 +22,17 @@ func (f *FakeStorer) Get(e model.Entity, recordID string) (Record, error) {
 }
 
 // Post
-func (f *FakeStorer) Post(entity model.Entity) (string, error) {
+func (f *FakeStorer) Post(entity model.Entity, storeRecord Record) (string, error) {
 	return "", nil
 }
 
 // Put
-func (f *FakeStorer) Put(entity model.Entity, recordID string) error {
+func (f *FakeStorer) Put(entity model.Entity, storeRecord Record, recordID string) error {
 	return nil
 }
 
 // Patch
-func (f *FakeStorer) Patch(entity model.Entity, recordID string) error {
+func (f *FakeStorer) Patch(entity model.Entity, storeRecord Record, recordID string) error {
 	return nil
 }
 

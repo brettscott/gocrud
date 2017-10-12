@@ -3,7 +3,6 @@ package crud
 import (
 	"fmt"
 	"github.com/brettscott/gocrud/model"
-	"github.com/brettscott/gocrud/store"
 	"github.com/pressly/chi"
 	"io/ioutil"
 	"net/http"
@@ -15,18 +14,23 @@ const ACTION_PATCH = "patch"
 
 type APIRoute struct {
 	entities   model.Entities
-	store      store.Storer
 	log        Logger
 	statsd     StatsDer
-	apiService apiService
+	apiService apiServicer
+}
+
+type apiServicer interface {
+	list(entity model.Entity) (jsonResponse []byte, err error)
+	get(entity model.Entity, recordID string) (jsonResponse []byte, err error)
+	save(entity model.Entity, action string, body []byte, recordID string) (jsonResponse []byte, err error)
+	delete(entity model.Entity, recordID string) error
 }
 
 // NewRoute prepares the routes for this package
-func NewApiRoute(entities model.Entities, store store.Storer, apiService apiService, log Logger, statsd StatsDer) func(chi.Router) {
+func NewApiRoute(entities model.Entities, apiService apiServicer, log Logger, statsd StatsDer) func(chi.Router) {
 
 	apiRoute := &APIRoute{
 		entities:   entities,
-		store:      store,
 		log:        log,
 		statsd:     statsd,
 		apiService: apiService,
@@ -56,6 +60,9 @@ func NewApiRoute(entities model.Entities, store store.Storer, apiService apiServ
 		// eg PATCH http://localhost:8080/gocrud/api/user/1234
 		r.Patch("/:entityID/:recordID", apiRoute.save(false, true))
 
+		// Delete
+		// eg DELETE http://localhost:8080/gocrud/api/user/1234
+		r.Delete("/:entityID/:recordID", apiRoute.delete)
 	}
 }
 
@@ -138,12 +145,34 @@ func (a *APIRoute) save(isRecordNew bool, isPartialPayload bool) func(w http.Res
 				w.Write([]byte(err.Error()))
 				return
 			}
-			w.WriteHeader(http.StatusCreated)
+			if action == ACTION_POST {
+				w.WriteHeader(http.StatusCreated)
+			} else {
+				w.WriteHeader(http.StatusOK)
+			}
 			w.Write(jsonResponse)
 			return
 		}
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(fmt.Sprintf("Invalid entityID: %s", entityID)))
-
 	}
+}
+
+// delete removes a record from the database
+func (a *APIRoute) delete(w http.ResponseWriter, r *http.Request) {
+	entityID := chi.URLParam(r, "entityID")
+	recordID := chi.URLParam(r, "recordID")
+
+	if entity, ok := a.entities[entityID]; ok {
+		err := a.apiService.delete(entity, recordID)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+			return
+		}
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+	w.WriteHeader(http.StatusBadRequest)
+	w.Write([]byte(fmt.Sprintf("Invalid entityID: %s", entityID)))
 }
