@@ -153,9 +153,13 @@ func (m *Mongo) Put(entity model.Entity, storeRecord Record, recordID string) er
 	collectionName := entity.ID
 	c := session.DB(m.databaseName).C(collectionName)
 
+	//fmt.Printf("\nEntity Elements: %+v", entity.Elements)
 	row, err := marshalStoreRecordToRow(entity, storeRecord)
 	if err != nil {
 		return err
+	}
+	if len(row) == 0 {
+		return nil
 	}
 
 	document := bson.M{
@@ -164,9 +168,8 @@ func (m *Mongo) Put(entity model.Entity, storeRecord Record, recordID string) er
 		},
 		"$set": row,
 	}
-	for i, doc := range document {
-		row[i] = doc
-	}
+
+	fmt.Printf("\nPut document: %+v\n", document)
 
 	objectID := bson.ObjectIdHex(recordID)
 	err = c.UpdateId(objectID, document)
@@ -268,7 +271,7 @@ func marshalRowToStoreRecord(entity model.Entity, row bson.M) (storeRecord Recor
 		field := Field{ID: element.ID}
 
 		if element.PrimaryKey == true {
-			objectID, ok :=  row[MONGO_ID].(bson.ObjectId)
+			objectID, ok := row[MONGO_ID].(bson.ObjectId)
 			if !ok {
 				return storeRecord, fmt.Errorf("Primary key \"%s\" is not an ObjectId in row: %+v", element.ID, row)
 			}
@@ -292,7 +295,8 @@ func marshalStoreRecordToRow(entity model.Entity, storeRecord Record) (bson.M, e
 		if element.PrimaryKey != true {
 			data, err := storeRecord.GetField(element.ID)
 			if err != nil {
-				return row, fmt.Errorf("Could not find field %s for entity %s", element.ID, entity.ID)
+				continue
+				//return row, fmt.Errorf("Could not find field \"%s\" in entity \"%s\"", element.ID, entity.ID)
 			}
 			row[element.ID] = data.Value
 		}

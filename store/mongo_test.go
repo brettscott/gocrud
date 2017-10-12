@@ -32,6 +32,10 @@ func TestMongo(t *testing.T) {
 				Label:      "identifier",
 				PrimaryKey: true,
 			},
+			{
+				ID:    "name",
+				Label: "Name",
+			},
 		},
 		Form: model.Form{},
 	}
@@ -89,18 +93,57 @@ func TestMongo(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		results, err := mongo.Get(entity, recordID)
+		result, err := mongo.Get(entity, recordID)
 		if err != nil {
 			t.Error(err)
 			return
 		}
 
-		primaryKey, err := results.GetField("id")
+		primaryKey, err := result.GetField("id")
+		name, err := result.GetField("name")
 		if err != nil {
 			t.Fatal(err)
 		}
-		assert.Equal(t, 1, len(results), "Expected 1 results returned")
-		assert.Equal(t, recordID, primaryKey.Value, "Expected 1 results returned")
+		assert.Equal(t, recordID, primaryKey.Value, "Incorrect primary key value")
+		assert.Equal(t, "john-smith", name.Value, "Incorrect name value")
+	})
+
+	t.Run("Put and Get record", func(t *testing.T) {
+		err = setupDBForTest(mongo, entity, 0)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		recordID, err := createRecord(mongo, entity)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		record := Record{
+			{
+				ID:    "name",
+				Value: "my-new-name",
+			},
+		}
+
+		err = mongo.Put(entity, record, recordID)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		result, err := mongo.Get(entity, recordID)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+
+		primaryKey, err := result.GetField("id")
+		name, err := result.GetField("name")
+		if err != nil {
+			t.Fatal(err)
+		}
+		assert.Equal(t, recordID, primaryKey.Value, "Incorrect primary key value")
+		assert.Equal(t, "my-new-name", name.Value, "Incorrect name value")
 	})
 }
 
@@ -126,7 +169,12 @@ func deleteAllRecords(mongo *Mongo, entity model.Entity) error {
 }
 
 func createRecord(mongo *Mongo, entity model.Entity) (string, error) {
-	record := Record{}
+	record := Record{
+		{
+			ID: "name",
+			Value: "john-smith",
+		},
+	}
 	id, err := mongo.Post(entity, record)
 	if err != nil {
 		return "", err
