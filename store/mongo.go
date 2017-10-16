@@ -94,7 +94,10 @@ func (m *Mongo) Get(e model.Entity, recordID string) (Record, error) { // TODO c
 	var row bson.M
 	err := c.Find(query).One(&row)
 	if err != nil {
-		return Record{}, fmt.Errorf("failed to get record.  Query: %+v.  Error: %s", query, err)
+		if err.Error() == mgo.ErrNotFound.Error() {
+			return Record{}, nil
+		}
+		return nil, fmt.Errorf("failed to get record.  Query: %+v.  Error: %s", query, err)
 	}
 
 	record, err := marshalRowToStoreRecord(e, row)

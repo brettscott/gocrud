@@ -6,6 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
+	"gopkg.in/mgo.v2/bson"
 )
 
 func TestMongo(t *testing.T) {
@@ -15,11 +16,11 @@ func TestMongo(t *testing.T) {
 
 	mongoDbConnection := os.Getenv("MONGO_DB_CONNECTION")
 	if len(mongoDbConnection) == 0 {
-		mongoDbConnection = "mongodb://mongodb:27017/unit_tests"
+		mongoDbConnection = "mongodb://mongodb:27017/gocrud"
 	}
 	mongoDbName := os.Getenv("MONGO_DB_NAME")
 	if len(mongoDbName) == 0 {
-		mongoDbName = "unit_tests"
+		mongoDbName = "gocrud"
 	}
 
 	entity := model.Entity{
@@ -29,20 +30,26 @@ func TestMongo(t *testing.T) {
 		Elements: model.Elements{
 			{
 				ID:         "id",
-				Label:      "identifier",
+				Label:      "ID",
 				PrimaryKey: true,
+				FormType:   model.ELEMENT_FORM_TYPE_HIDDEN,
+				DataType:   model.ELEMENT_DATA_TYPE_STRING,
 			},
 			{
-				ID:    "name",
-				Label: "Name",
+				ID:       "name",
+				Label:    "Name",
+				FormType: model.ELEMENT_FORM_TYPE_TEXT,
+				DataType: model.ELEMENT_DATA_TYPE_STRING,
+			},
+			{
+				ID:           "age",
+				Label:        "Age",
+				FormType:     model.ELEMENT_FORM_TYPE_TEXT,
+				DataType:     model.ELEMENT_DATA_TYPE_NUMBER,
+				DefaultValue: 22,
 			},
 		},
-		Form: model.Form{},
 	}
-
-	// todo remove
-	mongoDbConnection = "mongodb://mongodb:27017/gocrud"
-	mongoDbName = "gocrud"
 
 	mongo, err := NewMongoStore(mongoDbConnection, "", mongoDbName, testStatsD, testLogger)
 	if err != nil {
@@ -82,13 +89,30 @@ func TestMongo(t *testing.T) {
 		assert.Equal(t, numRecords, len(results), "Expected no results returned")
 	})
 
+	t.Run("Get returns empty record when not found", func(t *testing.T) {
+		err = setupDBForTest(mongo, entity, 0)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		recordID := bson.NewObjectId().Hex()
+		result, err := mongo.Get(entity, recordID)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+
+		assert.Equal(t, 0, len(result), "Record should not exist in database")
+		assert.Equal(t, false, result.IsHydrated(), "Result should not be hydrated with any fields and values")
+	})
+
 	t.Run("Post and Get record", func(t *testing.T) {
 		err = setupDBForTest(mongo, entity, 0)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		recordID, err := createRecord(mongo, entity)
+		recordID, err := createRecord(mongo, entity, "Jackie Chan", 50)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -101,11 +125,13 @@ func TestMongo(t *testing.T) {
 
 		primaryKey, err := result.GetField("id")
 		name, err := result.GetField("name")
+		age, err := result.GetField("age")
 		if err != nil {
 			t.Fatal(err)
 		}
 		assert.Equal(t, recordID, primaryKey.Value, "Incorrect primary key value")
-		assert.Equal(t, "john-smith", name.Value, "Incorrect name value")
+		assert.Equal(t, "Jackie Chan", name.Value, "Incorrect name value")
+		assert.Equal(t, 50, age.Value, "Incorrect age value")
 	})
 
 	t.Run("Put and Get record", func(t *testing.T) {
@@ -114,7 +140,7 @@ func TestMongo(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		recordID, err := createRecord(mongo, entity)
+		recordID, err := createRecord(mongo, entity, "Bruce Lee", 40)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -122,7 +148,7 @@ func TestMongo(t *testing.T) {
 		record := Record{
 			{
 				ID:    "name",
-				Value: "my-new-name",
+				Value: "Madmax",
 			},
 		}
 
@@ -139,11 +165,79 @@ func TestMongo(t *testing.T) {
 
 		primaryKey, err := result.GetField("id")
 		name, err := result.GetField("name")
+		age, err := result.GetField("age")
 		if err != nil {
 			t.Fatal(err)
 		}
 		assert.Equal(t, recordID, primaryKey.Value, "Incorrect primary key value")
-		assert.Equal(t, "my-new-name", name.Value, "Incorrect name value")
+		assert.Equal(t, "Madmax", name.Value, "Incorrect name value")
+		assert.Equal(t, 40, age.Value, "Incorrect age value")
+	})
+
+	t.Run("Patch and Get record", func(t *testing.T) {
+		err = setupDBForTest(mongo, entity, 0)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		recordID, err := createRecord(mongo, entity, "MR T", 20)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		record := Record{
+			{
+				ID:    "name",
+				Value: "Chuck Norris",
+			},
+		}
+
+		err = mongo.Patch(entity, record, recordID)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		result, err := mongo.Get(entity, recordID)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+
+		primaryKey, err := result.GetField("id")
+		name, err := result.GetField("name")
+		age, err := result.GetField("age")
+		if err != nil {
+			t.Fatal(err)
+		}
+		assert.Equal(t, recordID, primaryKey.Value, "Incorrect primary key value")
+		assert.Equal(t, "Chuck Norris", name.Value, "Incorrect name value")
+		assert.Equal(t, 20, age.Value, "Incorrect age value")
+	})
+
+	t.Run("Delete and Get record", func(t *testing.T) {
+		err = setupDBForTest(mongo, entity, 0)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		recordID, err := createRecord(mongo, entity, "Batman", 10)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		err = mongo.Delete(entity, recordID)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		result, err := mongo.Get(entity, recordID)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+
+		assert.Equal(t, 0, len(result), "Should not be in the database")
+		assert.Equal(t, false, result.IsHydrated(), "Result should not be hydrated with any fields and values")
 	})
 }
 
@@ -156,7 +250,7 @@ func setupDBForTest(mongo *Mongo, entity model.Entity, recordCount int) error {
 		return nil
 	}
 	for i := 0; i < recordCount; i++ {
-		_, err = createRecord(mongo, entity)
+		_, err = createRecord(mongo, entity, "Monkey Magic", 55)
 		if err != nil {
 			return err
 		}
@@ -168,11 +262,15 @@ func deleteAllRecords(mongo *Mongo, entity model.Entity) error {
 	return mongo.DeleteAll(entity)
 }
 
-func createRecord(mongo *Mongo, entity model.Entity) (string, error) {
+func createRecord(mongo *Mongo, entity model.Entity, name string, age int) (string, error) {
 	record := Record{
 		{
 			ID: "name",
-			Value: "john-smith",
+			Value: name,
+		},
+		{
+			ID: "age",
+			Value: age,
 		},
 	}
 	id, err := mongo.Post(entity, record)

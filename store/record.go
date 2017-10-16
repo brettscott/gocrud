@@ -15,6 +15,7 @@ type Field struct {
 	Hydrated bool
 }
 
+// GetField returns a particular field's (key's) value
 func (r *Record) GetField(elementID string) (*Field, error) {
 
 	for _, field := range *r {
@@ -23,4 +24,12 @@ func (r *Record) GetField(elementID string) (*Field, error) {
 		}
 	}
 	return nil, fmt.Errorf("Did not find elementID \"%s\" in list of fields", elementID)
+}
+
+// IsHydrated lets you know if any data (key-values) are attached to record
+func (r *Record) IsHydrated() bool {
+	if len(*r) == 0 {
+		return false
+	}
+	return true
 }
