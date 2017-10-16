@@ -1,12 +1,12 @@
 package crud
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/brettscott/gocrud/model"
 	"github.com/pressly/chi"
 	"io/ioutil"
 	"net/http"
-	"encoding/json"
 )
 
 const ACTION_POST = "post"

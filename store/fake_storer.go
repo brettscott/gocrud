@@ -9,11 +9,11 @@ func NewFakeStorer() *FakeStorer {
 }
 
 // FakeStorer is a faked out storer
-type FakeStorer struct{
+type FakeStorer struct {
 	ListResponse []Record
 	ListError    error
-	GetResponse Record
-	GetError    error
+	GetResponse  Record
+	GetError     error
 }
 
 // List

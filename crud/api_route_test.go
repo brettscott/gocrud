@@ -274,7 +274,7 @@ func makeFakeRecordResponse() Record {
 	return Record{
 		KeyValues: []KeyValue{
 			{
-				Key: "id",
+				Key:   "id",
 				Value: "1111111122222223333333",
 			},
 		},

@@ -4,9 +4,9 @@ import (
 	"github.com/brettscott/gocrud/model"
 	"github.com/mergermarket/gotools"
 	"github.com/stretchr/testify/assert"
+	"gopkg.in/mgo.v2/bson"
 	"os"
 	"testing"
-	"gopkg.in/mgo.v2/bson"
 )
 
 func TestMongo(t *testing.T) {
@@ -265,11 +265,11 @@ func deleteAllRecords(mongo *Mongo, entity model.Entity) error {
 func createRecord(mongo *Mongo, entity model.Entity, name string, age int) (string, error) {
 	record := Record{
 		{
-			ID: "name",
+			ID:    "name",
 			Value: name,
 		},
 		{
-			ID: "age",
+			ID:    "age",
 			Value: age,
 		},
 	}

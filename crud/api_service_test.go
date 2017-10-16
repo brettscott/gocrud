@@ -1,10 +1,10 @@
 package crud
 
 import (
-	"testing"
-	"github.com/brettscott/gocrud/store"
 	"github.com/brettscott/gocrud/model"
+	"github.com/brettscott/gocrud/store"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 func TestAPIService(t *testing.T) {
@@ -42,39 +42,38 @@ func TestAPIService(t *testing.T) {
 		fakeStore.ListResponse = []store.Record{
 			{
 				store.Field{
-					ID: "id",
-					Value: "1",
+					ID:       "id",
+					Value:    "1",
 					Hydrated: true,
 				},
 				store.Field{
-					ID: "name",
-					Value: "Superman",
+					ID:       "name",
+					Value:    "Superman",
 					Hydrated: true,
 				},
 				store.Field{
-					ID: "age",
-					Value: 11,
+					ID:       "age",
+					Value:    11,
 					Hydrated: true,
 				},
 			},
 			{
 				store.Field{
-					ID: "id",
-					Value: "2",
+					ID:       "id",
+					Value:    "2",
 					Hydrated: true,
 				},
 				store.Field{
-					ID: "name",
-					Value: "Catwoman",
+					ID:       "name",
+					Value:    "Catwoman",
 					Hydrated: true,
 				},
 				store.Field{
-					ID: "age",
-					Value: 22,
+					ID:       "age",
+					Value:    22,
 					Hydrated: true,
 				},
 			},
-
 		}
 		fakeStore.ListError = nil
 		apiService := newApiService(fakeStore)
@@ -102,18 +101,18 @@ func TestAPIService(t *testing.T) {
 		fakeStore := store.NewFakeStorer()
 		fakeStore.GetResponse = store.Record{
 			store.Field{
-				ID: "id",
-				Value: "1",
+				ID:       "id",
+				Value:    "1",
 				Hydrated: true,
 			},
 			store.Field{
-				ID: "name",
-				Value: "Superman",
+				ID:       "name",
+				Value:    "Superman",
 				Hydrated: true,
 			},
 			store.Field{
-				ID: "age",
-				Value: 11,
+				ID:       "age",
+				Value:    11,
 				Hydrated: true,
 			},
 		}
@@ -131,5 +130,3 @@ func TestAPIService(t *testing.T) {
 		assert.Equal(t, "Superman", name.Value, "Name is wrong")
 	})
 }
-
-

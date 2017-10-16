@@ -1,18 +1,18 @@
 package store
 
 import (
-	"testing"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 func TestRecord(t *testing.T) {
 
 	idField := Field{
-		ID: "id",
+		ID:    "id",
 		Value: 12345,
 	}
 	nameField := Field{
-		ID: "name",
+		ID:    "name",
 		Value: "Hulk Hogan",
 	}
 	record := Record{}
