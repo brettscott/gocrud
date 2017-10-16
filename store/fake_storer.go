@@ -9,11 +9,14 @@ func NewFakeStorer() *FakeStorer {
 }
 
 // FakeStorer is a faked out storer
-type FakeStorer struct{}
+type FakeStorer struct{
+	ListResponse []Record
+	ListError    error
+}
 
 // List
 func (f *FakeStorer) List(entity model.Entity) ([]Record, error) {
-	return []Record{}, nil
+	return f.ListResponse, f.ListError
 }
 
 // Get

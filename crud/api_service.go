@@ -43,6 +43,11 @@ func (a *apiService) get(entity model.Entity, recordID string) (jsonResponse []b
 		return nil, fmt.Errorf(`Store query failed for entity "%s" recordID "%s" - %s`, entity.Label, recordID, err)
 	}
 
+	// Not found in database
+	if storeRecord.IsHydrated() == false {
+		return jsonResponse, nil
+	}
+
 	clientRecord := marshalStoreRecordToClientRecord(storeRecord)
 
 	jsonResponse, err = json.Marshal(clientRecord)
@@ -97,6 +102,10 @@ func (a *apiService) save(entity model.Entity, action string, body []byte, recor
 	savedStoreRecord, err := a.store.Get(entity, recordID)
 	if err != nil {
 		return nil, fmt.Errorf(`Failed to get newly created DB record for entity "%s" - %s`, entity.Label, err)
+	}
+
+	if savedStoreRecord.IsHydrated() == false {
+		return nil, fmt.Errorf(`New created DB record was not found in database for entity "%s" - %s`, entity.Label, err)
 	}
 
 	clientRecord := marshalStoreRecordToClientRecord(savedStoreRecord)
