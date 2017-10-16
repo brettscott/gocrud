@@ -37,7 +37,7 @@ func TestAPIService(t *testing.T) {
 		},
 	}
 
-	t.Run("List returns records from database as JSON response", func(t *testing.T) {
+	t.Run("List returns records from database and returns it in client record format", func(t *testing.T) {
 		fakeStore := store.NewFakeStorer()
 		fakeStore.ListResponse = []store.Record{
 			{
@@ -96,6 +96,39 @@ func TestAPIService(t *testing.T) {
 		assert.Equal(t, "name", clientRecords[1].KeyValues[1].Key, "Second record's second field ID is wrong")
 		assert.Equal(t, "Catwoman", clientRecords[1].KeyValues[1].Value, "Second record's second field Value is wrong")
 
+	})
+
+	t.Run("Get returns record from database and returns it in client record format", func(t *testing.T) {
+		fakeStore := store.NewFakeStorer()
+		fakeStore.GetResponse = store.Record{
+			store.Field{
+				ID: "id",
+				Value: "1",
+				Hydrated: true,
+			},
+			store.Field{
+				ID: "name",
+				Value: "Superman",
+				Hydrated: true,
+			},
+			store.Field{
+				ID: "age",
+				Value: 11,
+				Hydrated: true,
+			},
+		}
+		fakeStore.GetError = nil
+		apiService := newApiService(fakeStore)
+
+		clientRecord, err := apiService.get(testUsersEntity, "1")
+
+		id, _ := clientRecord.KeyValues.GetKeyValue("id")
+		name, _ := clientRecord.KeyValues.GetKeyValue("name")
+
+		assert.NoError(t, err)
+		assert.Equal(t, 3, len(clientRecord.KeyValues), "Should have 3 fields (key-values)")
+		assert.Equal(t, "1", id.Value, "ID is wrong")
+		assert.Equal(t, "Superman", name.Value, "Name is wrong")
 	})
 }
 

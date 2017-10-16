@@ -2,6 +2,7 @@ package crud
 
 import (
 	"encoding/json"
+	"fmt"
 )
 
 // ClientRecords represents a list of rows from the database in a format for the client/browser
@@ -32,6 +33,15 @@ type KeyValue struct {
 
 // KeyValue represents a list of key-values, typically all elements within an entity
 type KeyValues []KeyValue
+
+func (k *KeyValues) GetKeyValue(key string) (*KeyValue, error) {
+	for _, keyValue := range *k {
+		if keyValue.Key == key {
+			return &keyValue, nil
+		}
+	}
+	return nil, fmt.Errorf("Did not find key \"%s\" in list of key-values", key)
+}
 
 /* Represented as JSON:
 {

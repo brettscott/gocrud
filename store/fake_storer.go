@@ -12,6 +12,8 @@ func NewFakeStorer() *FakeStorer {
 type FakeStorer struct{
 	ListResponse []Record
 	ListError    error
+	GetResponse Record
+	GetError    error
 }
 
 // List
@@ -21,7 +23,7 @@ func (f *FakeStorer) List(entity model.Entity) ([]Record, error) {
 
 // Get
 func (f *FakeStorer) Get(e model.Entity, recordID string) (Record, error) {
-	return Record{}, nil
+	return f.GetResponse, f.GetError
 }
 
 // Post
