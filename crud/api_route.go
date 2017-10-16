@@ -6,6 +6,7 @@ import (
 	"github.com/pressly/chi"
 	"io/ioutil"
 	"net/http"
+	"encoding/json"
 )
 
 const ACTION_POST = "post"
@@ -20,9 +21,9 @@ type APIRoute struct {
 }
 
 type apiServicer interface {
-	list(entity model.Entity) (jsonResponse []byte, err error)
-	get(entity model.Entity, recordID string) (jsonResponse []byte, err error)
-	save(entity model.Entity, action string, body []byte, recordID string) (jsonResponse []byte, err error)
+	list(entity model.Entity) (clientRecords []Record, err error)
+	get(entity model.Entity, recordID string) (clientRecord Record, err error)
+	save(entity model.Entity, action string, clientRecord *Record, recordID string) (savedClientRecord Record, err error)
 	delete(entity model.Entity, recordID string) error
 }
 
@@ -74,7 +75,13 @@ func (a *APIRoute) list(w http.ResponseWriter, r *http.Request) {
 	entityID := chi.URLParam(r, "entityID")
 
 	if entity, ok := a.entities[entityID]; ok {
-		jsonResponse, err := a.apiService.list(entity)
+		records, err := a.apiService.list(entity)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+			return
+		}
+		jsonResponse, err := json.Marshal(records)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(err.Error()))
@@ -94,7 +101,13 @@ func (a *APIRoute) get(w http.ResponseWriter, r *http.Request) {
 	recordID := chi.URLParam(r, "recordID")
 
 	if entity, ok := a.entities[entityID]; ok {
-		jsonResponse, err := a.apiService.get(entity, recordID)
+		record, err := a.apiService.get(entity, recordID)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+			return
+		}
+		jsonResponse, err := json.Marshal(record)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(err.Error()))
@@ -139,7 +152,20 @@ func (a *APIRoute) save(isRecordNew bool, isPartialPayload bool) func(w http.Res
 				w.Write([]byte(fmt.Sprintf("Bad request - %v", err)))
 				return
 			}
-			jsonResponse, err := a.apiService.save(entity, action, body, recordID)
+			record := &Record{}
+			err = json.Unmarshal(body, record)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				w.Write([]byte(err.Error()))
+				return
+			}
+			savedRecord, err := a.apiService.save(entity, action, record, recordID)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				w.Write([]byte(err.Error()))
+				return
+			}
+			jsonResponse, err := json.Marshal(savedRecord)
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 				w.Write([]byte(err.Error()))

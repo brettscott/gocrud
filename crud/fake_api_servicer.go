@@ -9,24 +9,24 @@ func NewFakeApiServicer() *fakeApiServicer {
 }
 
 type fakeApiServicer struct {
-	listResponseBody    []byte
+	listResponseBody    []Record
 	listResponseError   error
-	getResponseBody     []byte
+	getResponseBody     Record
 	getResponseError    error
-	saveResponseBody    []byte
+	saveResponseBody    Record
 	saveResponseError   error
 	deleteResponseError error
 }
 
-func (f *fakeApiServicer) list(entity model.Entity) (jsonResponse []byte, err error) {
+func (f *fakeApiServicer) list(entity model.Entity) (clientRecords []Record, err error) {
 	return f.listResponseBody, f.listResponseError
 }
 
-func (f *fakeApiServicer) get(entity model.Entity, recordID string) (jsonResponse []byte, err error) {
+func (f *fakeApiServicer) get(entity model.Entity, recordID string) (clientRecord Record, err error) {
 	return f.getResponseBody, f.getResponseError
 }
 
-func (f *fakeApiServicer) save(entity model.Entity, action string, body []byte, recordID string) (jsonResponse []byte, err error) {
+func (f *fakeApiServicer) save(entity model.Entity, action string, clientRecord *Record, recordID string) (savedClientRecord Record, err error) {
 	return f.saveResponseBody, f.saveResponseError
 }
 

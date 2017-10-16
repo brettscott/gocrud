@@ -15,8 +15,10 @@ import (
 func TestAPIRoute(t *testing.T) {
 
 	t.Run("GET /<entity> returns 200", func(t *testing.T) {
+		fakeRecords := []Record{}
+		fakeRecords = append(fakeRecords, makeFakeRecordResponse())
 		fakeApiService := &fakeApiServicer{
-			listResponseBody: []byte("the-test-response"),
+			listResponseBody: fakeRecords,
 		}
 		testRouter := makeTestRouter(t, makeEntities(), fakeApiService)
 		w := httptest.NewRecorder()
@@ -25,7 +27,7 @@ func TestAPIRoute(t *testing.T) {
 		if http.StatusOK != w.Code {
 			t.Error("bad status: expected", http.StatusOK, "got", w.Code, "body:", w.Body.String())
 		}
-		if strings.Contains(w.Body.String(), "the-test-response") == false {
+		if strings.Contains(w.Body.String(), "1111111122222223333333") == false {
 			t.Error("body doesn't contain expected string.  Body: ", w.Body.String())
 		}
 	})
@@ -56,7 +58,7 @@ func TestAPIRoute(t *testing.T) {
 
 	t.Run("GET /<entity>/<recordID> returns 200", func(t *testing.T) {
 		fakeApiService := &fakeApiServicer{
-			getResponseBody: []byte("the-test-response"),
+			getResponseBody: makeFakeRecordResponse(),
 		}
 		testRouter := makeTestRouter(t, makeEntities(), fakeApiService)
 		w := httptest.NewRecorder()
@@ -65,7 +67,7 @@ func TestAPIRoute(t *testing.T) {
 		if http.StatusOK != w.Code {
 			t.Error("bad status: expected", http.StatusOK, "got", w.Code, "body:", w.Body.String())
 		}
-		if strings.Contains(w.Body.String(), "the-test-response") == false {
+		if strings.Contains(w.Body.String(), "1111111122222223333333") == false {
 			t.Error("body doesn't contain expected string.  Body: ", w.Body.String())
 		}
 	})
@@ -96,17 +98,17 @@ func TestAPIRoute(t *testing.T) {
 
 	t.Run("POST /<entity> returns 200", func(t *testing.T) {
 		fakeApiService := &fakeApiServicer{
-			saveResponseBody: []byte("the-test-response"),
+			saveResponseBody: makeFakeRecordResponse(),
 		}
 		testRouter := makeTestRouter(t, makeEntities(), fakeApiService)
 		w := httptest.NewRecorder()
-		req, _ := http.NewRequest(http.MethodPost, "/users", bytes.NewBufferString(""))
+		req, _ := http.NewRequest(http.MethodPost, "/users", bytes.NewBufferString("{}"))
 		req.Header.Set("content-type", "application/json")
 		testRouter.ServeHTTP(w, req)
 		if http.StatusCreated != w.Code {
 			t.Error("bad status: expected", http.StatusCreated, "got", w.Code)
 		}
-		if strings.Contains(w.Body.String(), "the-test-response") == false {
+		if strings.Contains(w.Body.String(), "1111111122222223333333") == false {
 			t.Error("body doesn't contain expected string.  Body: ", w.Body.String())
 		}
 	})
@@ -153,24 +155,24 @@ func TestAPIRoute(t *testing.T) {
 
 	t.Run("PUT /<entity>/<recordID> returns 200", func(t *testing.T) {
 		fakeApiService := &fakeApiServicer{
-			saveResponseBody: []byte("the-test-response"),
+			saveResponseBody: makeFakeRecordResponse(),
 		}
 		testRouter := makeTestRouter(t, makeEntities(), fakeApiService)
 		w := httptest.NewRecorder()
-		req, _ := http.NewRequest(http.MethodPut, "/users/59df7716ed16fc4a2ca31c08", bytes.NewBufferString(""))
+		req, _ := http.NewRequest(http.MethodPut, "/users/59df7716ed16fc4a2ca31c08", bytes.NewBufferString("{}"))
 		req.Header.Set("content-type", "application/json")
 		testRouter.ServeHTTP(w, req)
 		if http.StatusOK != w.Code {
 			t.Error("bad status: expected", http.StatusOK, "got", w.Code, "body:", w.Body.String())
 		}
-		if strings.Contains(w.Body.String(), "the-test-response") == false {
+		if strings.Contains(w.Body.String(), "1111111122222223333333") == false {
 			t.Error("body doesn't contain expected string.  Body: ", w.Body.String())
 		}
 	})
 
 	t.Run("PUT /<entity> returns 405 when missing recordID", func(t *testing.T) {
 		fakeApiService := &fakeApiServicer{
-			saveResponseBody: []byte("the-test-response"),
+			saveResponseBody: makeFakeRecordResponse(),
 		}
 		testRouter := makeTestRouter(t, makeEntities(), fakeApiService)
 		w := httptest.NewRecorder()
@@ -184,24 +186,24 @@ func TestAPIRoute(t *testing.T) {
 
 	t.Run("PATCH /<entity>/<recordID> returns 200", func(t *testing.T) {
 		fakeApiService := &fakeApiServicer{
-			saveResponseBody: []byte("the-test-response"),
+			saveResponseBody: makeFakeRecordResponse(),
 		}
 		testRouter := makeTestRouter(t, makeEntities(), fakeApiService)
 		w := httptest.NewRecorder()
-		req, _ := http.NewRequest(http.MethodPatch, "/users/59df7716ed16fc4a2ca31c08", bytes.NewBufferString(""))
+		req, _ := http.NewRequest(http.MethodPatch, "/users/59df7716ed16fc4a2ca31c08", bytes.NewBufferString("{}"))
 		req.Header.Set("content-type", "application/json")
 		testRouter.ServeHTTP(w, req)
 		if http.StatusOK != w.Code {
 			t.Error("bad status: expected", http.StatusOK, "got", w.Code, "body:", w.Body.String())
 		}
-		if strings.Contains(w.Body.String(), "the-test-response") == false {
+		if strings.Contains(w.Body.String(), "1111111122222223333333") == false {
 			t.Error("body doesn't contain expected string.  Body: ", w.Body.String())
 		}
 	})
 
 	t.Run("PATCH /<entity> returns 405 when missing recordID", func(t *testing.T) {
 		fakeApiService := &fakeApiServicer{
-			saveResponseBody: []byte("the-test-response"),
+			saveResponseBody: makeFakeRecordResponse(),
 		}
 		testRouter := makeTestRouter(t, makeEntities(), fakeApiService)
 		w := httptest.NewRecorder()
@@ -237,7 +239,7 @@ func TestAPIRoute(t *testing.T) {
 
 	t.Run("DELETE /<entity> returns 405 when missing recordID", func(t *testing.T) {
 		fakeApiService := &fakeApiServicer{
-			saveResponseBody: []byte("the-test-response"),
+			saveResponseBody: makeFakeRecordResponse(),
 		}
 		testRouter := makeTestRouter(t, makeEntities(), fakeApiService)
 		w := httptest.NewRecorder()
@@ -265,5 +267,16 @@ func makeEntities() model.Entities {
 	return model.Entities{
 		"users":     model.Entity{},
 		"computers": model.Entity{},
+	}
+}
+
+func makeFakeRecordResponse() Record {
+	return Record{
+		KeyValues: []KeyValue{
+			{
+				Key: "id",
+				Value: "1111111122222223333333",
+			},
+		},
 	}
 }
