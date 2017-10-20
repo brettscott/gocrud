@@ -26,6 +26,7 @@ type elementsValidator struct {
 func (e *elementsValidator) validate(entity model.Entity, record store.Record, action string) (success bool, elementsErrors map[string][]string, globalErrors []string) {
 	success = true
 	var primaryKey model.ElementLabel
+	elementsErrors = map[string][]string{}
 
 	for _, element := range entity.Elements {
 		elementErrors := make([]string, 0)
@@ -61,6 +62,7 @@ func (e *elementsValidator) validate(entity model.Entity, record store.Record, a
 		}
 
 		if len(elementErrors) > 0 {
+			elementsErrors[element.ID] = []string{}
 			elementsErrors[element.ID] = elementErrors
 		}
 	}

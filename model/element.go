@@ -40,27 +40,3 @@ const ELEMENT_DATA_TYPE_STRING = "string"
 const ELEMENT_DATA_TYPE_NUMBER = "number"
 const ELEMENT_DATA_TYPE_BOOLEAN = "boolean"
 
-//ElementTypes := []string {
-//	"text",
-//	"select",
-//}
-
-// ElementValidation
-// Inspired by Joi https://github.com/hapijs/joi
-type ElementValidation struct {
-	// Required means the element must not be a zero value (0, false, "")
-	Required bool
-
-	// MustProvide means the element must be submitted on every POST and PUT
-	MustProvide bool
-
-	//Forbidden bool // must not be sent
-	//Strip bool  // remove from output after validation
-	//Any bool  // any data type
-	//String bool
-	//Min int
-	//Max int
-	//Allow string // whitelist
-	//Disallow string // blacklist
-	// TODO ... loads more from Joi ...
-}
