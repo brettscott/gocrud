@@ -6,14 +6,20 @@ import (
 	"github.com/brettscott/gocrud/store"
 )
 
-func newApiService(store store.Storer) apiService {
+type elementsValidatorer interface {
+	validate(entity model.Entity, record store.Record, action string) (success bool, elementsErrors map[string][]string, globalErrors []string)
+}
+
+func newApiService(store store.Storer, elementsValidator elementsValidatorer) apiService {
 	return apiService{
-		store: store,
+		store:             store,
+		elementsValidator: elementsValidator,
 	}
 }
 
 type apiService struct {
-	store store.Storer
+	store             store.Storer
+	elementsValidator elementsValidatorer
 }
 
 func (a *apiService) list(entity model.Entity) (clientRecords []Record, err error) {
@@ -52,9 +58,9 @@ func (a *apiService) save(entity model.Entity, action string, clientRecord *Reco
 		return savedClientRecord, fmt.Errorf(`Failed to marshal client record to store record for entity "%s" - %s`, entity.Label, err)
 	}
 
-	err = validate(entity, storeRecord, action)
-	if err != nil {
-		return savedClientRecord, fmt.Errorf(`Failed validation for entity "%s" - %s`, entity.Label, err)
+	isValid, elementsErrors, globalErrors := a.elementsValidator.validate(entity, storeRecord, action)
+	if !isValid {
+		return savedClientRecord, fmt.Errorf(`Failed validation for entity "%s" - %v %v`, entity.Label, elementsErrors, globalErrors)
 	}
 
 	switch action {

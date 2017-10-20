@@ -76,7 +76,8 @@ func TestAPIService(t *testing.T) {
 			},
 		}
 		fakeStore.ListError = nil
-		apiService := newApiService(fakeStore)
+		fakeElementsValidator := &fakeElementsValidatorer{}
+		apiService := newApiService(fakeStore, fakeElementsValidator)
 
 		clientRecords, err := apiService.list(testUsersEntity)
 
@@ -117,7 +118,8 @@ func TestAPIService(t *testing.T) {
 			},
 		}
 		fakeStore.GetError = nil
-		apiService := newApiService(fakeStore)
+		fakeElementsValidator := &fakeElementsValidatorer{}
+		apiService := newApiService(fakeStore, fakeElementsValidator)
 
 		clientRecord, err := apiService.get(testUsersEntity, "1")
 

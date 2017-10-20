@@ -39,7 +39,8 @@ func (c *Crud) AddEntity(entity model.Entity) {
 // Handler for mounting routes for CRUD
 func (c *Crud) Handler() http.Handler {
 
-	c.apiService = newApiService(c.store) // TODO  change to &c.store
+	elementsValidator := NewElementsValidator()
+	c.apiService = newApiService(c.store, elementsValidator) // TODO  change to &c.store
 
 	healthcheckHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
