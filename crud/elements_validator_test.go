@@ -271,6 +271,49 @@ func TestElementsValidator(t *testing.T) {
 	// MustProvide
 	//
 
+	t.Run("Passes when posting, putting and patching user data when a 'must be provided' field is provided", func(t *testing.T) {
+		for _, action := range []string{ACTION_POST, ACTION_PUT, ACTION_PATCH} {
+			testEntity := model.Entity{
+				ID: "test",
+				Elements: []model.Element{
+					{
+						ID:         "id",
+						Label:      "Identifier",
+						DataType:   model.ELEMENT_DATA_TYPE_STRING,
+						PrimaryKey: true,
+					},
+					{
+						ID:       "name",
+						Label:    "Name",
+						DataType: model.ELEMENT_DATA_TYPE_STRING,
+						Validation: model.ElementValidation{
+							MustProvide: true,
+						},
+					},
+				},
+			}
+
+			userData := store.Record{
+				{
+					ID:       "id",
+					Value:    "12345",
+					Hydrated: true,
+				},
+				{
+					ID:       "name",
+					Value:    "John Smith",
+					Hydrated: false,
+				},
+			}
+
+			success, elementsErrors, globalErrors := elementsValidator.validate(testEntity, userData, action)
+
+			assert.Equal(t, true, success, fmt.Sprintf("Should not be valid on %s", action))
+			assert.Equal(t, 0, len(elementsErrors), fmt.Sprintf("Element error on %s", action))
+			assert.Equal(t, 0, len(globalErrors), fmt.Sprintf("Global error on %s", action))
+		}
+	})
+
 	t.Run("Fails when posting, putting and patching user data when a 'must be provided' field is missing", func(t *testing.T) {
 		for _, action := range []string{ACTION_POST, ACTION_PUT, ACTION_PATCH} {
 			testEntity := model.Entity{
