@@ -41,12 +41,18 @@ func (e *elementsValidator) validate(entity model.Entity, record store.Record, a
 
 		// This is useful to see if value was provided and whether a string is empty or not.  Use "Min" and "Max" for integers.
 		// Don't use anything for boolean because it'll either be true or false (or "nil" and be classed as not provided).
-		if element.Validation.Required && (userData.Hydrated == false || userData.Value == nil || userData.Value == "") {
+		if element.Validation.Required && element.PrimaryKey == false && (action == ACTION_POST || userData.Hydrated == true) && (userData.Hydrated == false || userData.Value == nil || userData.Value == "") {
 			elementErrors = append(elementErrors, "is required and cannot be empty")
 		}
 
 		if element.Validation.MustProvide == true && userData.Hydrated == false {
 			elementErrors = append(elementErrors, "must be provided")
+		} else if action == ACTION_POST && element.Validation.MustProvideOnPost == true && userData.Hydrated == false {
+			elementErrors = append(elementErrors, "must be provided on POST")
+		} else if action == ACTION_PUT && element.Validation.MustProvideOnPut == true && userData.Hydrated == false {
+			elementErrors = append(elementErrors, "must be provided on PUT")
+		} else if action == ACTION_PATCH && element.Validation.MustProvideOnPatch == true && userData.Hydrated == false {
+			elementErrors = append(elementErrors, "must be provided on PATCH")
 		}
 
 		if element.PrimaryKey == true {
@@ -55,10 +61,6 @@ func (e *elementsValidator) validate(entity model.Entity, record store.Record, a
 			} else {
 				primaryKey = element.Label
 			}
-		}
-
-		if action != ACTION_PATCH && element.PrimaryKey != true && userData.Hydrated == false {
-			elementErrors = append(elementErrors, fmt.Sprintf(`was not supplied on "%s" action`, action))
 		}
 
 		if len(elementErrors) > 0 {
