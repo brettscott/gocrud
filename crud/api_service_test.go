@@ -7,7 +7,7 @@ import (
 
 func TestAPIService(t *testing.T) {
 
-	testUsersEntity := Entity{
+	testUsersEntity := &Entity{
 		ID:     "users",
 		Label:  "User",
 		Labels: "Users",
@@ -74,8 +74,9 @@ func TestAPIService(t *testing.T) {
 			},
 		}
 		fakeStore.ListError = nil
-		fakeElementsValidator := &fakeElementsValidatorer{}
-		apiService := newApiService(fakeStore, fakeElementsValidator)
+		fakeElementsValidators := NewFakeElementsValidatorers()
+		fakeMutators := NewFakeMutatorers()
+		apiService := newApiService(fakeStore, fakeElementsValidators, fakeMutators)
 
 		clientRecords, err := apiService.list(testUsersEntity)
 
@@ -116,8 +117,9 @@ func TestAPIService(t *testing.T) {
 			},
 		}
 		fakeStore.GetError = nil
-		fakeElementsValidator := &fakeElementsValidatorer{}
-		apiService := newApiService(fakeStore, fakeElementsValidator)
+		fakeElementsValidators := NewFakeElementsValidatorers()
+		fakeMutators := NewFakeMutatorers()
+		apiService := newApiService(fakeStore, fakeElementsValidators, fakeMutators)
 
 		clientRecord, err := apiService.get(testUsersEntity, "1")
 

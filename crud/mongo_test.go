@@ -22,7 +22,7 @@ func TestMongo(t *testing.T) {
 		mongoDbName = "gocrud"
 	}
 
-	entity := Entity{
+	entity := &Entity{
 		ID:     "users",
 		Label:  "User",
 		Labels: "Users",
@@ -240,7 +240,7 @@ func TestMongo(t *testing.T) {
 	})
 }
 
-func setupDBForTest(mongo *Mongo, entity Entity, recordCount int) error {
+func setupDBForTest(mongo *Mongo, entity *Entity, recordCount int) error {
 	err := deleteAllRecords(mongo, entity)
 	if err != nil {
 		return err
@@ -257,11 +257,11 @@ func setupDBForTest(mongo *Mongo, entity Entity, recordCount int) error {
 	return nil
 }
 
-func deleteAllRecords(mongo *Mongo, entity Entity) error {
+func deleteAllRecords(mongo *Mongo, entity *Entity) error {
 	return mongo.DeleteAll(entity)
 }
 
-func createRecord(mongo *Mongo, entity Entity, name string, age int) (string, error) {
+func createRecord(mongo *Mongo, entity *Entity, name string, age int) (string, error) {
 	record := StoreRecord{
 		{
 			ID:    "name",

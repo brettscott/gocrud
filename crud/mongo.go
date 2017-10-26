@@ -45,7 +45,7 @@ func NewMongoStore(mongoURL, mongoSSLCertificate, databaseName string, statsd St
 }
 
 // Get a list of records
-func (m *Mongo) List(e Entity) (list []StoreRecord, err error) {
+func (m *Mongo) List(e *Entity) (list []StoreRecord, err error) {
 	session := m.session.Copy()
 	defer session.Close()
 
@@ -73,7 +73,7 @@ func (m *Mongo) List(e Entity) (list []StoreRecord, err error) {
 }
 
 // Get a record
-func (m *Mongo) Get(e Entity, recordID string) (StoreRecord, error) { // TODO change to *
+func (m *Mongo) Get(e *Entity, recordID string) (StoreRecord, error) { // TODO change to *
 	if !bson.IsObjectIdHex(recordID) {
 		return nil, fmt.Errorf("recordID is not a hexidecimal representation of an ObjectID : %s", recordID)
 	}
@@ -107,7 +107,7 @@ func (m *Mongo) Get(e Entity, recordID string) (StoreRecord, error) { // TODO ch
 }
 
 // Create (ID not provided)
-func (m *Mongo) Post(entity Entity, storeRecord StoreRecord) (string, error) {
+func (m *Mongo) Post(entity *Entity, storeRecord StoreRecord) (string, error) {
 	session := m.session.Copy()
 	defer session.Close()
 
@@ -141,7 +141,7 @@ func (m *Mongo) Post(entity Entity, storeRecord StoreRecord) (string, error) {
 }
 
 // Update (when ID is known)
-func (m *Mongo) Put(entity Entity, storeRecord StoreRecord, recordID string) error {
+func (m *Mongo) Put(entity *Entity, storeRecord StoreRecord, recordID string) error {
 	if recordID == "" {
 		return fmt.Errorf("Failed to updated because primary key is empty.  Entity: %+v", entity)
 	}
@@ -183,12 +183,12 @@ func (m *Mongo) Put(entity Entity, storeRecord StoreRecord, recordID string) err
 }
 
 // Partial update - an alias to "put" in Mongo
-func (m *Mongo) Patch(entity Entity, elementsData StoreRecord, recordID string) error {
+func (m *Mongo) Patch(entity *Entity, elementsData StoreRecord, recordID string) error {
 	return m.Put(entity, elementsData, recordID)
 }
 
 // Delete removes a record
-func (m *Mongo) Delete(entity Entity, recordID string) error {
+func (m *Mongo) Delete(entity *Entity, recordID string) error {
 	if recordID == "" {
 		return fmt.Errorf("Failed to delete because primary key is empty.  Entity: %+v", entity)
 	}
@@ -213,7 +213,7 @@ func (m *Mongo) Delete(entity Entity, recordID string) error {
 }
 
 // DeleteAll removes all records.  Used by integration tests only.
-func (m *Mongo) DeleteAll(entity Entity) error {
+func (m *Mongo) DeleteAll(entity *Entity) error {
 	session := m.session.Copy()
 	defer session.Close()
 
@@ -265,7 +265,7 @@ func (m *Mongo) getSecureSession() (*mgo.Session, error) {
 	return mgo.DialWithInfo(dialInfo)
 }
 
-func marshalRowToStoreRecord(entity Entity, row bson.M) (storeRecord StoreRecord, err error) {
+func marshalRowToStoreRecord(entity *Entity, row bson.M) (storeRecord StoreRecord, err error) {
 	if len(entity.Elements) == 0 {
 		return storeRecord, fmt.Errorf("Entity \"%s\" does not have any elements defined", entity.ID)
 	}
@@ -291,7 +291,7 @@ func marshalRowToStoreRecord(entity Entity, row bson.M) (storeRecord StoreRecord
 	return storeRecord, nil
 }
 
-func marshalStoreRecordToRow(entity Entity, storeRecord StoreRecord) (bson.M, error) {
+func marshalStoreRecordToRow(entity *Entity, storeRecord StoreRecord) (bson.M, error) {
 	row := bson.M{}
 	for _, element := range entity.Elements {
 		if element.PrimaryKey != true {

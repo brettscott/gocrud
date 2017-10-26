@@ -21,7 +21,7 @@ type elementsValidator struct {
 }
 
 // validate ensures values supplied by users are valid
-func (e *elementsValidator) validate(entity Entity, record StoreRecord, action string) (success bool, elementsErrors map[string][]string, globalErrors []string) {
+func (e *elementsValidator) validate(entity *Entity, record StoreRecord, action string) (success bool, elementsErrors map[string][]string, globalErrors []string) {
 	success = true
 	var primaryKey ElementLabel
 	elementsErrors = map[string][]string{}

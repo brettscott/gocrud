@@ -6,15 +6,17 @@ import (
 
 // Entity eg User
 type Entity struct {
-	ID       string
-	Label    string
-	Labels   string
-	Elements Elements
-	Form     Form
+	ID                 string
+	Label              string
+	Labels             string
+	Elements           Elements
+	Form               Form
+	ElementsValidators []elementsValidatorer
+	Mutators           []mutatorer
 }
 
 // Entities eg Users
-type Entities map[string]Entity
+type Entities map[string]*Entity
 
 func (e *Entity) GetElement(elementID string) (*Element, error) {
 
@@ -24,6 +26,16 @@ func (e *Entity) GetElement(elementID string) (*Element, error) {
 		}
 	}
 	return nil, fmt.Errorf("Did not find elementID \"%s\" in list of elements", elementID)
+}
+
+// AddElementsValidator adds elements validator to entity
+func (e *Entity) AddElementsValidator(elementsValidator elementsValidatorer) {
+	e.ElementsValidators = append(e.ElementsValidators, elementsValidator)
+}
+
+// AddMutator adds mutator to entity
+func (e *Entity) AddMutator(mutator mutatorer) {
+	e.Mutators = append(e.Mutators, mutator)
 }
 
 // CheckConfiguration makes sure the entity and its elements have a sensible configuration

@@ -264,8 +264,8 @@ func makeTestRouter(t *testing.T, entities Entities, apiService apiServicer) chi
 
 func makeEntities() Entities {
 	return Entities{
-		"users":     Entity{},
-		"computers": Entity{},
+		"users":     &Entity{},
+		"computers": &Entity{},
 	}
 }
 

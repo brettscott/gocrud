@@ -5,22 +5,28 @@ import (
 )
 
 type elementsValidatorer interface {
-	validate(entity Entity, record StoreRecord, action string) (success bool, elementsErrors map[string][]string, globalErrors []string)
+	validate(entity *Entity, record StoreRecord, action string) (success bool, elementsErrors map[string][]string, globalErrors []string)
 }
 
-func newApiService(store Storer, elementsValidator elementsValidatorer) apiService {
+type mutatorer interface {
+	mutate(entity *Entity, storeRecord StoreRecord, action string) (mutatedStoreRecord StoreRecord, elementsErrors map[string][]string, globalErrors []string)
+}
+
+func newApiService(store Storer, elementsValidators []elementsValidatorer, mutators []mutatorer) apiService {
 	return apiService{
-		store:             store,
-		elementsValidator: elementsValidator,
+		store:              store,
+		elementsValidators: elementsValidators,
+		mutators:           mutators,
 	}
 }
 
 type apiService struct {
-	store             Storer
-	elementsValidator elementsValidatorer
+	store              Storer
+	elementsValidators []elementsValidatorer
+	mutators           []mutatorer
 }
 
-func (a *apiService) list(entity Entity) (clientRecords []ClientRecord, err error) {
+func (a *apiService) list(entity *Entity) (clientRecords []ClientRecord, err error) {
 	storeRecords, err := a.store.List(entity)
 	if err != nil {
 		return nil, fmt.Errorf(`Store query failed for entity "%s" - %s`, entity.Label, err)
@@ -34,7 +40,7 @@ func (a *apiService) list(entity Entity) (clientRecords []ClientRecord, err erro
 	return
 }
 
-func (a *apiService) get(entity Entity, recordID string) (clientRecord ClientRecord, err error) {
+func (a *apiService) get(entity *Entity, recordID string) (clientRecord ClientRecord, err error) {
 	storeRecord, err := a.store.Get(entity, recordID)
 	if err != nil {
 		return clientRecord, fmt.Errorf(`Store query failed for entity "%s" recordID "%s" - %s`, entity.Label, recordID, err)
@@ -50,15 +56,29 @@ func (a *apiService) get(entity Entity, recordID string) (clientRecord ClientRec
 	return
 }
 
-func (a *apiService) save(entity Entity, action string, clientRecord *ClientRecord, recordID string) (savedClientRecord ClientRecord, err error) {
+func (a *apiService) save(entity *Entity, action string, clientRecord *ClientRecord, recordID string) (savedClientRecord ClientRecord, err error) {
 	storeRecord, err := marshalClientRecordToStoreRecord(entity, clientRecord, action)
 	if err != nil {
 		return savedClientRecord, fmt.Errorf(`Failed to marshal client record to store record for entity "%s" - %s`, entity.Label, err)
 	}
 
-	isValid, elementsErrors, globalErrors := a.elementsValidator.validate(entity, storeRecord, action)
-	if !isValid {
-		return savedClientRecord, fmt.Errorf(`Failed validation for entity "%s" - %v %v`, entity.Label, elementsErrors, globalErrors)
+	mergedElementsValidators := append(a.elementsValidators, entity.ElementsValidators...)
+	for _, validator := range mergedElementsValidators {
+		// TODO Goroutine in order to run through each validator and report all issues that each validator finds
+		isValid, elementsErrors, globalErrors := validator.validate(entity, storeRecord, action)
+		if !isValid {
+			return savedClientRecord, fmt.Errorf(`Failed validation for entity "%s" - %v %v`, entity.Label, elementsErrors, globalErrors)
+		}
+	}
+
+	// TODO allow users to specify order of mutators
+	mergedMutators := append(a.mutators, entity.Mutators...)
+	for _, mutator := range mergedMutators {
+		// TODO Goroutine in order to run through each validator and report all issues that each validator finds
+		_, elementsErrors, globalErrors := mutator.mutate(entity, storeRecord, action)
+		if len(elementsErrors) > 0 || len(globalErrors) > 0 {
+			return savedClientRecord, fmt.Errorf(`Failed validation for entity "%s" - %v %v`, entity.Label, elementsErrors, globalErrors)
+		}
 	}
 
 	switch action {
@@ -98,7 +118,7 @@ func (a *apiService) save(entity Entity, action string, clientRecord *ClientReco
 	return savedClientRecord, nil
 }
 
-func (a *apiService) delete(entity Entity, recordID string) error {
+func (a *apiService) delete(entity *Entity, recordID string) error {
 	err := a.store.Delete(entity, recordID)
 	if err != nil {
 		return fmt.Errorf(`Store delete failed for entity "%s" recordID "%s" - %s`, entity.Label, recordID, err)
@@ -106,7 +126,7 @@ func (a *apiService) delete(entity Entity, recordID string) error {
 	return nil
 }
 
-func marshalClientRecordToStoreRecord(entity Entity, clientRecord *ClientRecord, action string) (data StoreRecord, err error) {
+func marshalClientRecordToStoreRecord(entity *Entity, clientRecord *ClientRecord, action string) (data StoreRecord, err error) {
 
 	for i, _ := range entity.Elements {
 		element := &entity.Elements[i]

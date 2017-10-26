@@ -20,10 +20,10 @@ type APIRoute struct {
 }
 
 type apiServicer interface {
-	list(entity Entity) (clientRecords []ClientRecord, err error)
-	get(entity Entity, recordID string) (clientRecord ClientRecord, err error)
-	save(entity Entity, action string, clientRecord *ClientRecord, recordID string) (savedClientRecord ClientRecord, err error)
-	delete(entity Entity, recordID string) error
+	list(entity *Entity) (clientRecords []ClientRecord, err error)
+	get(entity *Entity, recordID string) (clientRecord ClientRecord, err error)
+	save(entity *Entity, action string, clientRecord *ClientRecord, recordID string) (savedClientRecord ClientRecord, err error)
+	delete(entity *Entity, recordID string) error
 }
 
 // NewRoute prepares the routes for this package
