@@ -19,7 +19,7 @@ func BasicExample() {
 	// TODO: Pre/post hooks and override actions
 	// TODO: Flexibility with rendering templates (custom head/foot/style)
 
-	users := crud.Entity{
+	users := &crud.Entity{
 		ID:     "users",
 		Label:  "User",
 		Labels: "Users",
@@ -63,7 +63,7 @@ func BasicExample() {
 		log.Error(fmt.Sprintf("Error with store: %v", err))
 		os.Exit(1)
 	}
-	myCrud.Store(myStore)
+	myCrud.AddStore(myStore)
 
 	// Register Entity
 	myCrud.AddEntity(users)

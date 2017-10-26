@@ -10,7 +10,7 @@ type Crud struct {
 	config             *Config
 	log                Logger
 	statsd             StatsDer
-	store              Storer
+	stores             []Storer
 	apiService         apiService
 	elementsValidators []elementsValidatorer
 	mutators           []mutatorer
@@ -27,13 +27,13 @@ func NewCrud(config *Config, log Logger, statsd StatsDer) *Crud {
 }
 
 // Store defines which database to use
-func (c *Crud) Store(store Storer) {
-	c.store = store
+func (c *Crud) AddStore(store Storer) {
+	c.stores = append(c.stores, store)
 }
 
 // AddEntity for each entity type (eg User)
-func (c *Crud) AddEntity(entity Entity) {
-	c.entities[entity.ID] = &entity
+func (c *Crud) AddEntity(entity *Entity) {
+	c.entities[entity.ID] = entity
 }
 
 // AddElementsValidator for all entities
@@ -70,7 +70,7 @@ func (c *Crud) Handler() http.Handler {
 		c.AddElementsValidator(defaultElementsValidator)
 	}
 
-	c.apiService = newApiService(c.store, c.elementsValidators, c.mutators) // TODO  change to &c.store
+	c.apiService = newApiService(c.stores, c.elementsValidators, c.mutators)
 
 	healthcheckHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)

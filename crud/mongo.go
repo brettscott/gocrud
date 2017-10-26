@@ -20,16 +20,19 @@ type Mongo struct {
 	statsd              StatsDer
 	log                 Logger
 	session             *mgo.Session
+	mode                *StoreMode
 }
 
 // NewMongoStore is the constructor for a MongoStore
 func NewMongoStore(mongoURL, mongoSSLCertificate, databaseName string, statsd StatsDer, log Logger) (*Mongo, error) {
+	defaultStoreMode := &StoreMode{Read: true, Write: true, Delete: true}
 	mongoStore := Mongo{
 		mongoURL:            mongoURL,
 		mongoSSLCertificate: mongoSSLCertificate,
 		databaseName:        databaseName,
 		statsd:              statsd,
 		log:                 log,
+		mode:                defaultStoreMode,
 	}
 
 	session, err := mongoStore.connectToMongo()
@@ -42,6 +45,15 @@ func NewMongoStore(mongoURL, mongoSSLCertificate, databaseName string, statsd St
 	mongoStore.session = session
 
 	return &mongoStore, nil
+}
+
+func (m *Mongo) SetMode(mode *StoreMode) error {
+	m.mode = mode
+	return nil
+}
+
+func (m *Mongo) Mode(e *Entity) *StoreMode {
+	return m.mode
 }
 
 // Get a list of records

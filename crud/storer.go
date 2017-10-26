@@ -1,6 +1,7 @@
 package crud
 
 type Storer interface {
+	Mode(entity *Entity) *StoreMode
 	List(entity *Entity) ([]StoreRecord, error)
 	Get(e *Entity, recordID string) (StoreRecord, error)
 	Post(entity *Entity, storeRecord StoreRecord) (string, error)

@@ -1,5 +1,11 @@
 package crud
 
+func NewFakeStorers(store Storer) []Storer {
+	return []Storer{
+		store,
+	}
+}
+
 func NewFakeStorer() *FakeStorer {
 	return &FakeStorer{}
 }
@@ -10,6 +16,13 @@ type FakeStorer struct {
 	ListError    error
 	GetResponse  StoreRecord
 	GetError     error
+}
+
+func (f *FakeStorer) Mode(entity *Entity) *StoreMode {
+	return &StoreMode{
+		Read:  true,
+		Write: true,
+	}
 }
 
 // List
