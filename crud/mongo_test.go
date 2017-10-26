@@ -1,7 +1,6 @@
-package store
+package crud
 
 import (
-	"github.com/brettscott/gocrud/model"
 	"github.com/mergermarket/gotools"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/mgo.v2/bson"
@@ -23,29 +22,29 @@ func TestMongo(t *testing.T) {
 		mongoDbName = "gocrud"
 	}
 
-	entity := model.Entity{
+	entity := Entity{
 		ID:     "users",
 		Label:  "User",
 		Labels: "Users",
-		Elements: model.Elements{
+		Elements: Elements{
 			{
 				ID:         "id",
 				Label:      "ID",
 				PrimaryKey: true,
-				FormType:   model.ELEMENT_FORM_TYPE_HIDDEN,
-				DataType:   model.ELEMENT_DATA_TYPE_STRING,
+				FormType:   ELEMENT_FORM_TYPE_HIDDEN,
+				DataType:   ELEMENT_DATA_TYPE_STRING,
 			},
 			{
 				ID:       "name",
 				Label:    "Name",
-				FormType: model.ELEMENT_FORM_TYPE_TEXT,
-				DataType: model.ELEMENT_DATA_TYPE_STRING,
+				FormType: ELEMENT_FORM_TYPE_TEXT,
+				DataType: ELEMENT_DATA_TYPE_STRING,
 			},
 			{
 				ID:           "age",
 				Label:        "Age",
-				FormType:     model.ELEMENT_FORM_TYPE_TEXT,
-				DataType:     model.ELEMENT_DATA_TYPE_NUMBER,
+				FormType:     ELEMENT_FORM_TYPE_TEXT,
+				DataType:     ELEMENT_DATA_TYPE_NUMBER,
 				DefaultValue: 22,
 			},
 		},
@@ -102,7 +101,7 @@ func TestMongo(t *testing.T) {
 			return
 		}
 
-		assert.Equal(t, 0, len(result), "Record should not exist in database")
+		assert.Equal(t, 0, len(result), "ClientRecord should not exist in database")
 		assert.Equal(t, false, result.IsHydrated(), "Result should not be hydrated with any fields and values")
 	})
 
@@ -145,7 +144,7 @@ func TestMongo(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		record := Record{
+		record := StoreRecord{
 			{
 				ID:    "name",
 				Value: "Madmax",
@@ -185,7 +184,7 @@ func TestMongo(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		record := Record{
+		record := StoreRecord{
 			{
 				ID:    "name",
 				Value: "Chuck Norris",
@@ -241,7 +240,7 @@ func TestMongo(t *testing.T) {
 	})
 }
 
-func setupDBForTest(mongo *Mongo, entity model.Entity, recordCount int) error {
+func setupDBForTest(mongo *Mongo, entity Entity, recordCount int) error {
 	err := deleteAllRecords(mongo, entity)
 	if err != nil {
 		return err
@@ -258,12 +257,12 @@ func setupDBForTest(mongo *Mongo, entity model.Entity, recordCount int) error {
 	return nil
 }
 
-func deleteAllRecords(mongo *Mongo, entity model.Entity) error {
+func deleteAllRecords(mongo *Mongo, entity Entity) error {
 	return mongo.DeleteAll(entity)
 }
 
-func createRecord(mongo *Mongo, entity model.Entity, name string, age int) (string, error) {
-	record := Record{
+func createRecord(mongo *Mongo, entity Entity, name string, age int) (string, error) {
+	record := StoreRecord{
 		{
 			ID:    "name",
 			Value: name,

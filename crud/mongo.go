@@ -1,10 +1,9 @@
-package store
+package crud
 
 import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
-	"github.com/brettscott/gocrud/model"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"net"
@@ -38,7 +37,7 @@ func NewMongoStore(mongoURL, mongoSSLCertificate, databaseName string, statsd St
 		return nil, fmt.Errorf("Problem connecting to Mongo db %s : %v", databaseName, err)
 	}
 
-	//go mongoStore.ensureIndexes()
+	//go mongoensureIndexes()
 
 	mongoStore.session = session
 
@@ -46,7 +45,7 @@ func NewMongoStore(mongoURL, mongoSSLCertificate, databaseName string, statsd St
 }
 
 // Get a list of records
-func (m *Mongo) List(e model.Entity) (list []Record, err error) {
+func (m *Mongo) List(e Entity) (list []StoreRecord, err error) {
 	session := m.session.Copy()
 	defer session.Close()
 
@@ -74,7 +73,7 @@ func (m *Mongo) List(e model.Entity) (list []Record, err error) {
 }
 
 // Get a record
-func (m *Mongo) Get(e model.Entity, recordID string) (Record, error) { // TODO change to *
+func (m *Mongo) Get(e Entity, recordID string) (StoreRecord, error) { // TODO change to *
 	if !bson.IsObjectIdHex(recordID) {
 		return nil, fmt.Errorf("recordID is not a hexidecimal representation of an ObjectID : %s", recordID)
 	}
@@ -95,7 +94,7 @@ func (m *Mongo) Get(e model.Entity, recordID string) (Record, error) { // TODO c
 	err := c.Find(query).One(&row)
 	if err != nil {
 		if err.Error() == mgo.ErrNotFound.Error() {
-			return Record{}, nil
+			return StoreRecord{}, nil
 		}
 		return nil, fmt.Errorf("failed to get record.  Query: %+v.  Error: %s", query, err)
 	}
@@ -108,7 +107,7 @@ func (m *Mongo) Get(e model.Entity, recordID string) (Record, error) { // TODO c
 }
 
 // Create (ID not provided)
-func (m *Mongo) Post(entity model.Entity, storeRecord Record) (string, error) {
+func (m *Mongo) Post(entity Entity, storeRecord StoreRecord) (string, error) {
 	session := m.session.Copy()
 	defer session.Close()
 
@@ -142,7 +141,7 @@ func (m *Mongo) Post(entity model.Entity, storeRecord Record) (string, error) {
 }
 
 // Update (when ID is known)
-func (m *Mongo) Put(entity model.Entity, storeRecord Record, recordID string) error {
+func (m *Mongo) Put(entity Entity, storeRecord StoreRecord, recordID string) error {
 	if recordID == "" {
 		return fmt.Errorf("Failed to updated because primary key is empty.  Entity: %+v", entity)
 	}
@@ -167,7 +166,7 @@ func (m *Mongo) Put(entity model.Entity, storeRecord Record, recordID string) er
 
 	document := bson.M{
 		"$push": bson.M{
-			"_crud.dateUpdated": time.Now().UTC().Format(time.RFC3339Nano),
+			"_dateUpdated": time.Now().UTC().Format(time.RFC3339Nano),
 		},
 		"$set": row,
 	}
@@ -184,12 +183,12 @@ func (m *Mongo) Put(entity model.Entity, storeRecord Record, recordID string) er
 }
 
 // Partial update - an alias to "put" in Mongo
-func (m *Mongo) Patch(entity model.Entity, elementsData Record, recordID string) error {
+func (m *Mongo) Patch(entity Entity, elementsData StoreRecord, recordID string) error {
 	return m.Put(entity, elementsData, recordID)
 }
 
 // Delete removes a record
-func (m *Mongo) Delete(entity model.Entity, recordID string) error {
+func (m *Mongo) Delete(entity Entity, recordID string) error {
 	if recordID == "" {
 		return fmt.Errorf("Failed to delete because primary key is empty.  Entity: %+v", entity)
 	}
@@ -214,7 +213,7 @@ func (m *Mongo) Delete(entity model.Entity, recordID string) error {
 }
 
 // DeleteAll removes all records.  Used by integration tests only.
-func (m *Mongo) DeleteAll(entity model.Entity) error {
+func (m *Mongo) DeleteAll(entity Entity) error {
 	session := m.session.Copy()
 	defer session.Close()
 
@@ -266,7 +265,7 @@ func (m *Mongo) getSecureSession() (*mgo.Session, error) {
 	return mgo.DialWithInfo(dialInfo)
 }
 
-func marshalRowToStoreRecord(entity model.Entity, row bson.M) (storeRecord Record, err error) {
+func marshalRowToStoreRecord(entity Entity, row bson.M) (storeRecord StoreRecord, err error) {
 	if len(entity.Elements) == 0 {
 		return storeRecord, fmt.Errorf("Entity \"%s\" does not have any elements defined", entity.ID)
 	}
@@ -292,7 +291,7 @@ func marshalRowToStoreRecord(entity model.Entity, row bson.M) (storeRecord Recor
 	return storeRecord, nil
 }
 
-func marshalStoreRecordToRow(entity model.Entity, storeRecord Record) (bson.M, error) {
+func marshalStoreRecordToRow(entity Entity, storeRecord StoreRecord) (bson.M, error) {
 	row := bson.M{}
 	for _, element := range entity.Elements {
 		if element.PrimaryKey != true {

@@ -3,7 +3,6 @@ package crud
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/brettscott/gocrud/model"
 	"github.com/pressly/chi"
 	"io/ioutil"
 	"net/http"
@@ -14,21 +13,21 @@ const ACTION_PUT = "put"
 const ACTION_PATCH = "patch"
 
 type APIRoute struct {
-	entities   model.Entities
+	entities   Entities
 	log        Logger
 	statsd     StatsDer
 	apiService apiServicer
 }
 
 type apiServicer interface {
-	list(entity model.Entity) (clientRecords []Record, err error)
-	get(entity model.Entity, recordID string) (clientRecord Record, err error)
-	save(entity model.Entity, action string, clientRecord *Record, recordID string) (savedClientRecord Record, err error)
-	delete(entity model.Entity, recordID string) error
+	list(entity Entity) (clientRecords []ClientRecord, err error)
+	get(entity Entity, recordID string) (clientRecord ClientRecord, err error)
+	save(entity Entity, action string, clientRecord *ClientRecord, recordID string) (savedClientRecord ClientRecord, err error)
+	delete(entity Entity, recordID string) error
 }
 
 // NewRoute prepares the routes for this package
-func NewApiRoute(entities model.Entities, apiService apiServicer, log Logger, statsd StatsDer) func(chi.Router) {
+func NewApiRoute(entities Entities, apiService apiServicer, log Logger, statsd StatsDer) func(chi.Router) {
 
 	apiRoute := &APIRoute{
 		entities:   entities,
@@ -152,7 +151,7 @@ func (a *APIRoute) save(isRecordNew bool, isPartialPayload bool) func(w http.Res
 				w.Write([]byte(fmt.Sprintf("Bad request - %v", err)))
 				return
 			}
-			record := &Record{}
+			record := &ClientRecord{}
 			err = json.Unmarshal(body, record)
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)

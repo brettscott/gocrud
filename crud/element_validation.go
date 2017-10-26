@@ -1,4 +1,4 @@
-package model
+package crud
 
 // ElementValidation
 // Inspired by Joi https://github.com/hapijs/joi

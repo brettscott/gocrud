@@ -295,7 +295,7 @@ func (t *Trie) Insert(r rune, value uint64) {
 	n.values[s[0]-0x80] = value
 }
 
-// Size returns the number of bytes the generated trie will take to store. It
+// Size returns the number of bytes the generated trie will take to  It
 // needs to be exported as it is used in the templates.
 func (b *builder) Size() int {
 	// Index blocks.

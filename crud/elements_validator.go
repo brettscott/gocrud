@@ -2,16 +2,14 @@ package crud
 
 import (
 	"fmt"
-	"github.com/brettscott/gocrud/model"
-	"github.com/brettscott/gocrud/store"
 	"reflect"
 )
 
 func NewElementsValidator() *elementsValidator {
 	dataTypes := make(map[string]string)
-	dataTypes[model.ELEMENT_DATA_TYPE_STRING] = "string"
-	dataTypes[model.ELEMENT_DATA_TYPE_NUMBER] = "float64"
-	dataTypes[model.ELEMENT_DATA_TYPE_BOOLEAN] = "bool"
+	dataTypes[ELEMENT_DATA_TYPE_STRING] = "string"
+	dataTypes[ELEMENT_DATA_TYPE_NUMBER] = "float64"
+	dataTypes[ELEMENT_DATA_TYPE_BOOLEAN] = "bool"
 
 	return &elementsValidator{
 		dataTypes: dataTypes,
@@ -23,9 +21,9 @@ type elementsValidator struct {
 }
 
 // validate ensures values supplied by users are valid
-func (e *elementsValidator) validate(entity model.Entity, record store.Record, action string) (success bool, elementsErrors map[string][]string, globalErrors []string) {
+func (e *elementsValidator) validate(entity Entity, record StoreRecord, action string) (success bool, elementsErrors map[string][]string, globalErrors []string) {
 	success = true
-	var primaryKey model.ElementLabel
+	var primaryKey ElementLabel
 	elementsErrors = map[string][]string{}
 
 	for _, element := range entity.Elements {
@@ -83,7 +81,7 @@ func (e *elementsValidator) validate(entity model.Entity, record store.Record, a
 // validateDataType
 // Unmarshal stores one of these in the interface value: "bool" for JSON booleans, "float64" for JSON numbers,
 // "string" for JSON strings, "[]interface{}" for JSON arrays, "map[string]interface{}" for JSON objects,  "nil" for JSON null
-func (e *elementsValidator) validateDataType(element model.Element, value interface{}) error {
+func (e *elementsValidator) validateDataType(element Element, value interface{}) error {
 	if value == nil {
 		return nil
 	}

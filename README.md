@@ -89,14 +89,12 @@ Everythings!
         * Write Mongo integration test
         * Pagination
     * Router is very fat.  Write tests and break it up **NEXT**
-    * models.Entity() - should this be an interface in the packages using it? https://github.com/golang/go/wiki/CodeReviewComments#interfaces
     * Better error messages back to the client via /api
     * More validation rules
     * More examples (eg basic_example.go)
     * Authentication and authorisation
     * Support for search - ES?
-    * Move `model.Entity` to `crud.Entity` - cannot do due to "import cycle" error
-    * Convert Entity setup into JSON which is unmarshalled into model.Entity
+    * Convert Entity setup into JSON which is unmarshalled into Entity
     * Return _crud information in KV to client
 * Front-end
     * Create
@@ -176,9 +174,9 @@ LIST
                                                             "[]bson.M{}" from Mongo
                                                          
 3.                                Convert "[]bson.M{}" into
-                                  "[]store.Record"
+                                  "[]Record"
 
-4.                                Marshal "[]store.Record" into "[]api.Record"
+4.                                Marshal "[]Record" into "[]api.Record"
 
 5.                                Marshal "[]api.Record" into JSON
                                                                                                                                        
@@ -191,9 +189,9 @@ SAVE
         
 2.                                 Unmarshal JSON into "api.Record"    
         
-3.                                 Marshal "api.Record" into "store.Record"
+3.                                 Marshal "api.Record" into "Record"
         
-4.                                 Marshal "store.Record" into "bson.M{}"
+4.                                 Marshal "Record" into "bson.M{}"
                                    
 5.                                              ------------- Persist in DB -------------->
                                                               "bson.M{}" into Mongo

@@ -2,17 +2,15 @@ package crud
 
 import (
 	"fmt"
-	"github.com/brettscott/gocrud/model"
-	"github.com/brettscott/gocrud/store"
 	"net/http"
 )
 
 type Crud struct {
-	entities   model.Entities
+	entities   Entities
 	config     *Config
 	log        Logger
 	statsd     StatsDer
-	store      store.Storer
+	store      Storer
 	apiService apiService
 }
 
@@ -22,17 +20,17 @@ func NewCrud(config *Config, log Logger, statsd StatsDer) *Crud {
 		config:   config,
 		log:      log,
 		statsd:   statsd,
-		entities: make(map[string]model.Entity),
+		entities: make(map[string]Entity),
 	}
 }
 
 // Store defines which database to use
-func (c *Crud) Store(store store.Storer) {
+func (c *Crud) Store(store Storer) {
 	c.store = store
 }
 
 // AddEntity for each entity type (eg User)
-func (c *Crud) AddEntity(entity model.Entity) {
+func (c *Crud) AddEntity(entity Entity) {
 	c.entities[entity.ID] = entity
 }
 

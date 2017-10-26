@@ -1,4 +1,4 @@
-package store
+package crud
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 )
 
 // EntityData represents a database row from the entity's database
-type Record []Field
+type StoreRecord []Field
 
 // EntityDatum is a representation of a field in a database row of data from the database
 type Field struct {
@@ -16,7 +16,7 @@ type Field struct {
 }
 
 // GetField returns a particular field's (key's) value
-func (r *Record) GetField(elementID string) (*Field, error) {
+func (r *StoreRecord) GetField(elementID string) (*Field, error) {
 
 	for _, field := range *r {
 		if field.ID == elementID {
@@ -27,7 +27,7 @@ func (r *Record) GetField(elementID string) (*Field, error) {
 }
 
 // IsHydrated lets you know if any data (key-values) are attached to record
-func (r *Record) IsHydrated() bool {
+func (r *StoreRecord) IsHydrated() bool {
 	if len(*r) == 0 {
 		return false
 	}

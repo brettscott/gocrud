@@ -3,8 +3,6 @@ package examples
 import (
 	"fmt"
 	"github.com/brettscott/gocrud/crud"
-	"github.com/brettscott/gocrud/model"
-	"github.com/brettscott/gocrud/store"
 	"github.com/mergermarket/gotools"
 	"github.com/pressly/chi"
 	"log"
@@ -21,35 +19,35 @@ func BasicExample() {
 	// TODO: Pre/post hooks and override actions
 	// TODO: Flexibility with rendering templates (custom head/foot/style)
 
-	users := model.Entity{
+	users := crud.Entity{
 		ID:     "users",
 		Label:  "User",
 		Labels: "Users",
-		Elements: model.Elements{
+		Elements: crud.Elements{
 			{
 				ID:         "id",
 				Label:      "ID",
 				PrimaryKey: true,
-				FormType:   model.ELEMENT_FORM_TYPE_HIDDEN,
-				DataType:   model.ELEMENT_DATA_TYPE_STRING,
+				FormType:   crud.ELEMENT_FORM_TYPE_HIDDEN,
+				DataType:   crud.ELEMENT_DATA_TYPE_STRING,
 			},
 			{
 				ID:       "name",
 				Label:    "Name",
-				FormType: model.ELEMENT_FORM_TYPE_TEXT,
-				DataType: model.ELEMENT_DATA_TYPE_STRING,
+				FormType: crud.ELEMENT_FORM_TYPE_TEXT,
+				DataType: crud.ELEMENT_DATA_TYPE_STRING,
 			},
 			{
 				ID:           "age",
 				Label:        "Age",
-				FormType:     model.ELEMENT_FORM_TYPE_TEXT,
-				DataType:     model.ELEMENT_DATA_TYPE_NUMBER,
+				FormType:     crud.ELEMENT_FORM_TYPE_TEXT,
+				DataType:     crud.ELEMENT_DATA_TYPE_NUMBER,
 				DefaultValue: 22,
 			},
 		},
 	}
 
-	// Todo: should do NewEntity and not newing up model.Entity manually.
+	// Todo: should do NewEntity and not newing up Entity manually.
 	err := users.CheckConfiguration()
 	if err != nil {
 		log.Error(fmt.Sprintf(`Error with "users" entity: %v`, err))
@@ -60,7 +58,7 @@ func BasicExample() {
 
 	myCrud := crud.NewCrud(myConfig, log, statsd)
 
-	myStore, err := store.NewMongoStore(os.Getenv("MONGO_DB_CONNECTION"), "", os.Getenv("MONGO_DB_NAME"), statsd, log)
+	myStore, err := crud.NewMongoStore(os.Getenv("MONGO_DB_CONNECTION"), "", os.Getenv("MONGO_DB_NAME"), statsd, log)
 	if err != nil {
 		log.Error(fmt.Sprintf("Error with store: %v", err))
 		os.Exit(1)
@@ -72,7 +70,7 @@ func BasicExample() {
 	//myCrud.AddEntity(computers)
 
 	// Add Sample data to DB
-	//myStore.Post()
+	//myPost()
 
 	// Two ways to mount route in your application:
 	// 1. Mount CRUD routes to /gocrud (using Chi)

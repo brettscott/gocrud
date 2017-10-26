@@ -1,35 +1,31 @@
 package crud
 
-import (
-	"github.com/brettscott/gocrud/model"
-)
-
 func NewFakeApiServicer() *fakeApiServicer {
 	return &fakeApiServicer{}
 }
 
 type fakeApiServicer struct {
-	listResponseBody    []Record
+	listResponseBody    []ClientRecord
 	listResponseError   error
-	getResponseBody     Record
+	getResponseBody     ClientRecord
 	getResponseError    error
-	saveResponseBody    Record
+	saveResponseBody    ClientRecord
 	saveResponseError   error
 	deleteResponseError error
 }
 
-func (f *fakeApiServicer) list(entity model.Entity) (clientRecords []Record, err error) {
+func (f *fakeApiServicer) list(entity Entity) (clientRecords []ClientRecord, err error) {
 	return f.listResponseBody, f.listResponseError
 }
 
-func (f *fakeApiServicer) get(entity model.Entity, recordID string) (clientRecord Record, err error) {
+func (f *fakeApiServicer) get(entity Entity, recordID string) (clientRecord ClientRecord, err error) {
 	return f.getResponseBody, f.getResponseError
 }
 
-func (f *fakeApiServicer) save(entity model.Entity, action string, clientRecord *Record, recordID string) (savedClientRecord Record, err error) {
+func (f *fakeApiServicer) save(entity Entity, action string, clientRecord *ClientRecord, recordID string) (savedClientRecord ClientRecord, err error) {
 	return f.saveResponseBody, f.saveResponseError
 }
 
-func (f *fakeApiServicer) delete(entity model.Entity, recordID string) error {
+func (f *fakeApiServicer) delete(entity Entity, recordID string) error {
 	return f.deleteResponseError
 }

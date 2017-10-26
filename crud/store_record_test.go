@@ -1,4 +1,4 @@
-package store
+package crud
 
 import (
 	"github.com/stretchr/testify/assert"
@@ -15,7 +15,7 @@ func TestRecord(t *testing.T) {
 		ID:    "name",
 		Value: "Hulk Hogan",
 	}
-	record := Record{}
+	record := StoreRecord{}
 	record = append(record, idField)
 	record = append(record, nameField)
 

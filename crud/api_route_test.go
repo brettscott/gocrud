@@ -3,7 +3,6 @@ package crud
 import (
 	"bytes"
 	"errors"
-	"github.com/brettscott/gocrud/model"
 	"github.com/mergermarket/gotools"
 	"github.com/pressly/chi"
 	"net/http"
@@ -15,7 +14,7 @@ import (
 func TestAPIRoute(t *testing.T) {
 
 	t.Run("GET /<entity> returns 200", func(t *testing.T) {
-		fakeRecords := []Record{}
+		fakeRecords := []ClientRecord{}
 		fakeRecords = append(fakeRecords, makeFakeRecordResponse())
 		fakeApiService := &fakeApiServicer{
 			listResponseBody: fakeRecords,
@@ -252,7 +251,7 @@ func TestAPIRoute(t *testing.T) {
 
 }
 
-func makeTestRouter(t *testing.T, entities model.Entities, apiService apiServicer) chi.Router {
+func makeTestRouter(t *testing.T, entities Entities, apiService apiServicer) chi.Router {
 	testLogger := &tools.TestLogger{T: t}
 	testConfig := tools.NewStatsDConfig(false, testLogger)
 	testStatsD, _ := tools.NewStatsD(testConfig)
@@ -263,15 +262,15 @@ func makeTestRouter(t *testing.T, entities model.Entities, apiService apiService
 	return testRouter
 }
 
-func makeEntities() model.Entities {
-	return model.Entities{
-		"users":     model.Entity{},
-		"computers": model.Entity{},
+func makeEntities() Entities {
+	return Entities{
+		"users":     Entity{},
+		"computers": Entity{},
 	}
 }
 
-func makeFakeRecordResponse() Record {
-	return Record{
+func makeFakeRecordResponse() ClientRecord {
+	return ClientRecord{
 		KeyValues: []KeyValue{
 			{
 				Key:   "id",

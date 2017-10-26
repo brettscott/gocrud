@@ -1,74 +1,72 @@
 package crud
 
 import (
-	"github.com/brettscott/gocrud/model"
-	"github.com/brettscott/gocrud/store"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestAPIService(t *testing.T) {
 
-	testUsersEntity := model.Entity{
+	testUsersEntity := Entity{
 		ID:     "users",
 		Label:  "User",
 		Labels: "Users",
-		Elements: model.Elements{
+		Elements: Elements{
 			{
 				ID:         "id",
 				Label:      "ID",
 				PrimaryKey: true,
-				FormType:   model.ELEMENT_FORM_TYPE_HIDDEN,
-				DataType:   model.ELEMENT_DATA_TYPE_STRING,
+				FormType:   ELEMENT_FORM_TYPE_HIDDEN,
+				DataType:   ELEMENT_DATA_TYPE_STRING,
 			},
 			{
 				ID:       "name",
 				Label:    "Name",
-				FormType: model.ELEMENT_FORM_TYPE_TEXT,
-				DataType: model.ELEMENT_DATA_TYPE_STRING,
+				FormType: ELEMENT_FORM_TYPE_TEXT,
+				DataType: ELEMENT_DATA_TYPE_STRING,
 			},
 			{
 				ID:           "age",
 				Label:        "Age",
-				FormType:     model.ELEMENT_FORM_TYPE_TEXT,
-				DataType:     model.ELEMENT_DATA_TYPE_NUMBER,
+				FormType:     ELEMENT_FORM_TYPE_TEXT,
+				DataType:     ELEMENT_DATA_TYPE_NUMBER,
 				DefaultValue: 22,
 			},
 		},
 	}
 
 	t.Run("List returns records from database and returns it in client record format", func(t *testing.T) {
-		fakeStore := store.NewFakeStorer()
-		fakeStore.ListResponse = []store.Record{
+		fakeStore := NewFakeStorer()
+		fakeStore.ListResponse = []StoreRecord{
 			{
-				store.Field{
+				Field{
 					ID:       "id",
 					Value:    "1",
 					Hydrated: true,
 				},
-				store.Field{
+				Field{
 					ID:       "name",
 					Value:    "Superman",
 					Hydrated: true,
 				},
-				store.Field{
+				Field{
 					ID:       "age",
 					Value:    11,
 					Hydrated: true,
 				},
 			},
 			{
-				store.Field{
+				Field{
 					ID:       "id",
 					Value:    "2",
 					Hydrated: true,
 				},
-				store.Field{
+				Field{
 					ID:       "name",
 					Value:    "Catwoman",
 					Hydrated: true,
 				},
-				store.Field{
+				Field{
 					ID:       "age",
 					Value:    22,
 					Hydrated: true,
@@ -99,19 +97,19 @@ func TestAPIService(t *testing.T) {
 	})
 
 	t.Run("Get returns record from database and returns it in client record format", func(t *testing.T) {
-		fakeStore := store.NewFakeStorer()
-		fakeStore.GetResponse = store.Record{
-			store.Field{
+		fakeStore := NewFakeStorer()
+		fakeStore.GetResponse = StoreRecord{
+			Field{
 				ID:       "id",
 				Value:    "1",
 				Hydrated: true,
 			},
-			store.Field{
+			Field{
 				ID:       "name",
 				Value:    "Superman",
 				Hydrated: true,
 			},
-			store.Field{
+			Field{
 				ID:       "age",
 				Value:    11,
 				Hydrated: true,

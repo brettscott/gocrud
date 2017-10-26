@@ -2,8 +2,6 @@ package crud
 
 import (
 	"fmt"
-	"github.com/brettscott/gocrud/model"
-	"github.com/brettscott/gocrud/store"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -15,24 +13,24 @@ func TestElementsValidator(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
 
 		t.Run("Passes when user data has no validation rules", func(t *testing.T) {
-			testEntity := model.Entity{
+			testEntity := Entity{
 				ID: "test",
-				Elements: []model.Element{
+				Elements: []Element{
 					{
 						ID:         "id",
 						Label:      "Identifier",
-						DataType:   model.ELEMENT_DATA_TYPE_STRING,
+						DataType:   ELEMENT_DATA_TYPE_STRING,
 						PrimaryKey: true,
 					},
 					{
 						ID:       "name",
 						Label:    "Name",
-						DataType: model.ELEMENT_DATA_TYPE_STRING,
+						DataType: ELEMENT_DATA_TYPE_STRING,
 					},
 				},
 			}
 
-			userData := store.Record{
+			userData := StoreRecord{
 				{
 					ID:       "id",
 					Value:    "12345",
@@ -53,27 +51,27 @@ func TestElementsValidator(t *testing.T) {
 		})
 
 		t.Run("Passes when user data is valid", func(t *testing.T) {
-			testEntity := model.Entity{
+			testEntity := Entity{
 				ID: "test",
-				Elements: []model.Element{
+				Elements: []Element{
 					{
 						ID:         "id",
 						Label:      "Identifier",
-						DataType:   model.ELEMENT_DATA_TYPE_STRING,
+						DataType:   ELEMENT_DATA_TYPE_STRING,
 						PrimaryKey: true,
 					},
 					{
 						ID:       "name",
 						Label:    "Name",
-						DataType: model.ELEMENT_DATA_TYPE_STRING,
-						Validation: model.ElementValidation{
+						DataType: ELEMENT_DATA_TYPE_STRING,
+						Validation: ElementValidation{
 							Required: true,
 						},
 					},
 				},
 			}
 
-			userData := store.Record{
+			userData := StoreRecord{
 				{
 					ID:       "id",
 					Value:    "12345",
@@ -98,27 +96,27 @@ func TestElementsValidator(t *testing.T) {
 	t.Run("Required", func(t *testing.T) {
 
 		t.Run("Passes when posting user data with a required field", func(t *testing.T) {
-			testEntity := model.Entity{
+			testEntity := Entity{
 				ID: "test",
-				Elements: []model.Element{
+				Elements: []Element{
 					{
 						ID:         "id",
 						Label:      "Identifier",
-						DataType:   model.ELEMENT_DATA_TYPE_STRING,
+						DataType:   ELEMENT_DATA_TYPE_STRING,
 						PrimaryKey: true,
 					},
 					{
 						ID:       "name",
 						Label:    "Name",
-						DataType: model.ELEMENT_DATA_TYPE_STRING,
-						Validation: model.ElementValidation{
+						DataType: ELEMENT_DATA_TYPE_STRING,
+						Validation: ElementValidation{
 							Required: true,
 						},
 					},
 				},
 			}
 
-			userData := store.Record{
+			userData := StoreRecord{
 				{
 					ID:       "id",
 					Value:    "12345",
@@ -139,27 +137,27 @@ func TestElementsValidator(t *testing.T) {
 		})
 
 		t.Run("Fails when posting user data without a required field being provided", func(t *testing.T) {
-			testEntity := model.Entity{
+			testEntity := Entity{
 				ID: "test",
-				Elements: []model.Element{
+				Elements: []Element{
 					{
 						ID:         "id",
 						Label:      "Identifier",
-						DataType:   model.ELEMENT_DATA_TYPE_STRING,
+						DataType:   ELEMENT_DATA_TYPE_STRING,
 						PrimaryKey: true,
 					},
 					{
 						ID:       "name",
 						Label:    "Name",
-						DataType: model.ELEMENT_DATA_TYPE_STRING,
-						Validation: model.ElementValidation{
+						DataType: ELEMENT_DATA_TYPE_STRING,
+						Validation: ElementValidation{
 							Required: true,
 						},
 					},
 				},
 			}
 
-			userData := store.Record{
+			userData := StoreRecord{
 				{
 					ID:       "id",
 					Value:    "12345",
@@ -181,27 +179,27 @@ func TestElementsValidator(t *testing.T) {
 
 		t.Run("Passes when putting and patching user data when a required field is not provided", func(t *testing.T) {
 			for _, action := range []string{ACTION_PUT, ACTION_PATCH} {
-				testEntity := model.Entity{
+				testEntity := Entity{
 					ID: "test",
-					Elements: []model.Element{
+					Elements: []Element{
 						{
 							ID:         "id",
 							Label:      "Identifier",
-							DataType:   model.ELEMENT_DATA_TYPE_STRING,
+							DataType:   ELEMENT_DATA_TYPE_STRING,
 							PrimaryKey: true,
 						},
 						{
 							ID:       "name",
 							Label:    "Name",
-							DataType: model.ELEMENT_DATA_TYPE_STRING,
-							Validation: model.ElementValidation{
+							DataType: ELEMENT_DATA_TYPE_STRING,
+							Validation: ElementValidation{
 								Required: true,
 							},
 						},
 					},
 				}
 
-				userData := store.Record{
+				userData := StoreRecord{
 					{
 						ID:       "id",
 						Value:    "12345",
@@ -224,27 +222,27 @@ func TestElementsValidator(t *testing.T) {
 
 		t.Run("Fails when posting, putting and patching user data when a required field is empty", func(t *testing.T) {
 			for _, action := range []string{ACTION_POST, ACTION_PUT, ACTION_PATCH} {
-				testEntity := model.Entity{
+				testEntity := Entity{
 					ID: "test",
-					Elements: []model.Element{
+					Elements: []Element{
 						{
 							ID:         "id",
 							Label:      "Identifier",
-							DataType:   model.ELEMENT_DATA_TYPE_STRING,
+							DataType:   ELEMENT_DATA_TYPE_STRING,
 							PrimaryKey: true,
 						},
 						{
 							ID:       "name",
 							Label:    "Name",
-							DataType: model.ELEMENT_DATA_TYPE_STRING,
-							Validation: model.ElementValidation{
+							DataType: ELEMENT_DATA_TYPE_STRING,
+							Validation: ElementValidation{
 								Required: true,
 							},
 						},
 					},
 				}
 
-				userData := store.Record{
+				userData := StoreRecord{
 					{
 						ID:       "id",
 						Value:    "12345",
@@ -270,27 +268,27 @@ func TestElementsValidator(t *testing.T) {
 
 		t.Run("Passes when posting, putting and patching user data when a 'must be provided' field is provided", func(t *testing.T) {
 			for _, action := range []string{ACTION_POST, ACTION_PUT, ACTION_PATCH} {
-				testEntity := model.Entity{
+				testEntity := Entity{
 					ID: "test",
-					Elements: []model.Element{
+					Elements: []Element{
 						{
 							ID:         "id",
 							Label:      "Identifier",
-							DataType:   model.ELEMENT_DATA_TYPE_STRING,
+							DataType:   ELEMENT_DATA_TYPE_STRING,
 							PrimaryKey: true,
 						},
 						{
 							ID:       "name",
 							Label:    "Name",
-							DataType: model.ELEMENT_DATA_TYPE_STRING,
-							Validation: model.ElementValidation{
+							DataType: ELEMENT_DATA_TYPE_STRING,
+							Validation: ElementValidation{
 								MustProvide: true,
 							},
 						},
 					},
 				}
 
-				userData := store.Record{
+				userData := StoreRecord{
 					{
 						ID:       "id",
 						Value:    "12345",
@@ -313,27 +311,27 @@ func TestElementsValidator(t *testing.T) {
 
 		t.Run("Fails when posting, putting and patching user data when a 'must be provided' field is missing", func(t *testing.T) {
 			for _, action := range []string{ACTION_POST, ACTION_PUT, ACTION_PATCH} {
-				testEntity := model.Entity{
+				testEntity := Entity{
 					ID: "test",
-					Elements: []model.Element{
+					Elements: []Element{
 						{
 							ID:         "id",
 							Label:      "Identifier",
-							DataType:   model.ELEMENT_DATA_TYPE_STRING,
+							DataType:   ELEMENT_DATA_TYPE_STRING,
 							PrimaryKey: true,
 						},
 						{
 							ID:       "name",
 							Label:    "Name",
-							DataType: model.ELEMENT_DATA_TYPE_STRING,
-							Validation: model.ElementValidation{
+							DataType: ELEMENT_DATA_TYPE_STRING,
+							Validation: ElementValidation{
 								MustProvide: true,
 							},
 						},
 					},
 				}
 
-				userData := store.Record{
+				userData := StoreRecord{
 					{
 						ID:       "id",
 						Value:    "12345",
@@ -355,27 +353,27 @@ func TestElementsValidator(t *testing.T) {
 		})
 
 		t.Run("Fails when posting user data when a 'must be provided on posting' field is missing", func(t *testing.T) {
-			testEntity := model.Entity{
+			testEntity := Entity{
 				ID: "test",
-				Elements: []model.Element{
+				Elements: []Element{
 					{
 						ID:         "id",
 						Label:      "Identifier",
-						DataType:   model.ELEMENT_DATA_TYPE_STRING,
+						DataType:   ELEMENT_DATA_TYPE_STRING,
 						PrimaryKey: true,
 					},
 					{
 						ID:       "name",
 						Label:    "Name",
-						DataType: model.ELEMENT_DATA_TYPE_STRING,
-						Validation: model.ElementValidation{
+						DataType: ELEMENT_DATA_TYPE_STRING,
+						Validation: ElementValidation{
 							MustProvideOnPost: true,
 						},
 					},
 				},
 			}
 
-			userData := store.Record{
+			userData := StoreRecord{
 				{
 					ID:       "id",
 					Value:    "12345",
@@ -396,27 +394,27 @@ func TestElementsValidator(t *testing.T) {
 		})
 
 		t.Run("Fails when posting user data when a 'must be provided on putting' field is missing", func(t *testing.T) {
-			testEntity := model.Entity{
+			testEntity := Entity{
 				ID: "test",
-				Elements: []model.Element{
+				Elements: []Element{
 					{
 						ID:         "id",
 						Label:      "Identifier",
-						DataType:   model.ELEMENT_DATA_TYPE_STRING,
+						DataType:   ELEMENT_DATA_TYPE_STRING,
 						PrimaryKey: true,
 					},
 					{
 						ID:       "name",
 						Label:    "Name",
-						DataType: model.ELEMENT_DATA_TYPE_STRING,
-						Validation: model.ElementValidation{
+						DataType: ELEMENT_DATA_TYPE_STRING,
+						Validation: ElementValidation{
 							MustProvideOnPut: true,
 						},
 					},
 				},
 			}
 
-			userData := store.Record{
+			userData := StoreRecord{
 				{
 					ID:       "id",
 					Value:    "12345",
@@ -437,27 +435,27 @@ func TestElementsValidator(t *testing.T) {
 		})
 
 		t.Run("Fails when posting user data when a 'must be provided on patching' field is missing", func(t *testing.T) {
-			testEntity := model.Entity{
+			testEntity := Entity{
 				ID: "test",
-				Elements: []model.Element{
+				Elements: []Element{
 					{
 						ID:         "id",
 						Label:      "Identifier",
-						DataType:   model.ELEMENT_DATA_TYPE_STRING,
+						DataType:   ELEMENT_DATA_TYPE_STRING,
 						PrimaryKey: true,
 					},
 					{
 						ID:       "name",
 						Label:    "Name",
-						DataType: model.ELEMENT_DATA_TYPE_STRING,
-						Validation: model.ElementValidation{
+						DataType: ELEMENT_DATA_TYPE_STRING,
+						Validation: ElementValidation{
 							MustProvideOnPatch: true,
 						},
 					},
 				},
 			}
 
-			userData := store.Record{
+			userData := StoreRecord{
 				{
 					ID:       "id",
 					Value:    "12345",

@@ -2,15 +2,13 @@ package crud
 
 import (
 	"fmt"
-	"github.com/brettscott/gocrud/model"
-	"github.com/brettscott/gocrud/store"
 )
 
 type elementsValidatorer interface {
-	validate(entity model.Entity, record store.Record, action string) (success bool, elementsErrors map[string][]string, globalErrors []string)
+	validate(entity Entity, record StoreRecord, action string) (success bool, elementsErrors map[string][]string, globalErrors []string)
 }
 
-func newApiService(store store.Storer, elementsValidator elementsValidatorer) apiService {
+func newApiService(store Storer, elementsValidator elementsValidatorer) apiService {
 	return apiService{
 		store:             store,
 		elementsValidator: elementsValidator,
@@ -18,11 +16,11 @@ func newApiService(store store.Storer, elementsValidator elementsValidatorer) ap
 }
 
 type apiService struct {
-	store             store.Storer
+	store             Storer
 	elementsValidator elementsValidatorer
 }
 
-func (a *apiService) list(entity model.Entity) (clientRecords []Record, err error) {
+func (a *apiService) list(entity Entity) (clientRecords []ClientRecord, err error) {
 	storeRecords, err := a.store.List(entity)
 	if err != nil {
 		return nil, fmt.Errorf(`Store query failed for entity "%s" - %s`, entity.Label, err)
@@ -36,7 +34,7 @@ func (a *apiService) list(entity model.Entity) (clientRecords []Record, err erro
 	return
 }
 
-func (a *apiService) get(entity model.Entity, recordID string) (clientRecord Record, err error) {
+func (a *apiService) get(entity Entity, recordID string) (clientRecord ClientRecord, err error) {
 	storeRecord, err := a.store.Get(entity, recordID)
 	if err != nil {
 		return clientRecord, fmt.Errorf(`Store query failed for entity "%s" recordID "%s" - %s`, entity.Label, recordID, err)
@@ -52,7 +50,7 @@ func (a *apiService) get(entity model.Entity, recordID string) (clientRecord Rec
 	return
 }
 
-func (a *apiService) save(entity model.Entity, action string, clientRecord *Record, recordID string) (savedClientRecord Record, err error) {
+func (a *apiService) save(entity Entity, action string, clientRecord *ClientRecord, recordID string) (savedClientRecord ClientRecord, err error) {
 	storeRecord, err := marshalClientRecordToStoreRecord(entity, clientRecord, action)
 	if err != nil {
 		return savedClientRecord, fmt.Errorf(`Failed to marshal client record to store record for entity "%s" - %s`, entity.Label, err)
@@ -100,7 +98,7 @@ func (a *apiService) save(entity model.Entity, action string, clientRecord *Reco
 	return savedClientRecord, nil
 }
 
-func (a *apiService) delete(entity model.Entity, recordID string) error {
+func (a *apiService) delete(entity Entity, recordID string) error {
 	err := a.store.Delete(entity, recordID)
 	if err != nil {
 		return fmt.Errorf(`Store delete failed for entity "%s" recordID "%s" - %s`, entity.Label, recordID, err)
@@ -108,12 +106,12 @@ func (a *apiService) delete(entity model.Entity, recordID string) error {
 	return nil
 }
 
-func marshalClientRecordToStoreRecord(entity model.Entity, clientRecord *Record, action string) (data store.Record, err error) {
+func marshalClientRecordToStoreRecord(entity Entity, clientRecord *ClientRecord, action string) (data StoreRecord, err error) {
 
 	for i, _ := range entity.Elements {
 		element := &entity.Elements[i]
 
-		datum := store.Field{
+		datum := Field{
 			ID: element.ID,
 		}
 
@@ -136,8 +134,8 @@ func marshalClientRecordToStoreRecord(entity model.Entity, clientRecord *Record,
 	return data, nil
 }
 
-func marshalStoreRecordToClientRecord(storeRecord store.Record) Record {
-	clientRecord := Record{}
+func marshalStoreRecordToClientRecord(storeRecord StoreRecord) ClientRecord {
+	clientRecord := ClientRecord{}
 	kvs := KeyValues{}
 	for _, field := range storeRecord {
 		kv := KeyValue{Key: field.ID, Value: field.Value}
