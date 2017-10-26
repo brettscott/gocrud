@@ -122,15 +122,9 @@ func TestMongo(t *testing.T) {
 			return
 		}
 
-		primaryKey, err := result.GetField("id")
-		name, err := result.GetField("name")
-		age, err := result.GetField("age")
-		if err != nil {
-			t.Fatal(err)
-		}
-		assert.Equal(t, recordID, primaryKey.Value, "Incorrect primary key value")
-		assert.Equal(t, "Jackie Chan", name.Value, "Incorrect name value")
-		assert.Equal(t, 50, age.Value, "Incorrect age value")
+		assert.Equal(t, recordID, result["id"].Value, "Incorrect primary key value")
+		assert.Equal(t, "Jackie Chan", result["name"].Value, "Incorrect name value")
+		assert.Equal(t, 50, result["age"].Value, "Incorrect age value")
 	})
 
 	t.Run("Put and Get record", func(t *testing.T) {
@@ -144,11 +138,10 @@ func TestMongo(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		record := StoreRecord{
-			{
-				ID:    "name",
-				Value: "Madmax",
-			},
+		record := StoreRecord{}
+		record["name"] = &Field{
+			ID:    "name",
+			Value: "Madmax",
 		}
 
 		err = mongo.Put(entity, record, recordID)
@@ -162,15 +155,9 @@ func TestMongo(t *testing.T) {
 			return
 		}
 
-		primaryKey, err := result.GetField("id")
-		name, err := result.GetField("name")
-		age, err := result.GetField("age")
-		if err != nil {
-			t.Fatal(err)
-		}
-		assert.Equal(t, recordID, primaryKey.Value, "Incorrect primary key value")
-		assert.Equal(t, "Madmax", name.Value, "Incorrect name value")
-		assert.Equal(t, 40, age.Value, "Incorrect age value")
+		assert.Equal(t, recordID, result["id"].Value, "Incorrect primary key value")
+		assert.Equal(t, "Madmax", result["name"].Value, "Incorrect name value")
+		assert.Equal(t, 40, result["age"].Value, "Incorrect age value")
 	})
 
 	t.Run("Patch and Get record", func(t *testing.T) {
@@ -184,11 +171,10 @@ func TestMongo(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		record := StoreRecord{
-			{
-				ID:    "name",
-				Value: "Chuck Norris",
-			},
+		record := StoreRecord{}
+		record["name"] = &Field{
+			ID:    "name",
+			Value: "Chuck Norris",
 		}
 
 		err = mongo.Patch(entity, record, recordID)
@@ -202,15 +188,10 @@ func TestMongo(t *testing.T) {
 			return
 		}
 
-		primaryKey, err := result.GetField("id")
-		name, err := result.GetField("name")
-		age, err := result.GetField("age")
-		if err != nil {
-			t.Fatal(err)
-		}
-		assert.Equal(t, recordID, primaryKey.Value, "Incorrect primary key value")
-		assert.Equal(t, "Chuck Norris", name.Value, "Incorrect name value")
-		assert.Equal(t, 20, age.Value, "Incorrect age value")
+		assert.Equal(t, recordID, result["id"].Value, "Incorrect primary key value")
+		assert.Equal(t, "Chuck Norris", result["name"].Value, "Incorrect name value")
+		assert.Equal(t, 20, result["age"].Value, "Incorrect age value")
+
 	})
 
 	t.Run("Delete and Get record", func(t *testing.T) {
@@ -262,16 +243,16 @@ func deleteAllRecords(mongo *Mongo, entity *Entity) error {
 }
 
 func createRecord(mongo *Mongo, entity *Entity, name string, age int) (string, error) {
-	record := StoreRecord{
-		{
-			ID:    "name",
-			Value: name,
-		},
-		{
-			ID:    "age",
-			Value: age,
-		},
+	record := StoreRecord{}
+	record["name"] = &Field{
+		ID:    "name",
+		Value: name,
 	}
+	record["age"] = &Field{
+		ID:    "age",
+		Value: age,
+	}
+
 	id, err := mongo.Post(entity, record)
 	if err != nil {
 		return "", err

@@ -5,7 +5,7 @@ func NewFakeApiServicer() *fakeApiServicer {
 }
 
 type fakeApiServicer struct {
-	listResponseBody    []ClientRecord
+	listResponseBody    ClientRecords
 	listResponseError   error
 	getResponseBody     ClientRecord
 	getResponseError    error
@@ -14,7 +14,7 @@ type fakeApiServicer struct {
 	deleteResponseError error
 }
 
-func (f *fakeApiServicer) list(entity *Entity) (clientRecords []ClientRecord, err error) {
+func (f *fakeApiServicer) list(entity *Entity) (clientRecords ClientRecords, err error) {
 	return f.listResponseBody, f.listResponseError
 }
 

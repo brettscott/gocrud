@@ -2,10 +2,10 @@ package crud
 
 type StoreMode struct {
 	//Read indicates whether we read from this database or not
-	Read   bool
+	Read bool
 
 	//Write indicates whether we write data to this database
-	Write  bool
+	Write bool
 
 	//Delete indicates whether records are deleted from this database
 	Delete bool

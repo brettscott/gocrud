@@ -278,11 +278,12 @@ func (m *Mongo) getSecureSession() (*mgo.Session, error) {
 }
 
 func marshalRowToStoreRecord(entity *Entity, row bson.M) (storeRecord StoreRecord, err error) {
+	storeRecord = StoreRecord{}
 	if len(entity.Elements) == 0 {
 		return storeRecord, fmt.Errorf("Entity \"%s\" does not have any elements defined", entity.ID)
 	}
 	for _, element := range entity.Elements {
-		field := Field{ID: element.ID}
+		field := &Field{ID: element.ID}
 
 		if element.PrimaryKey == true {
 			objectID, ok := row[MONGO_ID].(bson.ObjectId)
@@ -298,7 +299,7 @@ func marshalRowToStoreRecord(entity *Entity, row bson.M) (storeRecord StoreRecor
 				field.Value = nil
 			}
 		}
-		storeRecord = append(storeRecord, field)
+		storeRecord[element.ID] = field
 	}
 	return storeRecord, nil
 }
@@ -307,12 +308,10 @@ func marshalStoreRecordToRow(entity *Entity, storeRecord StoreRecord) (bson.M, e
 	row := bson.M{}
 	for _, element := range entity.Elements {
 		if element.PrimaryKey != true {
-			data, err := storeRecord.GetField(element.ID)
-			if err != nil {
-				continue
-				//return row, fmt.Errorf("Could not find field \"%s\" in entity \"%s\"", element.ID, entity.ID)
+			if field, ok := storeRecord[element.ID]; ok {
+				row[element.ID] = field.Value
 			}
-			row[element.ID] = data.Value
+			continue
 		}
 	}
 	return row, nil

@@ -18,6 +18,7 @@ type FakeStorer struct {
 	GetError     error
 }
 
+// Mode
 func (f *FakeStorer) Mode(entity *Entity) *StoreMode {
 	return &StoreMode{
 		Read:  true,

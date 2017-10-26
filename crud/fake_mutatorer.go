@@ -15,6 +15,6 @@ func NewFakeMutatorer() mutatorer {
 type fakeMutatorer struct {
 }
 
-func (f *fakeMutatorer) mutate(entity *Entity, storeRecord StoreRecord, action string) (mutatedStoreRecord StoreRecord, elementsErrors map[string][]string, globalErrors []string) {
-	return mutatedStoreRecord, nil, nil
+func (f *fakeMutatorer) mutate(entity *Entity, storeRecord *StoreRecord, action string) (err error, elementsErrors map[string][]string, globalErrors []string) {
+	return nil, nil, nil
 }

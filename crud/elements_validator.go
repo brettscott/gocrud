@@ -28,8 +28,8 @@ func (e *elementsValidator) validate(entity *Entity, record StoreRecord, action 
 
 	for _, element := range entity.Elements {
 		elementErrors := make([]string, 0)
-		userData, err := record.GetField(element.ID)
-		if err != nil {
+		userData, ok := record[element.ID]
+		if !ok {
 			elementErrors = append(elementErrors, "is missing")
 		}
 

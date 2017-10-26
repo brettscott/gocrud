@@ -12,7 +12,7 @@ import (
 
 // BasicExample should illustrate basic functionality of the CRUD
 func BasicExample() {
-	config, log, statsd := toolup()
+	config, log, statsd := infra()
 
 	// TODO: Define schema
 	// TODO: Build database connector - MySQL, Mongo
@@ -58,6 +58,7 @@ func BasicExample() {
 
 	myCrud := crud.NewCrud(myConfig, log, statsd)
 
+	// Add store (database)
 	myStore, err := crud.NewMongoStore(os.Getenv("MONGO_DB_CONNECTION"), "", os.Getenv("MONGO_DB_NAME"), statsd, log)
 	if err != nil {
 		log.Error(fmt.Sprintf("Error with store: %v", err))
@@ -67,18 +68,16 @@ func BasicExample() {
 
 	// Register Entity
 	myCrud.AddEntity(users)
-	//myCrud.AddEntity(computers)
 
-	// Add Sample data to DB
-	//myPost()
+	// Basic mutator added
+	basicMutator := crud.NewBasicMutator()
+	myCrud.AddMutator(basicMutator)
 
-	// Two ways to mount route in your application:
-	// 1. Mount CRUD routes to /gocrud (using Chi)
+	// Mount Route
 	router := chi.NewRouter()
 	router.Mount("/gocrud", myCrud.Handler())
-	// 2. Simple approach to mount CRUD routes
-	//router := myCrud.Handler()
 
+	// Serve HTTP endpoint
 	err = http.ListenAndServe(fmt.Sprintf(":%d", config.Port), router)
 	if err != nil {
 		log.Error("Problem starting server", err.Error())
@@ -86,7 +85,7 @@ func BasicExample() {
 	}
 }
 
-func toolup() (*appConfig, crud.Logger, crud.StatsDer) {
+func infra() (*appConfig, crud.Logger, crud.StatsDer) {
 	config, err := loadAppConfig()
 	if err != nil {
 		log.Fatal("Error loading config", err.Error())

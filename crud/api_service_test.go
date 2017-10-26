@@ -36,42 +36,43 @@ func TestAPIService(t *testing.T) {
 	}
 
 	t.Run("List returns records from database and returns it in client record format", func(t *testing.T) {
+		supermanRecord := StoreRecord{}
+		supermanRecord["id"] = &Field{
+			ID:       "id",
+			Value:    "1",
+			Hydrated: true,
+		}
+		supermanRecord["name"] = &Field{
+			ID:       "name",
+			Value:    "Superman",
+			Hydrated: true,
+		}
+		supermanRecord["age"] = &Field{
+			ID:       "age",
+			Value:    11,
+			Hydrated: true,
+		}
+		catwomanRecord := StoreRecord{}
+		catwomanRecord["id"] = &Field{
+			ID:       "id",
+			Value:    "2",
+			Hydrated: true,
+		}
+		catwomanRecord["name"] = &Field{
+			ID:       "name",
+			Value:    "Catwoman",
+			Hydrated: true,
+		}
+		catwomanRecord["age"] = &Field{
+			ID:       "age",
+			Value:    11,
+			Hydrated: true,
+		}
+
 		fakeStore := NewFakeStorer()
 		fakeStore.ListResponse = []StoreRecord{
-			{
-				Field{
-					ID:       "id",
-					Value:    "1",
-					Hydrated: true,
-				},
-				Field{
-					ID:       "name",
-					Value:    "Superman",
-					Hydrated: true,
-				},
-				Field{
-					ID:       "age",
-					Value:    11,
-					Hydrated: true,
-				},
-			},
-			{
-				Field{
-					ID:       "id",
-					Value:    "2",
-					Hydrated: true,
-				},
-				Field{
-					ID:       "name",
-					Value:    "Catwoman",
-					Hydrated: true,
-				},
-				Field{
-					ID:       "age",
-					Value:    22,
-					Hydrated: true,
-				},
-			},
+			supermanRecord,
+			catwomanRecord,
 		}
 		fakeStore.ListError = nil
 		fakeStores := NewFakeStorers(fakeStore)
@@ -80,43 +81,50 @@ func TestAPIService(t *testing.T) {
 		apiService := newApiService(fakeStores, fakeElementsValidators, fakeMutators)
 
 		clientRecords, err := apiService.list(testUsersEntity)
-
 		assert.NoError(t, err)
 
 		assert.Equal(t, 2, len(clientRecords), "Should be 2 records returned")
-		assert.Equal(t, 3, len(clientRecords[0].KeyValues), "First record should have 3 fields")
 
-		assert.Equal(t, "id", clientRecords[0].KeyValues[0].Key, "First record's first field ID is wrong")
-		assert.Equal(t, "1", clientRecords[0].KeyValues[0].Value, "First record's first field Value is wrong")
-		assert.Equal(t, "name", clientRecords[0].KeyValues[1].Key, "First record's second field ID is wrong")
-		assert.Equal(t, "Superman", clientRecords[0].KeyValues[1].Value, "First record's second field Value is wrong")
+		superman, err := clientRecords.GetClientRecordByKeyValue("id", "1")
+		assert.NoError(t, err)
+		catwoman, err := clientRecords.GetClientRecordByKeyValue("id", "2")
+		assert.NoError(t, err)
 
-		assert.Equal(t, "id", clientRecords[1].KeyValues[0].Key, "Second record's first field ID is wrong")
-		assert.Equal(t, "2", clientRecords[1].KeyValues[0].Value, "Second record's first field Value is wrong")
-		assert.Equal(t, "name", clientRecords[1].KeyValues[1].Key, "Second record's second field ID is wrong")
-		assert.Equal(t, "Catwoman", clientRecords[1].KeyValues[1].Value, "Second record's second field Value is wrong")
+		id, err := superman.GetValue("id")
+		assert.NoError(t, err)
+		name, err := superman.GetValue("name")
+		assert.NoError(t, err)
+		assert.Equal(t, "1", id, "First record's first field Value is wrong")
+		assert.Equal(t, "Superman", name, "First record's second field Value is wrong")
 
+		id, err = catwoman.GetValue("id")
+		assert.NoError(t, err)
+		name, err = catwoman.GetValue("name")
+		assert.NoError(t, err)
+		assert.Equal(t, "2", id, "Second record's first field Value is wrong")
+		assert.Equal(t, "Catwoman", name, "Second record's second field Value is wrong")
 	})
 
 	t.Run("Get returns record from database and returns it in client record format", func(t *testing.T) {
-		fakeStore := NewFakeStorer()
-		fakeStore.GetResponse = StoreRecord{
-			Field{
-				ID:       "id",
-				Value:    "1",
-				Hydrated: true,
-			},
-			Field{
-				ID:       "name",
-				Value:    "Superman",
-				Hydrated: true,
-			},
-			Field{
-				ID:       "age",
-				Value:    11,
-				Hydrated: true,
-			},
+		supermanRecord := StoreRecord{}
+		supermanRecord["id"] = &Field{
+			ID:       "id",
+			Value:    "1",
+			Hydrated: true,
 		}
+		supermanRecord["name"] = &Field{
+			ID:       "name",
+			Value:    "Superman",
+			Hydrated: true,
+		}
+		supermanRecord["age"] = &Field{
+			ID:       "age",
+			Value:    11,
+			Hydrated: true,
+		}
+
+		fakeStore := NewFakeStorer()
+		fakeStore.GetResponse = supermanRecord
 		fakeStore.GetError = nil
 		fakeStores := NewFakeStorers(fakeStore)
 		fakeElementsValidators := NewFakeElementsValidatorers()
@@ -124,13 +132,13 @@ func TestAPIService(t *testing.T) {
 		apiService := newApiService(fakeStores, fakeElementsValidators, fakeMutators)
 
 		clientRecord, err := apiService.get(testUsersEntity, "1")
-
-		id, _ := clientRecord.KeyValues.GetKeyValue("id")
-		name, _ := clientRecord.KeyValues.GetKeyValue("name")
-
+		assert.NoError(t, err)
+		id, err := clientRecord.GetValue("id")
+		assert.NoError(t, err)
+		name, err := clientRecord.GetValue("name")
 		assert.NoError(t, err)
 		assert.Equal(t, 3, len(clientRecord.KeyValues), "Should have 3 fields (key-values)")
-		assert.Equal(t, "1", id.Value, "ID is wrong")
-		assert.Equal(t, "Superman", name.Value, "Name is wrong")
+		assert.Equal(t, "1", id, "ID is wrong")
+		assert.Equal(t, "Superman", name, "Name is wrong")
 	})
 }

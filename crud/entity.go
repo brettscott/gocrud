@@ -33,7 +33,7 @@ func (e *Entity) AddElementsValidator(elementsValidator elementsValidatorer) {
 	e.ElementsValidators = append(e.ElementsValidators, elementsValidator)
 }
 
-// AddMutator adds mutator to entity
+// AddMutator adds basicMutator to entity
 func (e *Entity) AddMutator(mutator mutatorer) {
 	e.Mutators = append(e.Mutators, mutator)
 }

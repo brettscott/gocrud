@@ -14,7 +14,7 @@ import (
 func TestAPIRoute(t *testing.T) {
 
 	t.Run("GET /<entity> returns 200", func(t *testing.T) {
-		fakeRecords := []ClientRecord{}
+		fakeRecords := ClientRecords{}
 		fakeRecords = append(fakeRecords, makeFakeRecordResponse())
 		fakeApiService := &fakeApiServicer{
 			listResponseBody: fakeRecords,

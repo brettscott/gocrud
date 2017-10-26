@@ -30,17 +30,16 @@ func TestElementsValidator(t *testing.T) {
 				},
 			}
 
-			userData := StoreRecord{
-				{
-					ID:       "id",
-					Value:    "12345",
-					Hydrated: true,
-				},
-				{
-					ID:       "name",
-					Value:    "John Smith",
-					Hydrated: true,
-				},
+			userData := StoreRecord{}
+			userData["id"] = &Field{
+				ID:       "id",
+				Value:    "12345",
+				Hydrated: true,
+			}
+			userData["name"] = &Field{
+				ID:       "name",
+				Value:    "John Smith",
+				Hydrated: true,
 			}
 
 			success, elementsErrors, globalErrors := elementsValidator.validate(testEntity, userData, ACTION_POST)
@@ -71,17 +70,16 @@ func TestElementsValidator(t *testing.T) {
 				},
 			}
 
-			userData := StoreRecord{
-				{
-					ID:       "id",
-					Value:    "12345",
-					Hydrated: true,
-				},
-				{
-					ID:       "name",
-					Value:    "John Smith",
-					Hydrated: true,
-				},
+			userData := StoreRecord{}
+			userData["id"] = &Field{
+				ID:       "id",
+				Value:    "12345",
+				Hydrated: true,
+			}
+			userData["name"] = &Field{
+				ID:       "name",
+				Value:    "John Smith",
+				Hydrated: true,
 			}
 
 			success, elementsErrors, globalErrors := elementsValidator.validate(testEntity, userData, ACTION_POST)
@@ -116,17 +114,16 @@ func TestElementsValidator(t *testing.T) {
 				},
 			}
 
-			userData := StoreRecord{
-				{
-					ID:       "id",
-					Value:    "12345",
-					Hydrated: true,
-				},
-				{
-					ID:       "name",
-					Value:    "John Smith",
-					Hydrated: true,
-				},
+			userData := StoreRecord{}
+			userData["id"] = &Field{
+				ID:       "id",
+				Value:    "12345",
+				Hydrated: true,
+			}
+			userData["name"] = &Field{
+				ID:       "name",
+				Value:    "John Smith",
+				Hydrated: true,
 			}
 
 			success, elementsErrors, globalErrors := elementsValidator.validate(testEntity, userData, ACTION_POST)
@@ -157,17 +154,16 @@ func TestElementsValidator(t *testing.T) {
 				},
 			}
 
-			userData := StoreRecord{
-				{
-					ID:       "id",
-					Value:    "12345",
-					Hydrated: true,
-				},
-				{
-					ID:       "name",
-					Value:    "",
-					Hydrated: false,
-				},
+			userData := StoreRecord{}
+			userData["id"] = &Field{
+				ID:       "id",
+				Value:    "12345",
+				Hydrated: true,
+			}
+			userData["name"] = &Field{
+				ID:       "name",
+				Value:    "",
+				Hydrated: false,
 			}
 
 			success, elementsErrors, globalErrors := elementsValidator.validate(testEntity, userData, ACTION_POST)
@@ -199,17 +195,16 @@ func TestElementsValidator(t *testing.T) {
 					},
 				}
 
-				userData := StoreRecord{
-					{
-						ID:       "id",
-						Value:    "12345",
-						Hydrated: true,
-					},
-					{
-						ID:       "name",
-						Value:    "",
-						Hydrated: false,
-					},
+				userData := StoreRecord{}
+				userData["id"] = &Field{
+					ID:       "id",
+					Value:    "12345",
+					Hydrated: true,
+				}
+				userData["name"] = &Field{
+					ID:       "name",
+					Value:    "",
+					Hydrated: false,
 				}
 
 				success, elementsErrors, globalErrors := elementsValidator.validate(testEntity, userData, action)
@@ -242,17 +237,16 @@ func TestElementsValidator(t *testing.T) {
 					},
 				}
 
-				userData := StoreRecord{
-					{
-						ID:       "id",
-						Value:    "12345",
-						Hydrated: true,
-					},
-					{
-						ID:       "name",
-						Value:    "",
-						Hydrated: true,
-					},
+				userData := StoreRecord{}
+				userData["id"] = &Field{
+					ID:       "id",
+					Value:    "12345",
+					Hydrated: true,
+				}
+				userData["name"] = &Field{
+					ID:       "name",
+					Value:    "",
+					Hydrated: true,
 				}
 
 				success, elementsErrors, globalErrors := elementsValidator.validate(testEntity, userData, action)
@@ -288,17 +282,16 @@ func TestElementsValidator(t *testing.T) {
 					},
 				}
 
-				userData := StoreRecord{
-					{
-						ID:       "id",
-						Value:    "12345",
-						Hydrated: true,
-					},
-					{
-						ID:       "name",
-						Value:    "John Smith",
-						Hydrated: true,
-					},
+				userData := StoreRecord{}
+				userData["id"] = &Field{
+					ID:       "id",
+					Value:    "12345",
+					Hydrated: true,
+				}
+				userData["name"] = &Field{
+					ID:       "name",
+					Value:    "John Smith",
+					Hydrated: true,
 				}
 
 				success, elementsErrors, globalErrors := elementsValidator.validate(testEntity, userData, action)
@@ -331,17 +324,16 @@ func TestElementsValidator(t *testing.T) {
 					},
 				}
 
-				userData := StoreRecord{
-					{
-						ID:       "id",
-						Value:    "12345",
-						Hydrated: true,
-					},
-					{
-						ID:       "name",
-						Value:    "",
-						Hydrated: false,
-					},
+				userData := StoreRecord{}
+				userData["id"] = &Field{
+					ID:       "id",
+					Value:    "12345",
+					Hydrated: true,
+				}
+				userData["name"] = &Field{
+					ID:       "name",
+					Value:    "",
+					Hydrated: false,
 				}
 
 				success, elementsErrors, globalErrors := elementsValidator.validate(testEntity, userData, action)
@@ -373,17 +365,16 @@ func TestElementsValidator(t *testing.T) {
 				},
 			}
 
-			userData := StoreRecord{
-				{
-					ID:       "id",
-					Value:    "12345",
-					Hydrated: true,
-				},
-				{
-					ID:       "name",
-					Value:    "",
-					Hydrated: false,
-				},
+			userData := StoreRecord{}
+			userData["id"] = &Field{
+				ID:       "id",
+				Value:    "12345",
+				Hydrated: true,
+			}
+			userData["name"] = &Field{
+				ID:       "name",
+				Value:    "",
+				Hydrated: false,
 			}
 
 			success, elementsErrors, globalErrors := elementsValidator.validate(testEntity, userData, ACTION_POST)
@@ -414,17 +405,16 @@ func TestElementsValidator(t *testing.T) {
 				},
 			}
 
-			userData := StoreRecord{
-				{
-					ID:       "id",
-					Value:    "12345",
-					Hydrated: true,
-				},
-				{
-					ID:       "name",
-					Value:    "",
-					Hydrated: false,
-				},
+			userData := StoreRecord{}
+			userData["id"] = &Field{
+				ID:       "id",
+				Value:    "12345",
+				Hydrated: true,
+			}
+			userData["name"] = &Field{
+				ID:       "name",
+				Value:    "",
+				Hydrated: false,
 			}
 
 			success, elementsErrors, globalErrors := elementsValidator.validate(testEntity, userData, ACTION_PUT)
@@ -455,17 +445,16 @@ func TestElementsValidator(t *testing.T) {
 				},
 			}
 
-			userData := StoreRecord{
-				{
-					ID:       "id",
-					Value:    "12345",
-					Hydrated: true,
-				},
-				{
-					ID:       "name",
-					Value:    "",
-					Hydrated: false,
-				},
+			userData := StoreRecord{}
+			userData["id"] = &Field{
+				ID:       "id",
+				Value:    "12345",
+				Hydrated: true,
+			}
+			userData["name"] = &Field{
+				ID:       "name",
+				Value:    "",
+				Hydrated: false,
 			}
 
 			success, elementsErrors, globalErrors := elementsValidator.validate(testEntity, userData, ACTION_PATCH)

@@ -9,7 +9,7 @@ type elementsValidatorer interface {
 }
 
 type mutatorer interface {
-	mutate(entity *Entity, storeRecord StoreRecord, action string) (mutatedStoreRecord StoreRecord, elementsErrors map[string][]string, globalErrors []string)
+	mutate(entity *Entity, storeRecord *StoreRecord, action string) (err error, elementsErrors map[string][]string, globalErrors []string)
 }
 
 func newApiService(stores []Storer, elementsValidators []elementsValidatorer, mutators []mutatorer) apiService {
@@ -26,7 +26,8 @@ type apiService struct {
 	mutators           []mutatorer
 }
 
-func (a *apiService) list(entity *Entity) (clientRecords []ClientRecord, err error) {
+func (a *apiService) list(entity *Entity) (clientRecords ClientRecords, err error) {
+	clientRecords = ClientRecords{}
 	// TODO reads from first readable database.  Add ability to order databases?
 	for _, store := range a.stores {
 		if store.Mode(entity).IsReadable() {
@@ -85,7 +86,10 @@ func (a *apiService) save(entity *Entity, action string, clientRecord *ClientRec
 	mergedMutators := append(a.mutators, entity.Mutators...)
 	for _, mutator := range mergedMutators {
 		// TODO Goroutine in order to run through each validator and report all issues that each validator finds
-		_, elementsErrors, globalErrors := mutator.mutate(entity, storeRecord, action)
+		err, elementsErrors, globalErrors := mutator.mutate(entity, &storeRecord, action)
+		if err != nil {
+			return savedClientRecord, fmt.Errorf(`Failed mutating for entity "%s" - %v`, entity.Label, err)
+		}
 		if len(elementsErrors) > 0 || len(globalErrors) > 0 {
 			return savedClientRecord, fmt.Errorf(`Failed validation for entity "%s" - %v %v`, entity.Label, elementsErrors, globalErrors)
 		}
@@ -155,7 +159,7 @@ func marshalClientRecordToStoreRecord(entity *Entity, clientRecord *ClientRecord
 	for i, _ := range entity.Elements {
 		element := &entity.Elements[i]
 
-		datum := Field{
+		datum := &Field{
 			ID: element.ID,
 		}
 
@@ -172,7 +176,7 @@ func marshalClientRecordToStoreRecord(entity *Entity, clientRecord *ClientRecord
 			}
 		}
 
-		data = append(data, datum)
+		data[element.ID] = datum
 
 	}
 	return data, nil
@@ -181,8 +185,8 @@ func marshalClientRecordToStoreRecord(entity *Entity, clientRecord *ClientRecord
 func marshalStoreRecordToClientRecord(storeRecord StoreRecord) ClientRecord {
 	clientRecord := ClientRecord{}
 	kvs := KeyValues{}
-	for _, field := range storeRecord {
-		kv := KeyValue{Key: field.ID, Value: field.Value}
+	for id, field := range storeRecord {
+		kv := KeyValue{Key: id, Value: field.Value}
 		kvs = append(kvs, kv)
 	}
 	clientRecord.KeyValues = kvs
