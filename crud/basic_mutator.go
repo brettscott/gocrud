@@ -5,6 +5,8 @@ import (
 	"strings"
 )
 
+// NewBasicMutator creates the basic mutator.
+// This is mutator is here only as an example
 func NewBasicMutator() mutatorer {
 	return &basicMutator{}
 }
@@ -12,6 +14,7 @@ func NewBasicMutator() mutatorer {
 type basicMutator struct {
 }
 
+// mutate will trim whitespace from beginning and end of all element values which are strings
 func (m *basicMutator) mutate(entity *Entity, storeRecord *StoreRecord, action string) (err error, elementsErrors map[string][]string, globalErrors []string) {
 
 	for id, field := range *storeRecord {

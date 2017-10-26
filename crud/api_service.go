@@ -68,6 +68,10 @@ func (a *apiService) get(entity *Entity, recordID string) (clientRecord ClientRe
 }
 
 func (a *apiService) save(entity *Entity, action string, clientRecord *ClientRecord, recordID string) (savedClientRecord ClientRecord, err error) {
+
+
+	//fmt.Printf("%+v", clientRecord)
+
 	storeRecord, err := marshalClientRecordToStoreRecord(entity, clientRecord, action)
 	if err != nil {
 		return savedClientRecord, fmt.Errorf(`Failed to marshal client record to store record for entity "%s" - %s`, entity.Label, err)
@@ -155,31 +159,27 @@ func (a *apiService) delete(entity *Entity, recordID string) error {
 	return fmt.Errorf("Could not find a deletable database")
 }
 
-func marshalClientRecordToStoreRecord(entity *Entity, clientRecord *ClientRecord, action string) (data StoreRecord, err error) {
+func marshalClientRecordToStoreRecord(entity *Entity, clientRecord *ClientRecord, action string) (storeRecord StoreRecord, err error) {
+	storeRecord = StoreRecord{}
 	for i, _ := range entity.Elements {
 		element := &entity.Elements[i]
-
-		datum := &Field{
+		field := &Field{
 			ID: element.ID,
 		}
 
 		for _, keyValue := range clientRecord.KeyValues {
-
 			if action == ACTION_POST && element.PrimaryKey == true {
 				continue
 			}
-
 			if keyValue.Key == element.ID {
-				datum.Value = keyValue.Value
-				datum.Hydrated = true
+				field.Value = keyValue.Value
+				field.Hydrated = true
 				break
 			}
 		}
-
-		data[element.ID] = datum
-
+		storeRecord[element.ID] = field
 	}
-	return data, nil
+	return storeRecord, nil
 }
 
 func marshalStoreRecordToClientRecord(storeRecord StoreRecord) ClientRecord {

@@ -26,7 +26,7 @@ func NewCrud(config *Config, log Logger, statsd StatsDer) *Crud {
 	}
 }
 
-// Store defines which database to use
+// AddStore allows user to define databases to be used
 func (c *Crud) AddStore(store Storer) {
 	c.stores = append(c.stores, store)
 }

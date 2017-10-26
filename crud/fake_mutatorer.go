@@ -1,14 +1,19 @@
 package crud
 
-// NewFakeMutatorer returns array of mutators
-func NewFakeMutatorers() []mutatorer {
+// newFakeMutatorers returns a slice of mutators
+func newFakeMutatorers() []mutatorer {
 	return []mutatorer{
 		&fakeMutatorer{},
 	}
 }
 
-// NewFakeElementsValidatorers returns a elementsValidator
-func NewFakeMutatorer() mutatorer {
+// newFakeEmptyMutatorers returns an empty slice of mutators
+func newFakeEmptyMutatorers() []mutatorer {
+	return []mutatorer{}
+}
+
+// newFakeElementsValidatorers returns a elementsValidator
+func newFakeMutatorer() mutatorer {
 	return &fakeMutatorer{}
 }
 

@@ -12,10 +12,18 @@ func NewFakeStorer() *FakeStorer {
 
 // FakeStorer is a faked out storer
 type FakeStorer struct {
-	ListResponse []StoreRecord
-	ListError    error
-	GetResponse  StoreRecord
-	GetError     error
+	ListResponse    []StoreRecord
+	ListError       error
+	GetResponse     StoreRecord
+	GetError        error
+	PostCalled		int
+	PostStoreRecord StoreRecord
+	PostError       error
+	PostRecordID    string
+	PutStoreRecord StoreRecord
+	PutError       error
+	PatchStoreRecord StoreRecord
+	PatchError       error
 }
 
 // Mode
@@ -23,6 +31,7 @@ func (f *FakeStorer) Mode(entity *Entity) *StoreMode {
 	return &StoreMode{
 		Read:  true,
 		Write: true,
+		Delete: true,
 	}
 }
 
@@ -38,17 +47,21 @@ func (f *FakeStorer) Get(entity *Entity, recordID string) (StoreRecord, error) {
 
 // Post
 func (f *FakeStorer) Post(entity *Entity, storeRecord StoreRecord) (string, error) {
-	return "", nil
+	f.PostCalled++
+	f.PostStoreRecord = storeRecord
+	return f.PostRecordID, f.PostError
 }
 
 // Put
 func (f *FakeStorer) Put(entity *Entity, storeRecord StoreRecord, recordID string) error {
-	return nil
+	f.PutStoreRecord = storeRecord
+	return f.PostError
 }
 
 // Patch
 func (f *FakeStorer) Patch(entity *Entity, storeRecord StoreRecord, recordID string) error {
-	return nil
+	f.PatchStoreRecord = storeRecord
+	return f.PostError
 }
 
 // Delete
