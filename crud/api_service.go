@@ -5,11 +5,11 @@ import (
 )
 
 type elementsValidatorer interface {
-	validate(entity *Entity, record StoreRecord, action string) (success bool, elementsErrors map[string][]string, globalErrors []string)
+	validate(entity *Entity, record StoreRecord, action string) (success bool, clientErrors *ClientErrors)
 }
 
 type mutatorer interface {
-	mutate(entity *Entity, storeRecord *StoreRecord, action string) (err error, elementsErrors map[string][]string, globalErrors []string)
+	mutate(entity *Entity, storeRecord *StoreRecord, action string) (clientErrors *ClientErrors, err error)
 }
 
 func newApiService(stores []Storer, elementsValidators []elementsValidatorer, mutators []mutatorer) apiService {
@@ -67,22 +67,19 @@ func (a *apiService) get(entity *Entity, recordID string) (clientRecord ClientRe
 	return
 }
 
-func (a *apiService) save(entity *Entity, action string, clientRecord *ClientRecord, recordID string) (savedClientRecord ClientRecord, err error) {
-
-
-	//fmt.Printf("%+v", clientRecord)
-
+func (a *apiService) save(entity *Entity, action string, clientRecord *ClientRecord, recordID string) (savedClientRecord ClientRecord, clientErrors *ClientErrors, err error) {
 	storeRecord, err := marshalClientRecordToStoreRecord(entity, clientRecord, action)
 	if err != nil {
-		return savedClientRecord, fmt.Errorf(`Failed to marshal client record to store record for entity "%s" - %s`, entity.Label, err)
+		return
 	}
 
 	mergedElementsValidators := append(a.elementsValidators, entity.ElementsValidators...)
 	for _, validator := range mergedElementsValidators {
 		// TODO Goroutine in order to run through each validator and report all issues that each validator finds
-		isValid, elementsErrors, globalErrors := validator.validate(entity, storeRecord, action)
+		var isValid bool
+		isValid, validateClientErrors := validator.validate(entity, storeRecord, action)
 		if !isValid {
-			return savedClientRecord, fmt.Errorf(`Failed validation for entity "%s" - %v %v`, entity.Label, elementsErrors, globalErrors)
+			return savedClientRecord, validateClientErrors, err
 		}
 	}
 
@@ -90,57 +87,63 @@ func (a *apiService) save(entity *Entity, action string, clientRecord *ClientRec
 	mergedMutators := append(a.mutators, entity.Mutators...)
 	for _, mutator := range mergedMutators {
 		// TODO Goroutine in order to run through each validator and report all issues that each validator finds
-		err, elementsErrors, globalErrors := mutator.mutate(entity, &storeRecord, action)
-		if err != nil {
-			return savedClientRecord, fmt.Errorf(`Failed mutating for entity "%s" - %v`, entity.Label, err)
-		}
-		if len(elementsErrors) > 0 || len(globalErrors) > 0 {
-			return savedClientRecord, fmt.Errorf(`Failed validation for entity "%s" - %v %v`, entity.Label, elementsErrors, globalErrors)
+		mutateClientErrors, err := mutator.mutate(entity, &storeRecord, action)
+
+		if err != nil || (mutateClientErrors != nil && mutateClientErrors.HasErrors()) {
+			err = fmt.Errorf(`Failed mutating for entity "%s" - %v`, entity.Label, err)
+			return savedClientRecord, mutateClientErrors, err
 		}
 	}
 
 	// TODO support multiple stores - at the moment, once written to first DB, doesn't write to subsequent.  Add Goroutine
 	for _, store := range a.stores {
-		if store.Mode(entity).IsWritable() {
-			switch action {
-			case ACTION_POST:
-				recordID, err = store.Post(entity, storeRecord)
-				break
-			case ACTION_PUT:
-				if recordID == "" {
-					return savedClientRecord, fmt.Errorf(`Missing record ID for entity "%s"`, entity.Label)
-				}
-				err = store.Put(entity, storeRecord, recordID)
-				break
-			case ACTION_PATCH:
-				if recordID == "" {
-					return savedClientRecord, fmt.Errorf(`Missing record ID for entity "%s"`, entity.Label)
-				}
-				err = store.Patch(entity, storeRecord, recordID)
-				break
-			default:
-				return savedClientRecord, fmt.Errorf(`Invalid action "%s" for entity "%s"`, action, entity.Label)
-				break
-			}
-			if err != nil {
-				return savedClientRecord, fmt.Errorf(`Failed to "%s" for entity "%s" - %s`, action, entity.Label, err)
-			}
-
-			savedStoreRecord, err := store.Get(entity, recordID)
-			if err != nil {
-				return savedClientRecord, fmt.Errorf(`Failed to get newly created DB record for entity "%s" - %s`, entity.Label, err)
-			}
-
-			if savedStoreRecord.IsHydrated() == false {
-				return savedClientRecord, fmt.Errorf(`New created DB record was not found in database for entity "%s" - %s`, entity.Label, err)
-			}
-
-			savedClientRecord = marshalStoreRecordToClientRecord(savedStoreRecord)
-			return savedClientRecord, nil
+		if store.Mode(entity).IsWritable() == false {
+			continue
 		}
-	}
+		switch action {
+		case ACTION_POST:
+			recordID, err = store.Post(entity, storeRecord)
+			break
+		case ACTION_PUT:
+			if recordID == "" {
+				err = fmt.Errorf(`Missing record ID for entity "%s"`, entity.Label)
+				return savedClientRecord, clientErrors, err
+			}
+			err = store.Put(entity, storeRecord, recordID)
+			break
+		case ACTION_PATCH:
+			if recordID == "" {
+				err = fmt.Errorf(`Missing record ID for entity "%s"`, entity.Label)
+				return savedClientRecord, clientErrors, err
+			}
+			err = store.Patch(entity, storeRecord, recordID)
+			break
+		default:
+			err = fmt.Errorf(`Invalid action "%s" for entity "%s"`, action, entity.Label)
+			return savedClientRecord, clientErrors, err
+			break
+		}
+		if err != nil {
+			err = fmt.Errorf(`Failed to "%s" for entity "%s" - %s`, action, entity.Label, err)
+			return savedClientRecord, clientErrors, err
+		}
 
-	return savedClientRecord, fmt.Errorf("Failed to find a writeable database")
+		savedStoreRecord, err := store.Get(entity, recordID)
+		if err != nil {
+			err = fmt.Errorf(`Failed to get newly created record from the database for entity "%s" - %s`, entity.Label, err)
+			return savedClientRecord, clientErrors, err
+		}
+
+		if savedStoreRecord.IsHydrated() == false {
+			err = fmt.Errorf(`Newly created record was not found in the database (save didn't work) for entity "%s" recordID: "%s"`, entity.Label, recordID)
+			return savedClientRecord, clientErrors, err
+		}
+
+		savedClientRecord = marshalStoreRecordToClientRecord(savedStoreRecord)
+		return savedClientRecord, clientErrors, err
+	}
+	err = fmt.Errorf("Failed to find a writeable database")
+	return savedClientRecord, clientErrors, err
 }
 
 func (a *apiService) delete(entity *Entity, recordID string) error {

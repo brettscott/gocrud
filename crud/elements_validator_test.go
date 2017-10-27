@@ -42,11 +42,10 @@ func TestElementsValidator(t *testing.T) {
 				Hydrated: true,
 			}
 
-			success, elementsErrors, globalErrors := elementsValidator.validate(testEntity, userData, ACTION_POST)
+			success, clientErrors := elementsValidator.validate(testEntity, userData, ACTION_POST)
 
 			assert.Equal(t, true, success)
-			assert.Equal(t, 0, len(elementsErrors))
-			assert.Equal(t, 0, len(globalErrors))
+			assert.Nil(t, clientErrors)
 		})
 
 		t.Run("Passes when user data is valid", func(t *testing.T) {
@@ -82,11 +81,12 @@ func TestElementsValidator(t *testing.T) {
 				Hydrated: true,
 			}
 
-			success, elementsErrors, globalErrors := elementsValidator.validate(testEntity, userData, ACTION_POST)
+			success, clientErrors := elementsValidator.validate(testEntity, userData, ACTION_POST)
 
 			assert.Equal(t, true, success)
-			assert.Equal(t, 0, len(elementsErrors))
-			assert.Equal(t, 0, len(globalErrors))
+			assert.Nil(t, clientErrors)
+			//assert.Equal(t, 0, len(clientErrors.ElementsErrors))
+			//assert.Equal(t, 0, len(clientErrors.GlobalErrors))
 		})
 
 	})
@@ -126,11 +126,12 @@ func TestElementsValidator(t *testing.T) {
 				Hydrated: true,
 			}
 
-			success, elementsErrors, globalErrors := elementsValidator.validate(testEntity, userData, ACTION_POST)
+			success, clientErrors := elementsValidator.validate(testEntity, userData, ACTION_POST)
 
 			assert.Equal(t, true, success, "Should not be valid")
-			assert.Equal(t, 0, len(elementsErrors), "Element error")
-			assert.Equal(t, 0, len(globalErrors), "Global error")
+			assert.Nil(t, clientErrors)
+			//assert.Equal(t, 0, len(clientErrors.ElementsErrors), "Element error")
+			//assert.Equal(t, 0, len(clientErrors.GlobalErrors), "Global error")
 		})
 
 		t.Run("Fails when posting user data without a required field being provided", func(t *testing.T) {
@@ -166,11 +167,12 @@ func TestElementsValidator(t *testing.T) {
 				Hydrated: false,
 			}
 
-			success, elementsErrors, globalErrors := elementsValidator.validate(testEntity, userData, ACTION_POST)
+			success, clientErrors := elementsValidator.validate(testEntity, userData, ACTION_POST)
 
 			assert.Equal(t, false, success, "Should not be valid")
-			assert.Equal(t, 1, len(elementsErrors), "Element error")
-			assert.Equal(t, 0, len(globalErrors), "Global error")
+			assert.NotNil(t, clientErrors)
+			assert.Equal(t, 1, len(clientErrors.ElementsErrors), "Element error")
+			assert.Equal(t, 0, len(clientErrors.GlobalErrors), "Global error")
 		})
 
 		t.Run("Passes when putting and patching user data when a required field is not provided", func(t *testing.T) {
@@ -207,11 +209,12 @@ func TestElementsValidator(t *testing.T) {
 					Hydrated: false,
 				}
 
-				success, elementsErrors, globalErrors := elementsValidator.validate(testEntity, userData, action)
+				success, clientErrors := elementsValidator.validate(testEntity, userData, action)
 
 				assert.Equal(t, true, success, "Should not be valid")
-				assert.Equal(t, 0, len(elementsErrors), "Element error")
-				assert.Equal(t, 0, len(globalErrors), "Global error")
+				assert.Nil(t, clientErrors)
+				//assert.Equal(t, 0, len(clientErrors.ElementsErrors), "Element error")
+				//assert.Equal(t, 0, len(clientErrors.GlobalErrors), "Global error")
 			}
 		})
 
@@ -249,11 +252,12 @@ func TestElementsValidator(t *testing.T) {
 					Hydrated: true,
 				}
 
-				success, elementsErrors, globalErrors := elementsValidator.validate(testEntity, userData, action)
+				success, clientErrors := elementsValidator.validate(testEntity, userData, action)
 
 				assert.Equal(t, false, success, fmt.Sprintf("Should not be valid on %s", action))
-				assert.Equal(t, 1, len(elementsErrors), fmt.Sprintf("Element error on %s", action))
-				assert.Equal(t, 0, len(globalErrors), fmt.Sprintf("Global error on %s", action))
+				assert.NotNil(t, clientErrors)
+				assert.Equal(t, 1, len(clientErrors.ElementsErrors), fmt.Sprintf("Element error on %s", action))
+				assert.Equal(t, 0, len(clientErrors.GlobalErrors), fmt.Sprintf("Global error on %s", action))
 			}
 		})
 	})
@@ -294,11 +298,12 @@ func TestElementsValidator(t *testing.T) {
 					Hydrated: true,
 				}
 
-				success, elementsErrors, globalErrors := elementsValidator.validate(testEntity, userData, action)
+				success, clientErrors := elementsValidator.validate(testEntity, userData, action)
 
 				assert.Equal(t, true, success, fmt.Sprintf("Should not be valid on %s", action))
-				assert.Equal(t, 0, len(elementsErrors), fmt.Sprintf("Element error on %s", action))
-				assert.Equal(t, 0, len(globalErrors), fmt.Sprintf("Global error on %s", action))
+				assert.Nil(t, clientErrors)
+				//assert.Equal(t, 0, len(clientErrors.ElementsErrors), fmt.Sprintf("Element error on %s", action))
+				//assert.Equal(t, 0, len(clientErrors.GlobalErrors), fmt.Sprintf("Global error on %s", action))
 			}
 		})
 
@@ -336,11 +341,12 @@ func TestElementsValidator(t *testing.T) {
 					Hydrated: false,
 				}
 
-				success, elementsErrors, globalErrors := elementsValidator.validate(testEntity, userData, action)
+				success, clientErrors := elementsValidator.validate(testEntity, userData, action)
 
 				assert.Equal(t, false, success, fmt.Sprintf("Should not be valid on %s", action))
-				assert.Equal(t, 1, len(elementsErrors), fmt.Sprintf("Element error on %s", action))
-				assert.Equal(t, 0, len(globalErrors), fmt.Sprintf("Global error on %s", action))
+				assert.NotNil(t, clientErrors)
+				assert.Equal(t, 1, len(clientErrors.ElementsErrors), fmt.Sprintf("Element error on %s", action))
+				assert.Equal(t, 0, len(clientErrors.GlobalErrors), fmt.Sprintf("Global error on %s", action))
 			}
 		})
 
@@ -377,11 +383,12 @@ func TestElementsValidator(t *testing.T) {
 				Hydrated: false,
 			}
 
-			success, elementsErrors, globalErrors := elementsValidator.validate(testEntity, userData, ACTION_POST)
+			success, clientErrors := elementsValidator.validate(testEntity, userData, ACTION_POST)
 
 			assert.Equal(t, false, success, "Should not be valid")
-			assert.Equal(t, 1, len(elementsErrors), "Element error")
-			assert.Equal(t, 0, len(globalErrors), "Global error")
+			assert.NotNil(t, clientErrors)
+			assert.Equal(t, 1, len(clientErrors.ElementsErrors), "Element error")
+			assert.Equal(t, 0, len(clientErrors.GlobalErrors), "Global error")
 		})
 
 		t.Run("Fails when posting user data when a 'must be provided on putting' field is missing", func(t *testing.T) {
@@ -417,11 +424,12 @@ func TestElementsValidator(t *testing.T) {
 				Hydrated: false,
 			}
 
-			success, elementsErrors, globalErrors := elementsValidator.validate(testEntity, userData, ACTION_PUT)
+			success, clientErrors := elementsValidator.validate(testEntity, userData, ACTION_PUT)
 
 			assert.Equal(t, false, success, "Should not be valid")
-			assert.Equal(t, 1, len(elementsErrors), "Element error")
-			assert.Equal(t, 0, len(globalErrors), "Global error")
+			assert.NotNil(t, clientErrors)
+			assert.Equal(t, 1, len(clientErrors.ElementsErrors), "Element error")
+			assert.Equal(t, 0, len(clientErrors.GlobalErrors), "Global error")
 		})
 
 		t.Run("Fails when posting user data when a 'must be provided on patching' field is missing", func(t *testing.T) {
@@ -457,11 +465,12 @@ func TestElementsValidator(t *testing.T) {
 				Hydrated: false,
 			}
 
-			success, elementsErrors, globalErrors := elementsValidator.validate(testEntity, userData, ACTION_PATCH)
+			success, clientErrors := elementsValidator.validate(testEntity, userData, ACTION_PATCH)
 
 			assert.Equal(t, false, success, "Should not be valid")
-			assert.Equal(t, 1, len(elementsErrors), "Element error")
-			assert.Equal(t, 0, len(globalErrors), "Global error")
+			assert.NotNil(t, clientErrors)
+			assert.Equal(t, 1, len(clientErrors.ElementsErrors), "Element error")
+			assert.Equal(t, 0, len(clientErrors.GlobalErrors), "Global error")
 		})
 	})
 }

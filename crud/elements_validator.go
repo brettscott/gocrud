@@ -21,16 +21,18 @@ type elementsValidator struct {
 }
 
 // validate ensures values supplied by users are valid
-func (e *elementsValidator) validate(entity *Entity, record StoreRecord, action string) (success bool, elementsErrors map[string][]string, globalErrors []string) {
+func (e *elementsValidator) validate(entity *Entity, record StoreRecord, action string) (success bool, clientErrors *ClientErrors) {
 	success = true
 	var primaryKey ElementLabel
-	elementsErrors = map[string][]string{}
+	elementsErrors := map[string][]string{}
+	globalErrors := []string{}
 
 	for _, element := range entity.Elements {
 		elementErrors := make([]string, 0)
 		userData, ok := record[element.ID]
 		if !ok {
-			elementErrors = append(elementErrors, "is missing")
+			//elementErrors = append(elementErrors, "is missing")
+			continue
 		}
 
 		if err := e.validateDataType(element, userData.Value); err != nil {
@@ -73,6 +75,7 @@ func (e *elementsValidator) validate(entity *Entity, record StoreRecord, action 
 
 	if len(elementsErrors) > 0 || len(globalErrors) > 0 {
 		success = false
+		clientErrors = newClientErrors(elementsErrors, globalErrors)
 	}
 
 	return

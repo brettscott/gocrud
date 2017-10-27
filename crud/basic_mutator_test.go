@@ -39,11 +39,12 @@ func TestBasicMutator(t *testing.T) {
 		}
 
 		basicMutator := basicMutator{}
-		err, elementsErrors, globalErrors := basicMutator.mutate(testEntity, &userData, ACTION_POST)
-
+		clientErrors, err := basicMutator.mutate(testEntity, &userData, ACTION_POST)
 		assert.NoError(t, err, "Should not error")
-		assert.Equal(t, 0, len(elementsErrors), "Elements errors should be empty")
-		assert.Equal(t, 0, len(globalErrors), "Global errors should be empty")
+
+		assert.Nil(t, clientErrors)
+		//assert.Equal(t, 0, len(clientErrors.ElementsErrors), "Elements errors should be empty")
+		//assert.Equal(t, 0, len(clientErrors.GlobalErrors), "Global errors should be empty")
 
 		assert.Equal(t, "John Smith", userData["name"].Value, "Name value is wrong")
 	})

@@ -14,20 +14,17 @@ func NewBasicMutator() mutatorer {
 type basicMutator struct {
 }
 
-// mutate will trim whitespace from beginning and end of all element values which are strings
-func (m *basicMutator) mutate(entity *Entity, storeRecord *StoreRecord, action string) (err error, elementsErrors map[string][]string, globalErrors []string) {
-
+// mutate will trim whitespace from beginning and end of all element values which have the data type of a "string"
+func (m *basicMutator) mutate(entity *Entity, storeRecord *StoreRecord, action string) (clientErrors *ClientErrors, err error) {
 	for id, field := range *storeRecord {
-		fmt.Println("id", id)
 		element, err := entity.GetElement(id)
 		if err != nil {
-			return fmt.Errorf("Element not found: %s", id), elementsErrors, globalErrors
+			return clientErrors, fmt.Errorf("Element not found: %s", id)
 		}
 
 		if field.Hydrated == true && element.DataType == ELEMENT_DATA_TYPE_STRING {
 			field.Value = strings.TrimSpace(field.Value.(string))
 		}
 	}
-
-	return err, elementsErrors, globalErrors
+	return clientErrors, nil
 }

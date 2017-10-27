@@ -89,6 +89,11 @@ Everythings!
         * Write Mongo integration test
         * Pagination
     * Router is very fat.  Write tests and break it up **NEXT**
+    * **next**
+        * api_service is receiving clientErrors and error - how to handle this.  Is it right?
+        * move basic_elements_validator into test file to avoid confusion ?
+        * move basic_mutator into test file to avoid confusion ?
+        * ensure clientErrors is returned as nil from validate() and mutate() when no errors
     * Better error messages back to the client via /api
     * More validation rules
     * More examples (eg basic_example.go)

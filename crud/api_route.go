@@ -22,7 +22,7 @@ type APIRoute struct {
 type apiServicer interface {
 	list(entity *Entity) (clientRecords ClientRecords, err error)
 	get(entity *Entity, recordID string) (clientRecord ClientRecord, err error)
-	save(entity *Entity, action string, clientRecord *ClientRecord, recordID string) (savedClientRecord ClientRecord, err error)
+	save(entity *Entity, action string, clientRecord *ClientRecord, recordID string) (savedClientRecord ClientRecord, clientErrors *ClientErrors, err error)
 	delete(entity *Entity, recordID string) error
 }
 
@@ -158,7 +158,8 @@ func (a *APIRoute) save(isRecordNew bool, isPartialPayload bool) func(w http.Res
 				w.Write([]byte(err.Error()))
 				return
 			}
-			savedRecord, err := a.apiService.save(entity, action, record, recordID)
+			savedRecord, clientErrors, err := a.apiService.save(entity, action, record, recordID)
+			fmt.Printf("api_route: do something with clientErrors %+v", clientErrors) // todo something with this
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 				w.Write([]byte(err.Error()))
