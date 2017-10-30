@@ -159,8 +159,9 @@ func (a *APIRoute) save(isRecordNew bool, isPartialPayload bool) func(w http.Res
 				return
 			}
 			savedRecord, clientErrors, err := a.apiService.save(entity, action, record, recordID)
-			fmt.Printf("api_route: do something with clientErrors %+v", clientErrors) // todo something with this
 			if err != nil {
+				a.log.Error(err)
+				fmt.Printf("api_route: do something with clientErrors %+v", clientErrors) // todo something with this
 				w.WriteHeader(http.StatusInternalServerError)
 				w.Write([]byte(err.Error()))
 				return

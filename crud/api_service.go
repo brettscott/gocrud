@@ -79,6 +79,7 @@ func (a *apiService) save(entity *Entity, action string, clientRecord *ClientRec
 		var isValid bool
 		isValid, validateClientErrors := validator.validate(entity, storeRecord, action)
 		if !isValid {
+			err = fmt.Errorf(`validation failure for entity "%s"`, entity.Label)
 			return savedClientRecord, validateClientErrors, err
 		}
 	}
@@ -88,9 +89,8 @@ func (a *apiService) save(entity *Entity, action string, clientRecord *ClientRec
 	for _, mutator := range mergedMutators {
 		// TODO Goroutine in order to run through each validator and report all issues that each validator finds
 		mutateClientErrors, err := mutator.mutate(entity, &storeRecord, action)
-
-		if err != nil || (mutateClientErrors != nil && mutateClientErrors.HasErrors()) {
-			err = fmt.Errorf(`Failed mutating for entity "%s" - %v`, entity.Label, err)
+		if err != nil {
+			err = fmt.Errorf(`mutation error for entity "%s" with error: %v`, entity.Label, err)
 			return savedClientRecord, mutateClientErrors, err
 		}
 	}

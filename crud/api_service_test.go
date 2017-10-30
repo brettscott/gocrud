@@ -247,8 +247,7 @@ func TestAPIService(t *testing.T) {
 			apiService := newApiService(fakeStores, elementsValidators, fakeMutators)
 
 			_, clientErrors, err := apiService.save(testUsersEntity, ACTION_POST, clientRecord, recordID)
-			assert.NoError(t, err)
-
+			assert.Error(t, err)
 			assert.NotNil(t, clientErrors)
 			assert.Equal(t, true, clientErrors.HasErrors(), "Should have error because validator fails each element")
 			assert.Equal(t, 1, len(clientErrors.ElementsErrors["id"]))

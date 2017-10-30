@@ -11,7 +11,6 @@ type basicElementsValidator struct {
 
 // validate will mark each element with a validation failure
 func (m *basicElementsValidator) validate(entity *Entity, record StoreRecord, action string) (success bool, clientErrors *ClientErrors) {
-	clientErrors = &ClientErrors{}
 	elementsErrors := map[string][]string{}
 	globalErrors := []string{}
 
@@ -24,5 +23,6 @@ func (m *basicElementsValidator) validate(entity *Entity, record StoreRecord, ac
 
 	clientErrors.ElementsErrors = elementsErrors
 	clientErrors.GlobalErrors = globalErrors
+
 	return !clientErrors.HasErrors(), clientErrors
 }
