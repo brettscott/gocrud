@@ -11,8 +11,8 @@ func newClientErrors(elementsErrors ElementsErrors, globalErrors GlobalErrors) *
 }
 
 type ClientErrors struct {
-	ElementsErrors map[string][]string
-	GlobalErrors   []string
+	ElementsErrors map[string][]string `json:"elementsErrors"`
+	GlobalErrors   []string `json:"globalErrors"`
 }
 
 // HasErrors returns true when there are element or global errors present

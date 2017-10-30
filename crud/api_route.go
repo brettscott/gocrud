@@ -161,9 +161,20 @@ func (a *APIRoute) save(isRecordNew bool, isPartialPayload bool) func(w http.Res
 			savedRecord, clientErrors, err := a.apiService.save(entity, action, record, recordID)
 			if err != nil {
 				a.log.Error(err)
-				fmt.Printf("api_route: do something with clientErrors %+v", clientErrors) // todo something with this
-				w.WriteHeader(http.StatusInternalServerError)
-				w.Write([]byte(err.Error()))
+				//fmt.Printf("api_route: do something with clientErrors %+v", clientErrors) // todo something with this
+				if clientErrors == nil {
+					w.WriteHeader(http.StatusInternalServerError)
+					w.Write([]byte(err.Error()))
+					return
+				}
+				jsonResponse, err := json.Marshal(clientErrors)
+				if err != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+					w.Write([]byte(err.Error()))
+					return
+				}
+				w.WriteHeader(http.StatusOK)  // TODO or StatusBadRequest.
+				w.Write([]byte(jsonResponse))
 				return
 			}
 			jsonResponse, err := json.Marshal(savedRecord)
