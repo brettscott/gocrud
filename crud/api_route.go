@@ -173,7 +173,7 @@ func (a *APIRoute) save(isRecordNew bool, isPartialPayload bool) func(w http.Res
 					w.Write([]byte(err.Error()))
 					return
 				}
-				w.WriteHeader(http.StatusOK)  // TODO or StatusBadRequest.
+				w.WriteHeader(http.StatusOK) // TODO or StatusBadRequest.
 				w.Write([]byte(jsonResponse))
 				return
 			}
