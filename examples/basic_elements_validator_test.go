@@ -1,6 +1,7 @@
-package crud
+package examples
 
 import (
+	"github.com/brettscott/gocrud/crud"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -8,30 +9,30 @@ import (
 func TestBasicElementsValidation(t *testing.T) {
 
 	t.Run("Fail regardless of what you pass in", func(t *testing.T) {
-		testUsersEntity := &Entity{
+		testUsersEntity := &crud.Entity{
 			ID:     "users",
 			Label:  "User",
 			Labels: "Users",
-			Elements: Elements{
+			Elements: crud.Elements{
 				{
 					ID:       "name",
 					Label:    "Name",
-					FormType: ELEMENT_FORM_TYPE_TEXT,
-					DataType: ELEMENT_DATA_TYPE_BOOLEAN,
+					FormType: crud.ELEMENT_FORM_TYPE_TEXT,
+					DataType: crud.ELEMENT_DATA_TYPE_BOOLEAN,
 				},
 			},
 		}
 
-		nameField := &Field{
+		nameField := &crud.Field{
 			ID:       "name",
 			Value:    "Jack Daniels",
 			Hydrated: true,
 		}
-		storeRecord := StoreRecord{}
+		storeRecord := crud.StoreRecord{}
 		storeRecord["name"] = nameField
 
-		validator := NewBasicElementsValidator()
-		isValid, clientErrors := validator.validate(testUsersEntity, storeRecord, ACTION_POST)
+		validator := &basicElementsValidator{}
+		isValid, clientErrors := validator.Validate(testUsersEntity, storeRecord, crud.ACTION_POST)
 
 		assert.Equal(t, false, isValid)
 		assert.NotNil(t, clientErrors)

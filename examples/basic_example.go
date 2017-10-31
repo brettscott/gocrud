@@ -70,8 +70,10 @@ func BasicExample() {
 	myCrud.AddEntity(users)
 
 	// Basic mutator added
-	basicMutator := crud.NewBasicMutator()
-	myCrud.AddMutator(basicMutator)
+	myCrud.AddMutator(&basicMutator{})
+
+	// Basic validator added
+	myCrud.AddElementsValidator(&basicElementsValidator{})
 
 	// Mount Route
 	router := chi.NewRouter()

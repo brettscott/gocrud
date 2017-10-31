@@ -5,11 +5,11 @@ import (
 )
 
 type elementsValidatorer interface {
-	validate(entity *Entity, record StoreRecord, action string) (success bool, clientErrors *ClientErrors)
+	Validate(entity *Entity, record StoreRecord, action string) (success bool, clientErrors *ClientErrors)
 }
 
 type mutatorer interface {
-	mutate(entity *Entity, storeRecord *StoreRecord, action string) (clientErrors *ClientErrors, err error)
+	Mutate(entity *Entity, storeRecord *StoreRecord, action string) (clientErrors *ClientErrors, err error)
 }
 
 func newApiService(stores []Storer, elementsValidators []elementsValidatorer, mutators []mutatorer) apiService {
@@ -77,7 +77,7 @@ func (a *apiService) save(entity *Entity, action string, clientRecord *ClientRec
 	for _, validator := range mergedElementsValidators {
 		// TODO Goroutine in order to run through each validator and report all issues that each validator finds
 		var isValid bool
-		isValid, validateClientErrors := validator.validate(entity, storeRecord, action)
+		isValid, validateClientErrors := validator.Validate(entity, storeRecord, action)
 		if !isValid {
 			err = fmt.Errorf(`validation failure for entity "%s"`, entity.Label)
 			return savedClientRecord, validateClientErrors, err
@@ -88,7 +88,7 @@ func (a *apiService) save(entity *Entity, action string, clientRecord *ClientRec
 	mergedMutators := append(a.mutators, entity.Mutators...)
 	for _, mutator := range mergedMutators {
 		// TODO Goroutine in order to run through each validator and report all issues that each validator finds
-		mutateClientErrors, err := mutator.mutate(entity, &storeRecord, action)
+		mutateClientErrors, err := mutator.Mutate(entity, &storeRecord, action)
 		if err != nil {
 			err = fmt.Errorf(`mutation error for entity "%s" with error: %v`, entity.Label, err)
 			return savedClientRecord, mutateClientErrors, err

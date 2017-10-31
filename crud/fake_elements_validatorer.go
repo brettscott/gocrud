@@ -3,7 +3,7 @@ package crud
 // NewFakeElementsValidatorers returns array of elementsValidators
 func NewFakeElementsValidatorers() []elementsValidatorer {
 	return []elementsValidatorer{
-		&fakeElementsValidatorer{},
+		&FakeElementsValidatorer{},
 	}
 }
 
@@ -14,13 +14,14 @@ func NewFakeEmptyElementsValidatorers() []elementsValidatorer {
 
 // NewFakeElementsValidatorers returns a elementsValidator
 func NewFakeElementsValidatorer() elementsValidatorer {
-	return &fakeElementsValidatorer{}
+	return &FakeElementsValidatorer{}
 }
 
-type fakeElementsValidatorer struct {
-	success bool
+type FakeElementsValidatorer struct {
+	Success      bool
+	ClientErrors *ClientErrors
 }
 
-func (f *fakeElementsValidatorer) validate(entity *Entity, record StoreRecord, action string) (success bool, clientErrors *ClientErrors) {
-	return f.success, clientErrors
+func (f *FakeElementsValidatorer) Validate(entity *Entity, record StoreRecord, action string) (success bool, clientErrors *ClientErrors) {
+	return f.Success, f.ClientErrors
 }

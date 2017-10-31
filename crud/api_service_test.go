@@ -195,7 +195,7 @@ func TestAPIService(t *testing.T) {
 					},
 					{
 						Key:   "name",
-						Value: "  Jim Beam  ",
+						Value: "Jim Beam",
 					},
 				},
 			}
@@ -204,11 +204,19 @@ func TestAPIService(t *testing.T) {
 			fakeStore.GetError = nil
 			fakeStores := NewFakeStorers(fakeStore)
 			fakeElementsValidators := NewFakeEmptyElementsValidatorers()
+			mutatedStoreRecord := StoreRecord{}
+			mutatedStoreRecord["name"] = &Field{
+				ID:       "name",
+				Value:    "Jack Daniels",
+				Hydrated: true,
+			}
+			fakeMutator := &FakeMutatorer{
+				StoreRecord: &mutatedStoreRecord,
+			}
 			mutators := []mutatorer{
-				&basicMutator{},
+				fakeMutator,
 			}
 			apiService := newApiService(fakeStores, fakeElementsValidators, mutators)
-
 			_, clientErrors, err := apiService.save(testUsersEntity, ACTION_POST, clientRecord, recordID)
 			assert.NoError(t, err)
 			assert.Nil(t, clientErrors)
@@ -240,10 +248,23 @@ func TestAPIService(t *testing.T) {
 			fakeStore.GetResponse = supermanStoreRecord
 			fakeStore.GetError = nil
 			fakeStores := NewFakeStorers(fakeStore)
-			elementsValidators := []elementsValidatorer{
-				&basicElementsValidator{},
+
+			fakeElementsErrors := map[string][]string{}
+			fakeElementsErrors["id"] = append(fakeElementsErrors["id"], "id is invalid")
+			fakeElementsErrors["name"] = append(fakeElementsErrors["name"], "name is invalid")
+			fakeClientErrors := &ClientErrors{
+				ElementsErrors: fakeElementsErrors,
 			}
+			fakeElementsValidator := &FakeElementsValidatorer{
+				Success:      false,
+				ClientErrors: fakeClientErrors,
+			}
+			elementsValidators := []elementsValidatorer{
+				fakeElementsValidator,
+			}
+
 			fakeMutators := newFakeEmptyMutatorers()
+
 			apiService := newApiService(fakeStores, elementsValidators, fakeMutators)
 
 			_, clientErrors, err := apiService.save(testUsersEntity, ACTION_POST, clientRecord, recordID)
@@ -252,13 +273,8 @@ func TestAPIService(t *testing.T) {
 			assert.Equal(t, true, clientErrors.HasErrors(), "Should have error because validator fails each element")
 			assert.Equal(t, 1, len(clientErrors.ElementsErrors["id"]))
 			assert.Equal(t, 1, len(clientErrors.ElementsErrors["name"]))
-			assert.Equal(t, 1, len(clientErrors.ElementsErrors["isActive"]))
-			assert.Equal(t, "I'm going fail for the sake of it", clientErrors.ElementsErrors["isActive"][0])
-			assert.Equal(t, 1, len(clientErrors.GlobalErrors))
-			assert.Equal(t, "a non-element specific error was identified", clientErrors.GlobalErrors[0])
-
+			//assert.Equal(t, "name is invalid", clientErrors.ElementsErrors["name"][0])
 			assert.Equal(t, 0, fakeStore.PostCalled, "Should not try to save invalid record")
 		})
 	})
-
 }

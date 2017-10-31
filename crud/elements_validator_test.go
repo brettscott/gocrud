@@ -42,7 +42,7 @@ func TestElementsValidator(t *testing.T) {
 				Hydrated: true,
 			}
 
-			success, clientErrors := elementsValidator.validate(testEntity, userData, ACTION_POST)
+			success, clientErrors := elementsValidator.Validate(testEntity, userData, ACTION_POST)
 
 			assert.Equal(t, true, success)
 			assert.Nil(t, clientErrors)
@@ -81,7 +81,7 @@ func TestElementsValidator(t *testing.T) {
 				Hydrated: true,
 			}
 
-			success, clientErrors := elementsValidator.validate(testEntity, userData, ACTION_POST)
+			success, clientErrors := elementsValidator.Validate(testEntity, userData, ACTION_POST)
 
 			assert.Equal(t, true, success)
 			assert.Nil(t, clientErrors)
@@ -126,7 +126,7 @@ func TestElementsValidator(t *testing.T) {
 				Hydrated: true,
 			}
 
-			success, clientErrors := elementsValidator.validate(testEntity, userData, ACTION_POST)
+			success, clientErrors := elementsValidator.Validate(testEntity, userData, ACTION_POST)
 
 			assert.Equal(t, true, success, "Should not be valid")
 			assert.Nil(t, clientErrors)
@@ -167,7 +167,7 @@ func TestElementsValidator(t *testing.T) {
 				Hydrated: false,
 			}
 
-			success, clientErrors := elementsValidator.validate(testEntity, userData, ACTION_POST)
+			success, clientErrors := elementsValidator.Validate(testEntity, userData, ACTION_POST)
 
 			assert.Equal(t, false, success, "Should not be valid")
 			assert.NotNil(t, clientErrors)
@@ -209,7 +209,7 @@ func TestElementsValidator(t *testing.T) {
 					Hydrated: false,
 				}
 
-				success, clientErrors := elementsValidator.validate(testEntity, userData, action)
+				success, clientErrors := elementsValidator.Validate(testEntity, userData, action)
 
 				assert.Equal(t, true, success, "Should not be valid")
 				assert.Nil(t, clientErrors)
@@ -252,7 +252,7 @@ func TestElementsValidator(t *testing.T) {
 					Hydrated: true,
 				}
 
-				success, clientErrors := elementsValidator.validate(testEntity, userData, action)
+				success, clientErrors := elementsValidator.Validate(testEntity, userData, action)
 
 				assert.Equal(t, false, success, fmt.Sprintf("Should not be valid on %s", action))
 				assert.NotNil(t, clientErrors)
@@ -298,7 +298,7 @@ func TestElementsValidator(t *testing.T) {
 					Hydrated: true,
 				}
 
-				success, clientErrors := elementsValidator.validate(testEntity, userData, action)
+				success, clientErrors := elementsValidator.Validate(testEntity, userData, action)
 
 				assert.Equal(t, true, success, fmt.Sprintf("Should not be valid on %s", action))
 				assert.Nil(t, clientErrors)
@@ -341,7 +341,7 @@ func TestElementsValidator(t *testing.T) {
 					Hydrated: false,
 				}
 
-				success, clientErrors := elementsValidator.validate(testEntity, userData, action)
+				success, clientErrors := elementsValidator.Validate(testEntity, userData, action)
 
 				assert.Equal(t, false, success, fmt.Sprintf("Should not be valid on %s", action))
 				assert.NotNil(t, clientErrors)
@@ -383,7 +383,7 @@ func TestElementsValidator(t *testing.T) {
 				Hydrated: false,
 			}
 
-			success, clientErrors := elementsValidator.validate(testEntity, userData, ACTION_POST)
+			success, clientErrors := elementsValidator.Validate(testEntity, userData, ACTION_POST)
 
 			assert.Equal(t, false, success, "Should not be valid")
 			assert.NotNil(t, clientErrors)
@@ -424,7 +424,7 @@ func TestElementsValidator(t *testing.T) {
 				Hydrated: false,
 			}
 
-			success, clientErrors := elementsValidator.validate(testEntity, userData, ACTION_PUT)
+			success, clientErrors := elementsValidator.Validate(testEntity, userData, ACTION_PUT)
 
 			assert.Equal(t, false, success, "Should not be valid")
 			assert.NotNil(t, clientErrors)
@@ -465,7 +465,7 @@ func TestElementsValidator(t *testing.T) {
 				Hydrated: false,
 			}
 
-			success, clientErrors := elementsValidator.validate(testEntity, userData, ACTION_PATCH)
+			success, clientErrors := elementsValidator.Validate(testEntity, userData, ACTION_PATCH)
 
 			assert.Equal(t, false, success, "Should not be valid")
 			assert.NotNil(t, clientErrors)

@@ -3,7 +3,7 @@ package crud
 // newFakeMutatorers returns a slice of mutators
 func newFakeMutatorers() []mutatorer {
 	return []mutatorer{
-		&fakeMutatorer{},
+		&FakeMutatorer{},
 	}
 }
 
@@ -14,12 +14,18 @@ func newFakeEmptyMutatorers() []mutatorer {
 
 // newFakeElementsValidatorers returns a elementsValidator
 func newFakeMutatorer() mutatorer {
-	return &fakeMutatorer{}
+	return &FakeMutatorer{}
 }
 
-type fakeMutatorer struct {
+type FakeMutatorer struct {
+	Err          error
+	ClientErrors *ClientErrors
+	StoreRecord  *StoreRecord
 }
 
-func (f *fakeMutatorer) mutate(entity *Entity, storeRecord *StoreRecord, action string) (clientErrors *ClientErrors, err error) {
-	return
+func (f *FakeMutatorer) Mutate(entity *Entity, storeRecord *StoreRecord, action string) (clientErrors *ClientErrors, err error) {
+	if f.StoreRecord != nil {
+		storeRecord = f.StoreRecord
+	}
+	return f.ClientErrors, f.Err
 }
