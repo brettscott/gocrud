@@ -23,8 +23,13 @@ func NewUiRoute(entities Entities, apiService apiServicer, log Logger, statsd St
 
 	return func(r chi.Router) {
 
+		// Display entities
 		r.Get("/", uiRoute.root)
 
+		// List results for a given entity
+		//r.Get("/:entityID", uiRoute.list)
+
+		// React???
 	}
 }
 
