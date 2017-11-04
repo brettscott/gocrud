@@ -3,7 +3,7 @@ package crud
 type ElementsErrors map[string][]string
 type GlobalErrors []string
 
-func newClientErrors(elementsErrors ElementsErrors, globalErrors GlobalErrors) *ClientErrors {
+func NewClientErrors(elementsErrors ElementsErrors, globalErrors GlobalErrors) *ClientErrors {
 	return &ClientErrors{
 		ElementsErrors: elementsErrors,
 		GlobalErrors:   globalErrors,

@@ -31,9 +31,18 @@ func (c *Crud) AddStore(store Storer) {
 	c.stores = append(c.stores, store)
 }
 
+// GetStores returns all registered stores
+func (c *Crud) GetStores() []Storer {
+	return c.stores
+}
+
 // AddEntity for each entity type (eg User)
 func (c *Crud) AddEntity(entity *Entity) {
 	c.entities[entity.ID] = entity
+}
+
+func (c *Crud) GetEntities() Entities {
+	return c.entities
 }
 
 // AddElementsValidator for all entities
@@ -41,7 +50,11 @@ func (c *Crud) AddElementsValidator(elementsValidator elementsValidatorer) {
 	c.elementsValidators = append(c.elementsValidators, elementsValidator)
 }
 
-// AddEntityElementsValidator for entity
+func (c *Crud) GetElementsValidators() []elementsValidatorer {
+	return c.elementsValidators
+}
+
+// AddEntityElementsValidator adds an elements validator to a specific entity
 func (c *Crud) AddEntityElementsValidator(entityID string, elementsValidator elementsValidatorer) {
 	if _, ok := c.entities[entityID]; !ok {
 		panic(fmt.Sprintf("Entity %s is not yet registered.  Please register first.", entityID))
@@ -49,9 +62,20 @@ func (c *Crud) AddEntityElementsValidator(entityID string, elementsValidator ele
 	c.entities[entityID].AddElementsValidator(elementsValidator)
 }
 
+func (c *Crud) GetEntityElementsValidators(entityID string) ([]elementsValidatorer, error) {
+	if _, ok := c.entities[entityID]; !ok {
+		return nil, fmt.Errorf("Entity %s is not yet registered.  Please register first.", entityID)
+	}
+	return c.entities[entityID].ElementsValidators, nil
+}
+
 // AddMutator for all entities
 func (c *Crud) AddMutator(mutator mutatorer) {
 	c.mutators = append(c.mutators, mutator)
+}
+
+func (c *Crud) GetMutators() []mutatorer {
+	return c.mutators
 }
 
 // AddEntityMutator for entity
@@ -60,6 +84,13 @@ func (c *Crud) AddEntityMutator(entityID string, mutator mutatorer) {
 		panic(fmt.Sprintf("Entity %s is not yet registered.  Please register first.", entityID))
 	}
 	c.entities[entityID].AddMutator(mutator)
+}
+
+func (c *Crud) GetEntityMutators(entityID string) ([]mutatorer, error) {
+	if _, ok := c.entities[entityID]; !ok {
+		return nil, fmt.Errorf("Entity %s is not yet registered.  Please register first.", entityID)
+	}
+	return c.entities[entityID].Mutators, nil
 }
 
 // Handler for mounting routes for CRUD

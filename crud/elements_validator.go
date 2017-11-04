@@ -75,7 +75,7 @@ func (e *elementsValidator) Validate(entity *Entity, record StoreRecord, action 
 
 	if len(elementsErrors) > 0 || len(globalErrors) > 0 {
 		success = false
-		clientErrors = newClientErrors(elementsErrors, globalErrors)
+		clientErrors = NewClientErrors(elementsErrors, globalErrors)
 	}
 
 	return

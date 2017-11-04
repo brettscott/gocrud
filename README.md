@@ -76,25 +76,8 @@ Everythings!
 
 * Update Chi to V3 (replaces /:id with /{id})
 * API
-    * GET
-        * Write Mongo integration test
-    * POST
-        * Write Mongo integration test
-    * PUT
-        * Write Mongo integration test
-    * PATCH
-        * Write Mongo integration test
-    * DELETE
     * LIST
-        * Write Mongo integration test
         * Pagination
-    * Router is very fat.  Write tests and break it up **NEXT**
-    * **next**
-        * api_service is receiving clientErrors and error - how to handle this.  Is it right?
-        * move basic_elements_validator into test file to avoid confusion ?
-        * move basic_mutator into test file to avoid confusion ?
-        * ensure clientErrors is returned as nil from validate() and mutate() when no errors
-    * Better error messages back to the client via /api
     * More validation rules
     * More examples (eg basic_example.go)
     * Authentication and authorisation
@@ -112,18 +95,9 @@ Everythings!
     * Add a SQL adapter as a proof of concept to ensure they can be easily created
 * Neo4j
     * Add adapter
+* Move /crud/ folder into root (/) in order for consumers to use `gocrud.` instead of `crud.`
+* Add statsd metrics
 
-## Packages
-
-* crud
-    * wire up CRUD for consumption by Developer
-* entity
-    * define a flexible schema
-    * ability to model DB schema into a generic data model for crud-ing
-* api
-    * handles HTTP requests to REST interface
-* store
-    * database abstraction - allow Developer to choose database eg Mongo, MySQL
     
 *Workflows:*
 
@@ -167,38 +141,3 @@ Everythings!
 * Element - a child of Entity.  An Entity will typically have more than one element eg id, name, description.
 * Record - represents an Entity Item made up of populated Element `value`s. Think of a Record as a row in a database table.
 
-
-## Models in context
-```
-BROWSER                                    API (CRUD)                                  DATABASE
-
-LIST
-1. ------ GET /api/<entity>  ---------------->
-                                            
-2.                                             <----------- Retrieve list ----------------- 
-                                                            "[]bson.M{}" from Mongo
-                                                         
-3.                                Convert "[]bson.M{}" into
-                                  "[]Record"
-
-4.                                Marshal "[]Record" into "[]api.Record"
-
-5.                                Marshal "[]api.Record" into JSON
-                                                                                                                                       
-6. <------- Return JSON list ------------------
-            JSON
-
-SAVE
-1.  ------- POST /api/<entity>  ---------------->
-            JSON 
-        
-2.                                 Unmarshal JSON into "api.Record"    
-        
-3.                                 Marshal "api.Record" into "Record"
-        
-4.                                 Marshal "Record" into "bson.M{}"
-                                   
-5.                                              ------------- Persist in DB -------------->
-                                                              "bson.M{}" into Mongo
-                                                                                                      
-```
