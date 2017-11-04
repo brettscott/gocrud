@@ -109,6 +109,7 @@ func (c *Crud) Handler() http.Handler {
 	})
 
 	apiRouteHandler := NewApiRoute(c.entities, &c.apiService, c.log, c.statsd)
+	uiRouteHandler := NewUiRoute(c.entities, &c.apiService, c.log, c.statsd)
 
-	return newRouter(c.log, c.statsd, healthcheckHandler, apiRouteHandler)
+	return newRouter(c.log, c.statsd, healthcheckHandler, apiRouteHandler, uiRouteHandler)
 }
