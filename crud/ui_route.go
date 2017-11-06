@@ -3,6 +3,8 @@ package crud
 import (
 	"github.com/pressly/chi"
 	"net/http"
+	"encoding/json"
+	"fmt"
 )
 
 type UIRoute struct {
@@ -34,5 +36,24 @@ func NewUiRoute(entities Entities, apiService apiServicer, log Logger, statsd St
 }
 
 func (u *UIRoute) root(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Welcome to the CRUD"))
+
+	for _, entity := range u.entities {
+
+	}
+	records, err := a.apiService.list(entity)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+		return
+	}
+	jsonResponse, err := json.Marshal(records)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonResponse)
+	return
+
 }
