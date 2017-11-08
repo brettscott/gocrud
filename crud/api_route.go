@@ -42,27 +42,27 @@ func NewApiRoute(entities Entities, apiService apiServicer, log Logger, statsd S
 
 		// List
 		// eg GET http://localhost:8080/gocrud/api/user
-		r.Get("/:entityID", apiRoute.list)
+		r.Get("/{entityID}", apiRoute.list)
 
 		// Get record
 		// eg GET http://localhost:8080/gocrud/api/user/12345
-		r.Get("/:entityID/:recordID", apiRoute.get)
+		r.Get("/{entityID}/{recordID}", apiRoute.get)
 
 		// Post/Create
 		// eg POST http://localhost:8080/gocrud/api/user
-		r.Post("/:entityID", apiRoute.save(true, false))
+		r.Post("/{entityID}", apiRoute.save(true, false))
 
 		// Put/Update
 		// eg PUT http://localhost:8080/gocrud/api/user/1234
-		r.Put("/:entityID/:recordID", apiRoute.save(false, false))
+		r.Put("/{entityID}/{recordID}", apiRoute.save(false, false))
 
 		// Patch/Update partial
 		// eg PATCH http://localhost:8080/gocrud/api/user/1234
-		r.Patch("/:entityID/:recordID", apiRoute.save(false, true))
+		r.Patch("/{entityID}/{recordID}", apiRoute.save(false, true))
 
 		// Delete
 		// eg DELETE http://localhost:8080/gocrud/api/user/1234
-		r.Delete("/:entityID/:recordID", apiRoute.delete)
+		r.Delete("/{entityID}/{recordID}", apiRoute.delete)
 	}
 }
 

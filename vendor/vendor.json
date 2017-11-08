@@ -3,6 +3,30 @@
 	"ignore": "",
 	"package": [
 		{
+			"checksumSHA1": "aXe5xGPtcSG6f29kuPkLiIo2o1g=",
+			"path": "github.com/aymerick/raymond",
+			"revision": "72acac2207479d21dd45898c2a4264246c818148",
+			"revisionTime": "2016-12-09T22:07:24Z"
+		},
+		{
+			"checksumSHA1": "Rvn+RH9pwFno1w6W+mhWsj/PxlA=",
+			"path": "github.com/aymerick/raymond/ast",
+			"revision": "72acac2207479d21dd45898c2a4264246c818148",
+			"revisionTime": "2016-12-09T22:07:24Z"
+		},
+		{
+			"checksumSHA1": "j5VDj4oma4JfGsmHuYaByvANU7A=",
+			"path": "github.com/aymerick/raymond/lexer",
+			"revision": "72acac2207479d21dd45898c2a4264246c818148",
+			"revisionTime": "2016-12-09T22:07:24Z"
+		},
+		{
+			"checksumSHA1": "TjYwYzmSbS9El6JjuWfL0WEipUg=",
+			"path": "github.com/aymerick/raymond/parser",
+			"revision": "72acac2207479d21dd45898c2a4264246c818148",
+			"revisionTime": "2016-12-09T22:07:24Z"
+		},
+		{
 			"checksumSHA1": "WRu+mhZ2PfQu27qRr69HVGjtN4Q=",
 			"path": "github.com/davecgh/go-spew/spew",
 			"revision": "346938d642f2ec3594ed81d874461961cd0faa76",
@@ -13,6 +37,12 @@
 			"path": "github.com/davecgh/go-spew/spew/testdata",
 			"revision": "346938d642f2ec3594ed81d874461961cd0faa76",
 			"revisionTime": "2016-10-29T20:57:26Z"
+		},
+		{
+			"checksumSHA1": "4W95yRdETudsqqpE0wFvqzMWEvo=",
+			"path": "github.com/go-chi/chi",
+			"revision": "40c607ea5d9f34240e783bcdbb701e049fb666d6",
+			"revisionTime": "2017-10-27T18:50:12Z"
 		},
 		{
 			"checksumSHA1": "Thg9sicXr23/02y0VqmmJoEZIzI=",

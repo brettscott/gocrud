@@ -15,12 +15,27 @@ func newRouter(log tools.Logger, statsd tools.StatsD, healthcheckHandlerFunc htt
 	router := chi.NewRouter()
 
 	router.Use(middleware.Timeout(60 * time.Second))
+	//
+	//router.Get("/healthcheck", healthcheckHandlerFunc)
 
-	router.Get("/healthcheck", healthcheckHandlerFunc)
+	//router.Get("/", func(w http.ResponseWriter, r *http.Request) {
+	//	http.Redirect(w, r, "/", http.StatusFound)
+	//	return
+	//})
 
-	router.Route("/api", apiRouteHandler)
+	//ui := UIRoute{}
+	router.Get("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("Hello world"))
+	}))
 
-	router.Route("/", uiRouteHandler)
+	//healthcheckHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	//	w.WriteHeader(http.StatusOK)
+	//	fmt.Fprint(w, "Healthy")
+	//})
+
+	//uiRouteHandler(router)  // mount to the root of this route
+
+	//router.Route("/api", apiRouteHandler)
 
 	return router
 }
