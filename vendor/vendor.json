@@ -39,10 +39,10 @@
 			"revisionTime": "2016-10-29T20:57:26Z"
 		},
 		{
-			"checksumSHA1": "4W95yRdETudsqqpE0wFvqzMWEvo=",
+			"checksumSHA1": "L9Zxs8mGhUP3h1NShoyrfS1cs9Y=",
 			"path": "github.com/go-chi/chi",
-			"revision": "40c607ea5d9f34240e783bcdbb701e049fb666d6",
-			"revisionTime": "2017-10-27T18:50:12Z"
+			"revision": "1cbc3a2b40e78d7612f5ea153d87d537907e8b15",
+			"revisionTime": "2017-11-08T22:29:18Z"
 		},
 		{
 			"checksumSHA1": "Thg9sicXr23/02y0VqmmJoEZIzI=",
