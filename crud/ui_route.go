@@ -2,10 +2,19 @@ package crud
 
 import (
 	"fmt"
+	"github.com/aymerick/raymond"
 	"github.com/pressly/chi"
 	"io/ioutil"
 	"net/http"
 )
+
+const TEMPLATE_PATH string = "crud/templates/%s.hbs"
+
+var templateNames []string = []string{
+	"root",
+}
+
+type templateList map[string]*raymond.Template
 
 func NewUiRoute(entities Entities, apiService apiServicer, log Logger, statsd StatsDer) func(chi.Router) {
 
@@ -14,26 +23,8 @@ func NewUiRoute(entities Entities, apiService apiServicer, log Logger, statsd St
 		log:        log,
 		statsd:     statsd,
 		apiService: apiService,
+		templates:  templates(),
 	}
-
-	templates := []string{
-		"root",
-	}
-
-	templateContents := map[string][]byte{}
-
-	for _, template := range templates {
-		templateContents["root"] = []byte{}
-		filename := fmt.Sprintf("crud/templates/%s.hbs", template)
-		contents, err := ioutil.ReadFile(filename)
-		if err != nil {
-			panic(fmt.Sprintf("Missing template: %s - %+v", template, err))
-		}
-		templateContents["root"] = contents
-	}
-	uiRoute.templates = templateContents
-
-	log.Info(templateContents)
 
 	return func(r chi.Router) {
 
@@ -47,8 +38,23 @@ func NewUiRoute(entities Entities, apiService apiServicer, log Logger, statsd St
 	}
 }
 
-type rootContext struct {
-	entities Entities
+func templates() (tmpls templateList) {
+	tmpls = templateList{}
+
+	for _, name := range templateNames {
+		filename := fmt.Sprintf(TEMPLATE_PATH, name)
+		contents, err := ioutil.ReadFile(filename)
+		if err != nil {
+			panic(fmt.Sprintf("Missing name: %s - %+v", name, err))
+		}
+		tpl, err := raymond.Parse(string(contents))
+		if err != nil {
+			panic(err)
+		}
+		tmpls[name] = tpl
+	}
+
+	return tmpls
 }
 
 type UIRoute struct {
@@ -56,35 +62,19 @@ type UIRoute struct {
 	log        Logger
 	statsd     StatsDer
 	apiService apiServicer
-	templates  map[string][]byte
+	templates  templateList
 }
 
 func (u *UIRoute) root(w http.ResponseWriter, r *http.Request) {
-
-	fmt.Println("ui root called")
-	//result, err := raymond.Render(tpl, ctx)
-
-	w.Write([]byte("Hello"))
-
-	//tpl :=
-	//ctx := rootContext{
-	//	entities: u.entities,
-	//}
-	//result, err := raymond.Render(tpl, ctx)
-	//
-	//if err != nil {
-	//	w.WriteHeader(http.StatusInternalServerError)
-	//	w.Write([]byte(err.Error()))
-	//	return
-	//}
-	//jsonResponse, err := json.Marshal(records)
-	//if err != nil {
-	//	w.WriteHeader(http.StatusInternalServerError)
-	//	w.Write([]byte(err.Error()))
-	//	return
-	//}
-	//w.WriteHeader(http.StatusOK)
-	//w.Write(jsonResponse)
-	return
-
+	ctx := map[string]interface{}{
+		"entities": u.entities,
+	}
+	html, err := u.templates["root"].Exec(ctx)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(html))
 }

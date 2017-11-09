@@ -1,1 +1,14 @@
-This is the root file
+
+<html>
+
+    <body>
+        <ul>
+            {{#each entities}}
+                <li><a href="{{this.ID}}">{{this.Label}}</a></li>
+            {{/each}}
+
+        </ul>
+
+    </body>
+
+</html>
