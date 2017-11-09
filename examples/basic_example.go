@@ -77,7 +77,11 @@ func BasicExample() {
 
 	// Mount Route
 	router := chi.NewRouter()
-	router.Mount("/gocrud", myCrud.Handler())
+	// TODO remove this warning when Chi is fixed
+	router.Get("/gocrud", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("Bug in chi.  Add / to end"))
+	})
+	router.Mount("/gocrud/", myCrud.Handler())
 
 	// Serve HTTP endpoint
 	err = http.ListenAndServe(fmt.Sprintf(":%d", config.Port), router)

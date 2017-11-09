@@ -74,7 +74,6 @@ Create an entry in your `hosts` file for `mongodb` to point to your Docker VM's 
 
 Everythings!
 
-* Update Chi to V3 (replaces /:id with /{id})
 * API
     * LIST
         * Pagination
@@ -95,7 +94,7 @@ Everythings!
     * Add a SQL adapter as a proof of concept to ensure they can be easily created
 * Neo4j
     * Add adapter
-* Move /crud/ folder into root (/) in order for consumers to use `gocrud.` instead of `crud.`
+* Move /crud/ folder into root (/), rename package as `gocrud` in order for consumers to use `gocrud.` instead of `crud.` (or `gocrud.crud.`?).
 * Add statsd metrics
 
     
