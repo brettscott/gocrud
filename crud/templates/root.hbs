@@ -1,14 +1,14 @@
-
 <html>
+<body>
 
-    <body>
-        <ul>
-            {{#each entities}}
-                <li><a href="{{this.ID}}">{{this.Label}}</a></li>
-            {{/each}}
+    <h1>Entities</h1>
 
-        </ul>
+    <ul>
+        {{#each entities}}
+            <li><a href="{{this.ID}}">{{this.Labels}}</a></li>
+        {{/each}}
 
-    </body>
+    </ul>
 
+</body>
 </html>

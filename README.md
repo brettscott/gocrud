@@ -85,7 +85,8 @@ Everythings!
     * Return _crud information in KV to client
 * Front-end
     * Create
-    * Results
+    * Results (/list) 
+        * edit link is not correct because KeyValues is an array and cannot easily get ID value.  Create new struct ???  **NEXT** 
     * Update
     * Delete
 * Mongo

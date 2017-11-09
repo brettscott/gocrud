@@ -18,8 +18,9 @@ func newRouter(log tools.Logger, statsd tools.StatsD, healthcheckHandlerFunc htt
 
 	router.Get("/healthcheck", healthcheckHandlerFunc)
 
-	router.Route("/", uiRouteHandler) // mount to the root of this route
 	router.Route("/api", apiRouteHandler)
+
+	router.Route("/", uiRouteHandler) // mount to the root of this route
 
 	return router
 }

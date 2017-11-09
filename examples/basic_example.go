@@ -73,7 +73,7 @@ func BasicExample() {
 	myCrud.AddMutator(&basicMutator{})
 
 	// Basic validator added
-	myCrud.AddElementsValidator(&basicElementsValidator{})
+	//myCrud.AddElementsValidator(&basicElementsValidator{})  // TODO add a non-destructive validator for illustrative purposes (this one fails on all requests)
 
 	// Mount Route
 	router := chi.NewRouter()

@@ -1,0 +1,23 @@
+<html>
+<body>
+
+    <h1>List: {{entity.Labels}}</h1>
+
+    <ul>
+
+        {{#each rows}}
+            <li>
+                {{@index}}:
+
+                {{#each KeyValues}}
+                    <p>{{this.Key}}: {{this.Value}}</p>
+                {{/each}}
+
+                <p><a href="{{this.ID}}">Edit</a>, <a href="{{this.ID}}/delete">Delete</a>, <a href="{{this.ID}}/clone">Clone</a></p>
+            </li>
+        {{/each}}
+
+    </ul>
+
+</body>
+</html>
