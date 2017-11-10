@@ -1,9 +1,9 @@
 package examples
 
 import (
-	"testing"
-	"github.com/stretchr/testify/assert"
 	"github.com/brettscott/gocrud/crud"
+	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 func TestExampleStaticStore(t *testing.T) {

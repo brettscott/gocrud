@@ -42,8 +42,9 @@ func routerWithTestHandlers(t *testing.T) http.Handler {
 
 	healthcheckHandlerFunc := newHandlerFunc("test response health check")
 	apiRouteHandler := newChiRouteHandler("test response for API route")
+	uiRouteHandler := newChiRouteHandler("test response for UI route")
 
-	return newRouter(testLogger, testStatsD, healthcheckHandlerFunc, apiRouteHandler)
+	return newRouter(testLogger, testStatsD, healthcheckHandlerFunc, apiRouteHandler, uiRouteHandler)
 }
 
 func newHandlerFunc(body string) http.HandlerFunc {

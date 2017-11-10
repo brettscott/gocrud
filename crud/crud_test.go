@@ -1,8 +1,8 @@
 package crud
 
 import (
-	"testing"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 func TestCrud(t *testing.T) {
@@ -43,7 +43,6 @@ func TestCrud(t *testing.T) {
 			assert.Equal(t, 2, len(entities))
 		})
 	})
-
 
 	t.Run("AddElementsValidator", func(t *testing.T) {
 		elementsValidator1 := NewFakeElementsValidatorer()

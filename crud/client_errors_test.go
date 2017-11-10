@@ -1,8 +1,8 @@
 package crud
 
 import (
-	"testing"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 func TestClientErrors(t *testing.T) {
@@ -42,7 +42,7 @@ func TestClientErrors(t *testing.T) {
 			}
 			clientErrors := ClientErrors{
 				ElementsErrors: elementsErrors,
-				GlobalErrors: globalErrors,
+				GlobalErrors:   globalErrors,
 			}
 
 			assert.Equal(t, true, clientErrors.HasErrors())

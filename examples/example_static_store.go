@@ -71,7 +71,7 @@ func (e *ExampleStaticStore) List(entity *crud.Entity) ([]crud.StoreRecord, erro
 func (e *ExampleStaticStore) Get(entity *crud.Entity, recordID string) (crud.StoreRecord, error) {
 	for _, storeRecord := range e.fakeDatabase {
 		if storeRecord["id"].Value == recordID {
-		return storeRecord, nil
+			return storeRecord, nil
 		}
 	}
 	return crud.StoreRecord{}, nil

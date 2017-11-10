@@ -13,6 +13,7 @@ const TEMPLATE_PATH string = "crud/templates/%s.hbs"
 var templateNames []string = []string{
 	"root",
 	"list",
+	"form",
 }
 
 type templateList map[string]*raymond.Template
@@ -34,6 +35,12 @@ func NewUiRoute(entities Entities, apiService apiServicer, log Logger, statsd St
 
 		// List results for a given entity
 		r.Get("/{entityID}", uiRoute.list)
+
+		// List results for a given entity
+		r.Get("/{entityID}/create", uiRoute.form(true))
+
+		// List results for a given entity
+		r.Get("/{entityID}/{recordID}", uiRoute.form(false))
 
 		// React SPA ??
 	}
@@ -108,4 +115,31 @@ func (u *UIRoute) list(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(html))
+}
+
+func (u *UIRoute) form(create bool) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		entityID := chi.URLParam(r, "entityID")
+		recordID := chi.URLParam(r, "recordID")
+		entity, ok := u.entities[entityID]
+		if !ok {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte(fmt.Sprintf("Unknown entity: %s", entityID)))
+			return
+		}
+
+		ctx := map[string]interface{}{
+			"entity":   entity,
+			"recordID": recordID,
+		}
+		html, err := u.templates["form"].Exec(ctx)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(html))
+
+	}
 }

@@ -36,4 +36,3 @@ func (testStatsD TestStatsD) Gauge(name string, value float64, tags ...string) {
 func (testStatsD TestStatsD) Incr(name string, tags ...string) {
 	testStatsD.T.Log("[Incr]", name, tags)
 }
-
