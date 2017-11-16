@@ -3,21 +3,38 @@
 
     <h1>List: {{entity.Labels}}</h1>
 
+
+    <!-- Header helper (wrapper like eachDescending).  Uses elements and entity.List properties for hidden columns etc.  Doesnt need rows at all. -->
+
+    <!-- Helper to return values for each column(field).   -->
+
+
     <ul>
+        <li>
+            <ul>
+                {{#listColumnHeadings entity.Elements}}
+                    <li>
+                        <strong>{{this.Label}}</strong>
+                    </li>
+                {{/listColumnHeadings}}
+            </ul>
+        </li>
 
-        {{#each rows}}
+        {{#listRows entity.Elements rows}}
             <li>
-                {{@index}}:
+                <ul>
+                    {{#listCells entity.Elements this}}
+                        <li>{{this}}</li>
+                    {{/listCells}}
 
-                {{#each KeyValues}}
-                    <p>{{this.Key}}: {{this.Value}}</p>
-                {{/each}}
-
-                <p><a href="{{this.ID}}">Edit</a>, <a href="{{this.ID}}/delete">Delete</a>, <a href="{{this.ID}}/clone">Clone</a></p>
+                </ul>
             </li>
-        {{/each}}
+        {{/listRows}}
 
     </ul>
+
+
+
 
 </body>
 </html>

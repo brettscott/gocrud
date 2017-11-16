@@ -59,6 +59,9 @@ func templates() (tmpls templateList) {
 		if err != nil {
 			panic(err)
 		}
+		tpl.RegisterHelper("listColumnHeadings", ListColumnHeadings)
+		tpl.RegisterHelper("listRows", ListRows)
+		tpl.RegisterHelper("listCells", ListCells)
 		tmpls[name] = tpl
 	}
 
@@ -87,6 +90,31 @@ func (u *UIRoute) root(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(html))
 }
 
+func marshalClientRecordsToRows(entity *Entity, clientRecords []ClientRecord) (rows []row, err error) {
+	rows = []row{}
+
+	for _, clientRecord := range clientRecords {
+		row, err := marshalClientRecordToRow(entity, clientRecord)
+		if err != nil {
+			return rows, err
+		}
+		rows = append(rows, row)
+	}
+	return rows, nil
+}
+
+func marshalClientRecordToRow(entity *Entity, clientRecord ClientRecord) (row, error) {
+	r := row{}
+	for _, element := range entity.Elements {
+		val, err := clientRecord.GetValue(element.ID)
+		if err != nil {
+			return r, nil
+		}
+		r[element.ID] = val
+	}
+	return r, nil
+}
+
 func (u *UIRoute) list(w http.ResponseWriter, r *http.Request) {
 	entityID := chi.URLParam(r, "entityID")
 	entity, ok := u.entities[entityID]
@@ -103,10 +131,19 @@ func (u *UIRoute) list(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	fmt.Printf("clientRecords: %+v\n\n", clientRecords)
+	rows, err := marshalClientRecordsToRows(entity, clientRecords)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
 	ctx := map[string]interface{}{
 		"entity": entity,
-		"rows":   clientRecords,
+		"rows":   rows,
 	}
+	fmt.Printf("ctx: %+v", ctx)
 	html, err := u.templates["list"].Exec(ctx)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -128,9 +165,19 @@ func (u *UIRoute) form(create bool) http.HandlerFunc {
 			return
 		}
 
+		// Get record from MongoDB
+
+		// Convert record into "row" struct
+		row := row{}
+		//for _, field := range records {
+		//	record[field.ID] = field.Value
+		//}
+		row["id"] = "blah"
+
 		ctx := map[string]interface{}{
 			"entity":   entity,
 			"recordID": recordID,
+			"row":      row,
 		}
 		html, err := u.templates["form"].Exec(ctx)
 		if err != nil {

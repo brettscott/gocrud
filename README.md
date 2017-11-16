@@ -86,7 +86,7 @@ Everythings!
 * Front-end
     * Create
     * Results (/list) 
-        * edit link is not correct because KeyValues is an array and cannot easily get ID value.  Create new struct ???  **NEXT** 
+        * edit link is not correct because KeyValues is an array and cannot easily get ID value.  `row.go` struct.  **NEXT** 
     * Update
     * Delete
 * Mongo
@@ -141,3 +141,22 @@ Everythings!
 * Element - a child of Entity.  An Entity will typically have more than one element eg id, name, description.
 * Record - represents an Entity Item made up of populated Element `value`s. Think of a Record as a row in a database table.
 
+
+
+## Structs
+
+```
+  Browser        <-->         Application         <--->        Store/Database  
+  -------                     -----------                      --------------
+   
+  API Route:
+  
+            ClientRecord                    StoreRecord
+            
+            
+  UI Route:    
+  
+                   Row        ClientRecord       StoreRecord
+                   
+```                   
+                 
