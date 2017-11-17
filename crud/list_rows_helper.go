@@ -8,17 +8,24 @@ import (
 func ListRows(elements Elements, rows []row, options *raymond.Options) string {
 	var buffer bytes.Buffer
 
-	//orderedRow := []row{}
-	//for _, col := range elements {
-	//	cell, ok := row[col.ID]
-	//	if !ok {
-	//		continue
-	//	}
-	//
-	//}
+	var primaryKey string
+	for _, element := range elements {
+		if element.PrimaryKey == true {
+			primaryKey = element.ID
+		}
+	}
 
 	for _, row := range rows {
-		buffer.WriteString(options.FnWith(row))
+		ID, ok := row[primaryKey]
+		if !ok {
+			ID = 0
+		}
+		ctx := map[string]interface{}{
+			"ID":  ID,
+			"Row": row,
+		}
+
+		buffer.WriteString(options.FnWith(ctx))
 	}
 
 	return buffer.String()

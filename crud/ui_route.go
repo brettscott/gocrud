@@ -36,11 +36,19 @@ func NewUiRoute(entities Entities, apiService apiServicer, log Logger, statsd St
 		// List results for a given entity
 		r.Get("/{entityID}", uiRoute.list)
 
-		// List results for a given entity
+		// Create a record
 		r.Get("/{entityID}/create", uiRoute.form(true))
 
-		// List results for a given entity
-		r.Get("/{entityID}/{recordID}", uiRoute.form(false))
+		// View record
+		// TODO create route
+		r.Get("/{entityID}/{recordID}/view", uiRoute.view)
+
+		// Edit record
+		r.Get("/{entityID}/{recordID}/edit", uiRoute.form(false))
+
+		// Delete record
+		// TODO create route
+		r.Get("/{entityID}/{recordID}/delete", uiRoute.delete)
 
 		// React SPA ??
 	}
@@ -189,4 +197,16 @@ func (u *UIRoute) form(create bool) http.HandlerFunc {
 		w.Write([]byte(html))
 
 	}
+}
+
+func (u *UIRoute) view(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusInternalServerError)
+	w.Write([]byte("TODO"))
+
+}
+
+func (u *UIRoute) delete(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusInternalServerError)
+	w.Write([]byte("TODO"))
+
 }
