@@ -50,6 +50,9 @@ func NewUiRoute(entities Entities, apiService apiServicer, log Logger, statsd St
 		// TODO create route
 		r.Get("/{entityID}/{recordID}/delete", uiRoute.delete)
 
+		// Save record (triggered by form submit)
+		r.Get("/{entityID}/{recordID}/save", uiRoute.save) // TODO or POST to /create or /edit
+
 		// React SPA ??
 	}
 }
@@ -202,11 +205,14 @@ func (u *UIRoute) form(create bool) http.HandlerFunc {
 func (u *UIRoute) view(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusInternalServerError)
 	w.Write([]byte("TODO"))
-
 }
 
 func (u *UIRoute) delete(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusInternalServerError)
 	w.Write([]byte("TODO"))
+}
 
+func (u *UIRoute) save(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusInternalServerError)
+	w.Write([]byte("TODO"))
 }
