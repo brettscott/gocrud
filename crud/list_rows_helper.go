@@ -2,7 +2,7 @@ package crud
 
 import (
 	"bytes"
-	"github.com/aymerick/raymond"
+	"github.com/mergermarket/raymond"
 )
 
 func ListRows(elements Elements, rows []row, options *raymond.Options) string {

@@ -179,7 +179,6 @@ func (u *UIRoute) form(create bool) http.HandlerFunc {
 		}
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(html))
-
 	}
 }
 

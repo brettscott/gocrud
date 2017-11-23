@@ -2,7 +2,7 @@ package crud
 
 import (
 	"fmt"
-	"github.com/aymerick/raymond"
+	"github.com/mergermarket/raymond"
 	"io/ioutil"
 	"runtime"
 	"path"
@@ -66,7 +66,7 @@ func (t *templateService) templateContents(name string) (string, error) {
 }
 
 func registerTemplateHelpers() {
-	raymond.RegisterHelper("listColumnHeadings", ListColumnHeadings)
-	raymond.RegisterHelper("listRows", ListRows)
-	raymond.RegisterHelper("listCells", ListCells)
+	_ = raymond.RegisterHelper("listColumnHeadings", ListColumnHeadings)
+	_ = raymond.RegisterHelper("listRows", ListRows)
+	_ = raymond.RegisterHelper("listCells", ListCells)
 }

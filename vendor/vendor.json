@@ -3,30 +3,6 @@
 	"ignore": "",
 	"package": [
 		{
-			"checksumSHA1": "aXe5xGPtcSG6f29kuPkLiIo2o1g=",
-			"path": "github.com/aymerick/raymond",
-			"revision": "72acac2207479d21dd45898c2a4264246c818148",
-			"revisionTime": "2016-12-09T22:07:24Z"
-		},
-		{
-			"checksumSHA1": "Rvn+RH9pwFno1w6W+mhWsj/PxlA=",
-			"path": "github.com/aymerick/raymond/ast",
-			"revision": "72acac2207479d21dd45898c2a4264246c818148",
-			"revisionTime": "2016-12-09T22:07:24Z"
-		},
-		{
-			"checksumSHA1": "j5VDj4oma4JfGsmHuYaByvANU7A=",
-			"path": "github.com/aymerick/raymond/lexer",
-			"revision": "72acac2207479d21dd45898c2a4264246c818148",
-			"revisionTime": "2016-12-09T22:07:24Z"
-		},
-		{
-			"checksumSHA1": "TjYwYzmSbS9El6JjuWfL0WEipUg=",
-			"path": "github.com/aymerick/raymond/parser",
-			"revision": "72acac2207479d21dd45898c2a4264246c818148",
-			"revisionTime": "2016-12-09T22:07:24Z"
-		},
-		{
 			"checksumSHA1": "WRu+mhZ2PfQu27qRr69HVGjtN4Q=",
 			"path": "github.com/davecgh/go-spew/spew",
 			"revision": "346938d642f2ec3594ed81d874461961cd0faa76",
@@ -59,6 +35,30 @@
 		{
 			"path": "github.com/mergermarket/gotools",
 			"revision": ""
+		},
+		{
+			"checksumSHA1": "2VqGdh2WQWWfwk+L2WEYriFGdoI=",
+			"path": "github.com/mergermarket/raymond",
+			"revision": "606b41c57083cf411db3940db0f3d61462f79d94",
+			"revisionTime": "2017-04-24T13:21:02Z"
+		},
+		{
+			"checksumSHA1": "5PSaFvvFDki+iXWCzjxF/tx6V74=",
+			"path": "github.com/mergermarket/raymond/ast",
+			"revision": "606b41c57083cf411db3940db0f3d61462f79d94",
+			"revisionTime": "2017-04-24T13:21:02Z"
+		},
+		{
+			"checksumSHA1": "L8dipF9UsCWc9fYtojXsBTKn1ec=",
+			"path": "github.com/mergermarket/raymond/lexer",
+			"revision": "606b41c57083cf411db3940db0f3d61462f79d94",
+			"revisionTime": "2017-04-24T13:21:02Z"
+		},
+		{
+			"checksumSHA1": "/spR9+ZftbTvN7G40t1L2/zWJtM=",
+			"path": "github.com/mergermarket/raymond/parser",
+			"revision": "606b41c57083cf411db3940db0f3d61462f79d94",
+			"revisionTime": "2017-04-24T13:21:02Z"
 		},
 		{
 			"checksumSHA1": "RZOdTSZN/PgcTqko5LzIAzw+UT4=",
