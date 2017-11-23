@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"github.com/aymerick/raymond"
 	"io/ioutil"
-	"path/filepath"
+	"runtime"
+	"path"
 )
 
 const TEMPLATE_PATH string = "./templates/%s.hbs"
@@ -38,17 +39,30 @@ func (t *templateService) parseTemplates() {
 	t.list = map[string]*raymond.Template{}
 
 	for _, name := range templateNames {
-		filename, _ := filepath.Abs(fmt.Sprintf(TEMPLATE_PATH, name))
-		contents, err := ioutil.ReadFile(filename)
+		contents, err := t.templateContents(name)
 		if err != nil {
-			panic(fmt.Sprintf("template \"%s\" not found in filesystem: %s", name, err))
+			panic(err)
 		}
-		tpl, err := raymond.Parse(string(contents))
+
+		tpl, err := raymond.Parse(contents)
 		if err != nil {
 			panic(err)
 		}
 		t.list[name] = tpl
 	}
+}
+
+func (t *templateService) templateContents(name string) (string, error) {
+	_, filename, _, ok := runtime.Caller(1)
+	if !ok {
+		panic("failed to identify runtime caller to parse templates")
+	}
+	fp := path.Join(path.Dir(filename), fmt.Sprintf(TEMPLATE_PATH, name))
+	contents, err := ioutil.ReadFile(fp)
+	if err != nil {
+		return "", fmt.Errorf("template \"%s\" not found in filesystem: %s", name, err)
+	}
+	return string(contents), nil
 }
 
 func registerTemplateHelpers() {
