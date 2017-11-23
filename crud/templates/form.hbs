@@ -3,11 +3,24 @@
 
 <h1>Form: {{entity.Labels}} {{recordID}}</h1>
 
+{{#if create}}
+    <p>New</p>
+{{else}}
+    <p>Update</p>
+{{/if}}
+
 <form>
 
     // Iterate over each element
     // Populating data for each element (if it's create:false)
 
+    <ul>
+        {{#each entity.Elements}}
+            <li>
+               {{this.ID}}
+            </li>
+        {{/each}}
+    </ul>
 
 </form>
 

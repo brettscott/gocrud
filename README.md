@@ -97,7 +97,9 @@ Everythings!
     * Add adapter
 * Move /crud/ folder into root (/), rename package as `gocrud` in order for consumers to use `gocrud.` instead of `crud.` (or `gocrud.crud.`?).
 * Add statsd metrics
-
+* Review packages and dependencies (cyclic) 
+    * https://medium.com/@benbjohnson/standard-package-layout-7cdbc8391fc1
+    * http://idiomaticgo.com/post/best-practice/server-project-layout/
     
 *Workflows:*
 

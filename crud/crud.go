@@ -102,6 +102,7 @@ func (c *Crud) Handler() http.Handler {
 	}
 
 	c.apiService = newApiService(c.stores, c.elementsValidators, c.mutators)
+	templateService := newTemplateService()
 
 	healthcheckHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
@@ -109,7 +110,7 @@ func (c *Crud) Handler() http.Handler {
 	})
 
 	apiRouteHandler := NewApiRoute(c.entities, &c.apiService, c.log, c.statsd)
-	uiRouteHandler := NewUiRoute(c.entities, &c.apiService, c.log, c.statsd)
+	uiRouteHandler := NewUiRoute(c.entities, &c.apiService, templateService, c.log, c.statsd)
 
 	return newRouter(c.log, c.statsd, healthcheckHandler, apiRouteHandler, uiRouteHandler)
 }
