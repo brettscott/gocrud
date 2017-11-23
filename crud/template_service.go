@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"github.com/mergermarket/raymond"
 	"io/ioutil"
-	"runtime"
 	"path"
+	"runtime"
 )
 
 const TEMPLATE_PATH string = "./templates/%s.hbs"
@@ -69,4 +69,5 @@ func registerTemplateHelpers() {
 	_ = raymond.RegisterHelper("listColumnHeadings", ListColumnHeadings)
 	_ = raymond.RegisterHelper("listRows", ListRows)
 	_ = raymond.RegisterHelper("listCells", ListCells)
+	_ = raymond.RegisterHelper("formElements", FormElements)
 }

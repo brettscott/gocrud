@@ -1,26 +1,22 @@
 <html>
 <body>
 
-<h1>Form: {{entity.Labels}} {{recordID}}</h1>
-
 {{#if create}}
-    <p>New</p>
+    <h1>Create {{entity.Label}}</h1>
 {{else}}
-    <p>Update</p>
+    <p>Update {{entity.Label}}</p>
 {{/if}}
 
 <form>
 
-    // Iterate over each element
-    // Populating data for each element (if it's create:false)
+    {{#formElements entity.Elements row}}
 
-    <ul>
-        {{#each entity.Elements}}
-            <li>
-               {{this.ID}}
-            </li>
-        {{/each}}
-    </ul>
+        <div class="form-group">
+            <label for="{{this.ID}}">{{this.Label}}</label>
+            <input type="text" class="form-control" id="{{this.ID}}" placeholder="" value="{{this.Value}}" />
+        </div>
+
+     {{/formElements}}
 
 </form>
 
