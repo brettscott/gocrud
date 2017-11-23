@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"github.com/aymerick/raymond"
 	"io/ioutil"
+	"path/filepath"
 )
 
-const TEMPLATE_PATH string = "crud/templates/%s.hbs"
+const TEMPLATE_PATH string = "./templates/%s.hbs"
 
 // TODO read files from filesystem instead of having to register them
 var templateNames []string = []string{
@@ -37,7 +38,7 @@ func (t *templateService) parseTemplates() {
 	t.list = map[string]*raymond.Template{}
 
 	for _, name := range templateNames {
-		filename := fmt.Sprintf(TEMPLATE_PATH, name)
+		filename, _ := filepath.Abs(fmt.Sprintf(TEMPLATE_PATH, name))
 		contents, err := ioutil.ReadFile(filename)
 		if err != nil {
 			panic(fmt.Sprintf("template \"%s\" not found in filesystem: %s", name, err))
