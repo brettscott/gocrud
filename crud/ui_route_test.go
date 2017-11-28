@@ -13,20 +13,24 @@ func TestNewUiRoute(t *testing.T) {
 	testLog := NewTestLog(t)
 	testStatsD := NewTestStatsD(t)
 
+	idElement := Element{
+		ID:         "id",
+		Label:      "Identifier",
+		DataType:   ELEMENT_DATA_TYPE_STRING,
+		PrimaryKey: true,
+	}
+	nameElement := Element{
+		ID:       "name",
+		Label:    "Name",
+		DataType: ELEMENT_DATA_TYPE_STRING,
+	}
+
+
 	userEntity := &Entity{
 		ID: "users",
 		Elements: []Element{
-			{
-				ID:         "id",
-				Label:      "Identifier",
-				DataType:   ELEMENT_DATA_TYPE_STRING,
-				PrimaryKey: true,
-			},
-			{
-				ID:       "name",
-				Label:    "Name",
-				DataType: ELEMENT_DATA_TYPE_STRING,
-			},
+			idElement,
+			nameElement,
 		},
 	}
 	entities := Entities{
@@ -132,7 +136,16 @@ func TestNewUiRoute(t *testing.T) {
 				"create":   true,
 				"entity":   userEntity,
 				"recordID": "",
-				"row":      row{},
+				"elementValues": []ElementValue{
+					{
+						Element: idElement,
+						Value: nil,
+					},
+					{
+						Element: nameElement,
+						Value: nil,
+					},
+				},
 			}
 			assert.Equal(t, "form", fakeTemplateService.execTmplName, "Incorrect template name")
 			assert.Equal(t, expectedContext, fakeTemplateService.execContext, "Incorrect context")
@@ -181,9 +194,15 @@ func TestNewUiRoute(t *testing.T) {
 				"create":   false,
 				"entity":   userEntity,
 				"recordID": "12345",
-				"row":      row{
-					"id": "12345",
-					"name": "Bruce Lee",
+				"elementValues": []ElementValue{
+					{
+						Element: idElement,
+						Value: "12345",
+					},
+					{
+						Element: nameElement,
+						Value: "Bruce Lee",
+					},
 				},
 			}
 			assert.True(t, fakeApiService.getCalled, "Should have requested get()")

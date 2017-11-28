@@ -137,6 +137,26 @@ func (u *UIRoute) list(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(html))
 }
 
+type ElementValue struct {
+	Element
+	Value interface{}
+}
+
+func marshalClientRecordToElementValues(entity *Entity, clientRecord ClientRecord) []ElementValue {
+	var evs []ElementValue
+	for _, element := range entity.Elements {
+		ev := ElementValue{
+			Element: element,
+		}
+		val, err := clientRecord.GetValue(element.ID)
+		if err == nil {
+			ev.Value = val
+		}
+		evs = append(evs, ev)
+	}
+	return evs
+}
+
 func (u *UIRoute) form(create bool) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		entityID := chi.URLParam(r, "entityID")
@@ -148,28 +168,23 @@ func (u *UIRoute) form(create bool) http.HandlerFunc {
 			return
 		}
 
-		row := row{}
+		clientRecord := ClientRecord{}
 		if !create {
-			clientRecord, err := u.apiService.get(entity, recordID)
-			if err != nil {
-				w.WriteHeader(http.StatusInternalServerError)
-				w.Write([]byte(err.Error()))
-				return
-			}
-
-			row, err = marshalClientRecordToRow(entity, clientRecord)
+			var err error
+			clientRecord, err = u.apiService.get(entity, recordID)
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 				w.Write([]byte(err.Error()))
 				return
 			}
 		}
+		evs := marshalClientRecordToElementValues(entity, clientRecord)
 
 		ctx := map[string]interface{}{
 			"create":   create,
 			"entity":   entity,
 			"recordID": recordID,
-			"row":      row,
+			"elementValues": evs,
 		}
 		html, err := u.templateService.exec("form", ctx)
 		if err != nil {
