@@ -11,6 +11,7 @@ type basicMutator struct {
 
 // mutate will trim whitespace from beginning and end of all element values which have the data type of a "string"
 func (m *basicMutator) Mutate(entity *crud.Entity, storeRecord *crud.StoreRecord, action string) (clientErrors *crud.ClientErrors, err error) {
+	clientErrors = &crud.ClientErrors{}
 	for id, field := range *storeRecord {
 		element, err := entity.GetElement(id)
 		if err != nil {

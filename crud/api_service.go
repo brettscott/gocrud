@@ -2,6 +2,7 @@ package crud
 
 import (
 	"fmt"
+	"strconv"
 )
 
 type elementsValidatorer interface {
@@ -68,9 +69,10 @@ func (a *apiService) get(entity *Entity, recordID string) (clientRecord ClientRe
 }
 
 func (a *apiService) save(entity *Entity, action string, clientRecord *ClientRecord, recordID string) (savedClientRecord ClientRecord, clientErrors *ClientErrors, err error) {
+	clientErrors = &ClientErrors{}
 	storeRecord, err := marshalClientRecordToStoreRecord(entity, clientRecord, action)
 	if err != nil {
-		return
+		return savedClientRecord, clientErrors, nil
 	}
 
 	mergedElementsValidators := append(a.elementsValidators, entity.ElementsValidators...)
@@ -78,6 +80,9 @@ func (a *apiService) save(entity *Entity, action string, clientRecord *ClientRec
 		// TODO Goroutine in order to run through each validator and report all issues that each validator finds
 		var isValid bool
 		isValid, validateClientErrors := validator.Validate(entity, storeRecord, action)
+		if validateClientErrors == nil {
+			validateClientErrors = clientErrors
+		}
 		if !isValid {
 			err = fmt.Errorf(`validation failure for entity "%s"`, entity.Label)
 			return savedClientRecord, validateClientErrors, err
@@ -89,6 +94,9 @@ func (a *apiService) save(entity *Entity, action string, clientRecord *ClientRec
 	for _, mutator := range mergedMutators {
 		// TODO Goroutine in order to run through each validator and report all issues that each validator finds
 		mutateClientErrors, err := mutator.Mutate(entity, &storeRecord, action)
+		if mutateClientErrors == nil {
+			mutateClientErrors = clientErrors
+		}
 		if err != nil {
 			err = fmt.Errorf(`mutation error for entity "%s" with error: %v`, entity.Label, err)
 			return savedClientRecord, mutateClientErrors, err
@@ -174,8 +182,15 @@ func marshalClientRecordToStoreRecord(entity *Entity, clientRecord *ClientRecord
 			if action == ACTION_POST && element.PrimaryKey == true {
 				continue
 			}
+			val := keyValue.Value
+			if element.DataType == ELEMENT_DATA_TYPE_NUMBER {
+				f, err := strconv.ParseFloat(val.(string), 64)
+				if err == nil {
+					val = f
+				}
+			}
 			if keyValue.Key == element.ID {
-				field.Value = keyValue.Value
+				field.Value = val
 				field.Hydrated = true
 				break
 			}

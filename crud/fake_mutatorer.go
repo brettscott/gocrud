@@ -14,7 +14,9 @@ func newFakeEmptyMutatorers() []mutatorer {
 
 // newFakeElementsValidatorers returns a elementsValidator
 func newFakeMutatorer() mutatorer {
-	return &FakeMutatorer{}
+	mutator := &FakeMutatorer{}
+	mutator.ClientErrors = &ClientErrors{}
+	return mutator
 }
 
 type FakeMutatorer struct {
