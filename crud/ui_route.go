@@ -128,7 +128,7 @@ func (u *UIRoute) list(w http.ResponseWriter, r *http.Request) {
 		"entity": entity,
 		"rows":   rows,
 	}
-	fmt.Printf("ctx: %+v", ctx)
+	fmt.Printf("\nlist ctx: %+v\n", ctx)
 	html, err := u.templateService.exec("list", ctx)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -188,6 +188,7 @@ func (u *UIRoute) form(create bool) http.HandlerFunc {
 			"recordID":      recordID,
 			"elementValues": evs,
 		}
+		fmt.Printf("\nrendering form with ctx: %+v\n", ctx)
 		html, err := u.templateService.exec("form", ctx)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -225,15 +226,32 @@ func (u *UIRoute) save(action string) http.HandlerFunc {
 			w.Write([]byte(fmt.Sprintf("Missing record ID: %s", recordID)))
 			return
 		}
-		fmt.Printf("Form: %+v, Body: %+v", r.Form, r.Body)
+		fmt.Printf("\nSubmitted Form: %+v, Body: %+v\n", r.Form, r.Body)
 		clientRecord := marshalFormToClientRecord(entity, r.Form)
 
 		fmt.Printf("clientRecord: %+v", clientRecord)
 
 		savedClientRecord, clientErrors, err := u.apiService.save(entity, action, clientRecord, recordID)
 		if clientErrors.HasErrors() {
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(fmt.Sprintf("Client Errors - elements: %+v, global: %+v", clientErrors.ElementsErrors, clientErrors.GlobalErrors)))
+			elementValues := marshalClientRecordToElementValues(entity, *clientRecord)
+			create := len(recordID) == 0
+			ctx := map[string]interface{}{
+				"create":        create,
+				"entity":        entity,
+				"recordID":      recordID,
+				"elementValues": elementValues,
+			}
+
+			fmt.Printf("\nSave failed, show form again - ctx: %+v\n", ctx)
+
+			html, err := u.templateService.exec("form", ctx)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				w.Write([]byte(err.Error()))
+				return
+			}
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(html))
 			return
 		}
 		if err != nil {

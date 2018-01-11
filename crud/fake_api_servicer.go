@@ -2,8 +2,8 @@ package crud
 
 func NewFakeApiServicer() *fakeApiServicer {
 	return &fakeApiServicer{
-		listCalled: false,
-		getCalled: false,
+		listCalled:               false,
+		getCalled:                false,
 		saveResponseClientErrors: &ClientErrors{},
 	}
 }
@@ -11,19 +11,19 @@ func NewFakeApiServicer() *fakeApiServicer {
 type fakeApiServicer struct {
 	listResponseBody         ClientRecords
 	listResponseError        error
-	listCalled				 bool
+	listCalled               bool
 	getResponseBody          ClientRecord
 	getResponseError         error
-	getRequestEntity	     *Entity
-	getRequestRecordID	     string
-	getCalled				 bool
-	saveAction			     string
-	saveClientRecord	 	 *ClientRecord
-	saveRecordID			 string
+	getRequestEntity         *Entity
+	getRequestRecordID       string
+	getCalled                bool
+	saveAction               string
+	saveClientRecord         *ClientRecord
+	saveRecordID             string
 	saveResponseBody         ClientRecord
 	saveResponseClientErrors *ClientErrors
 	saveResponseError        error
-	saveCalled				 bool
+	saveCalled               bool
 	deleteResponseError      error
 }
 

@@ -5,7 +5,6 @@ import (
 	"github.com/mergermarket/raymond"
 )
 
-
 // EachIndividualDescending combines all individuals liquidity events into one collection for rendering
 func ListColumnHeadings(elements Elements, options *raymond.Options) string {
 	var buffer bytes.Buffer

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/mergermarket/raymond"
 	"io/ioutil"
+	"os"
 	"path"
 	"runtime"
 )
@@ -53,6 +54,17 @@ func (t *templateService) parseTemplates() {
 }
 
 func (t *templateService) templateContents(name string) (string, error) {
+	contents, err := readFileFromPathDefinedFromRuntimeCaller(name)
+	if err != nil {
+		contents, err = readFileFromPathDefinedFromWorkingDirectory(name)
+		if err != nil {
+			return "", fmt.Errorf("template \"%s\" not found in filesystem: %s", name, err)
+		}
+	}
+	return string(contents), nil
+}
+
+func readFileFromPathDefinedFromRuntimeCaller(name string) ([]byte, error) {
 	_, filename, _, ok := runtime.Caller(1)
 	if !ok {
 		panic("failed to identify runtime caller to parse templates")
@@ -60,9 +72,22 @@ func (t *templateService) templateContents(name string) (string, error) {
 	fp := path.Join(path.Dir(filename), fmt.Sprintf(TEMPLATE_PATH, name))
 	contents, err := ioutil.ReadFile(fp)
 	if err != nil {
-		return "", fmt.Errorf("template \"%s\" not found in filesystem: %s", name, err)
+		return nil, fmt.Errorf("failed to load from runtime caller - fp: \"%s\", err: \"%s\"\n", fp, err)
 	}
-	return string(contents), nil
+	return contents, err
+}
+
+func readFileFromPathDefinedFromWorkingDirectory(name string) ([]byte, error) {
+	dir, err := os.Getwd()
+	if err != nil {
+		return nil, err
+	}
+	fp := path.Join(dir, fmt.Sprintf(TEMPLATE_PATH, name))
+	contents, err := ioutil.ReadFile(fp)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load from working directory - fp: \"%s\", err: \"%s\"\n", fp, err)
+	}
+	return contents, err
 }
 
 func registerTemplateHelpers() {

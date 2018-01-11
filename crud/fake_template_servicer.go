@@ -5,10 +5,10 @@ func NewFakeTemplateServicer() *fakeTemplateServicer {
 }
 
 type fakeTemplateServicer struct {
-	execHtml  string
-	execError error
+	execHtml     string
+	execError    error
 	execTmplName string
-	execContext map[string]interface{}
+	execContext  map[string]interface{}
 }
 
 func (f *fakeTemplateServicer) exec(tmplName string, ctx map[string]interface{}) (html string, err error) {

@@ -165,7 +165,8 @@ func TestAPIService(t *testing.T) {
 			savedClientRecord, clientErrors, err := apiService.save(testUsersEntity, ACTION_POST, clientRecord, recordID)
 			assert.NoError(t, err)
 
-			assert.Nil(t, clientErrors)
+			assert.NotNil(t, clientErrors)
+			assert.Equal(t, false, clientErrors.HasErrors(), "Should not have any errors")
 
 			// Test data persisted to store
 			assert.Equal(t, 1, fakeStore.PostCalled)
@@ -219,7 +220,9 @@ func TestAPIService(t *testing.T) {
 			apiService := newApiService(fakeStores, fakeElementsValidators, mutators)
 			_, clientErrors, err := apiService.save(testUsersEntity, ACTION_POST, clientRecord, recordID)
 			assert.NoError(t, err)
-			assert.Nil(t, clientErrors)
+			assert.NotNil(t, clientErrors)
+			assert.Equal(t, false, clientErrors.HasErrors(), "Should not have any errors")
+
 			assert.Equal(t, 1, fakeStore.PostCalled, "Should post to store")
 			storedName, err := fakeStore.PostStoreRecord.GetValue("name")
 			assert.NoError(t, err)

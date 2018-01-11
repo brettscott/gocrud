@@ -43,7 +43,8 @@ func TestBasicMutator(t *testing.T) {
 		clientErrors, err := basicMutator.Mutate(testEntity, &userData, crud.ACTION_POST)
 
 		assert.NoError(t, err, "Should not error")
-		assert.Nil(t, clientErrors)
+		assert.NotNil(t, clientErrors)
+		assert.Equal(t, false, clientErrors.HasErrors(), "Should not have any errors")
 		assert.Equal(t, "John Smith", userData["name"].Value, "Name value is wrong")
 	})
 }
